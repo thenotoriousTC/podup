@@ -1,16 +1,16 @@
 import { View, Text, Pressable, Image } from "react-native";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import dummybooks from "@/dummybooks";
 import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import PlaybackBar from "@/components/PlaybackBar";
 import { Ionicons } from "@expo/vector-icons";
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import {  useAudioPlayerStatus } from 'expo-audio';
+import { usePlayer } from "@/providers/playerprovider";
 
 export default function Player() {
-  const book = dummybooks[1];
-  const player = useAudioPlayer({ uri: book.audio_url });
+  //const player = useAudioPlayer({ uri: podcast.audio_url });
+  const {player,podcast}= usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
 
   return (
@@ -39,7 +39,7 @@ export default function Player() {
             }}
           >
             <Image 
-              source={{ uri: book.thumbnail_url }} 
+              source={{ uri: podcast.thumbnail_url }} 
               className="w-full h-full" 
               resizeMode="cover"
             />
@@ -56,7 +56,7 @@ export default function Player() {
               }}
               numberOfLines={2}
             >
-              {book.title}
+              {podcast.title}
             </Text>
             <Text 
               className="text-lg text-gray-500 text-center"
@@ -65,7 +65,7 @@ export default function Player() {
                 fontWeight: '500'
               }}
             >
-              {book.author}
+              {podcast.author}
             </Text>
           </View>
         </View>

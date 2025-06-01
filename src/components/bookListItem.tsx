@@ -2,31 +2,47 @@ import { StatusBar } from 'expo-status-bar';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {AntDesign} from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { usePlayer } from '@/providers/playerprovider';
 
-type Book ={
-    id:string;
-    title : string;
-    author : string;
-    audio_url : string;
-    thumbnail_url ?: string;
-}
-type BookListItem ={
-book :Book
+interface Podcast {
+    id: string;
+    title: string;
+    author: string;
+    audio_url: string;
+    thumbnail_url?: string;
 }
 
-export default function BookListItem ({book}:BookListItem) {
-  return (
-    <Link  href='/player' asChild>
-    <Pressable className='flex-row gap-4 items-center'>
-      <Image source={{uri:book.thumbnail_url}}
-      className='w-16 aspect-square rounded-md'
-      />
-      <View className='flex-1'>
-        <Text >{book.author}</Text>
-      <Text className='text-2xl text-red-500'>{book.title}</Text>
-     
-      <StatusBar style="auto" />
-    </View>
-     <AntDesign name='playcircleo' size={24}/>
-    </Pressable></Link>)
+interface PodcastListItemProps {
+    podcast: Podcast;
+}
+
+export default function PodcastListItem({ podcast }: PodcastListItemProps) {
+    const { setPodcast, player } = usePlayer();
+
+    const handlePress = async () => {
+        try {
+            setPodcast(podcast);
+            await player.play();
+        } catch (error) {
+            console.error('Error playing audio:', error);
+        }
+    };
+
+    return (
+        <Pressable
+            onPress={handlePress}
+            className='flex-row gap-4 items-center p-4 active:opacity-70'
+        >
+            <Image 
+                source={{ uri: podcast.thumbnail_url }}
+                className='w-16 aspect-square rounded-md'
+            />
+            <View className='flex-1'>
+                <Text className='text-gray-600'>{podcast.author}</Text>
+                <Text className='text-2xl text-red-500'>{podcast.title}</Text>
+                <StatusBar style="auto" />
+            </View>
+            <AntDesign name='playcircleo' size={24} color="#666" />
+        </Pressable>
+    );
 }

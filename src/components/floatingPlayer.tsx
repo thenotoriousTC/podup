@@ -2,9 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {AntDesign} from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import dummybooks from '@/dummybooks';
-import { use } from 'react';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { useAudioPlayerStatus } from 'expo-audio';
+import { usePlayer } from '@/providers/playerprovider';
 /*
 type Book ={
     id:string;
@@ -18,26 +17,27 @@ book :Book
 }
 */
 export default function FloatingPlayer () {
-    const book = dummybooks[1];
-    const player = useAudioPlayer({ uri: book.audio_url });
+    
+   // const player = useAudioPlayer({ uri: book.audio_url });
+   const {player,podcast}=usePlayer()
    const playerStatus= useAudioPlayerStatus(player);
-
+  if ( !podcast) return null;
   return (
     <View className=' left-1 right-1 bg-white p-2 shadow-2xl shadow-black rounded-t-lg'>
     <Link  href='/player' asChild>
       <Pressable className='flex-row gap-4 items-center '>
-        <Image source={{uri:book.thumbnail_url}}
+        <Image source={{uri:podcast.thumbnail_url}}
          className='w-16 aspect-square rounded-md'
           />
         <View className='flex-1'>
-          <Text >{book.author}</Text>
-      <Text className='text-2xl text-red-500'>{book.title}</Text>
+          <Text >{podcast.author}</Text>
+      <Text className='text-2xl text-red-500'>{podcast.title}</Text>
       
       <StatusBar style="auto" />
-    </View><
+    </View>
         
         
-        AntDesign name={playerStatus.playing?"pause":"playcircleo"} size={24} onPress={() => {
+        <AntDesign name={playerStatus.isBuffering?"loading2":playerStatus.playing?"pause":"playcircleo"} size={24} onPress={() => {
           playerStatus.playing ? player.pause() : player.play();
            
         }
