@@ -1,21 +1,35 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from 'react-native';
 import PodcastListItem from '../../../components/bookListItem';
-import { useUser } from '@clerk/clerk-expo';
-import { useSupabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from 'react';
+import { User } from '@supabase/supabase-js';
 import { useQuery } from '@tanstack/react-query';
 
 
 export default function App() {
-  const {user}=useUser();
-  const supabase=useSupabase();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Error fetching user:', error.message);
+      } else {
+        setCurrentUser(user);
+      }
+    };
+    fetchUser();
+  }, []);
   const {data,isLoading,error}=useQuery({
-    queryKey :['my-library'],
+    queryKey :['my-library', currentUser?.id],
     queryFn:async()=> {
-      const { data, error } = await supabase.from('user-library').select('*,podcast:podcasts(*)').eq('user_id',user?.id).throwOnError();
+      if (!currentUser?.id) return null; // Or throw an error, or return empty array
+      const { data, error } = await supabase.from('user-library').select('*,podcast:podcasts(*)').eq('user_id',currentUser.id).throwOnError();
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: !!currentUser?.id // Only run the query if currentUser.id exists
   })
   if (isLoading) return <ActivityIndicator/>
   if (error) return <Text>Error: {error.message}</Text>

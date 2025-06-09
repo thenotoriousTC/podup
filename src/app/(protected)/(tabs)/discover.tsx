@@ -9,14 +9,13 @@ import {
   TextInput,
   TouchableOpacity
 } from 'react-native';
-import { useSupabase } from '@/lib/supabase';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import DiscoveryPodcastListItem from '@/components/discoveryBookListItem';
+import { supabase } from '@/lib/supabase';
 
 export default function App() {
-  const supabase = useSupabase();
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data, isLoading, error } = useQuery({

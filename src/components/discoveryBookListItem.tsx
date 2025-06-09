@@ -3,10 +3,10 @@ import { Image, Pressable, StyleSheet, Text, View, Alert } from 'react-native';
 import {AntDesign} from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { usePlayer } from '@/providers/playerprovider';
-import { useSupabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUser } from '@clerk/clerk-expo';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { User } from '@supabase/supabase-js';
 
 interface Podcast {
     id: string;
@@ -22,14 +22,26 @@ interface DiscoveryPodcastListItemProps {
 
 export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastListItemProps) {
     const { setPodcast, player } = usePlayer();
-    const supabase=useSupabase();
-    const queryClient=useQueryClient();
-    const {user}=useUser();
+    const supabaseClient = supabase; // Use the imported supabase client directly
+    const queryClient = useQueryClient();
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isInLibrary, setIsInLibrary] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
+            if (error) {
+                console.error('Error fetching user:', error.message);
+            } else {
+                setCurrentUser(user);
+            }
+        };
+        fetchUser();
+    }, [supabaseClient]);
     const {mutate}=useMutation({
-        mutationFn:async()=>supabase.from('user-library').insert({
+        mutationFn:async()=>supabaseClient.from('user-library').insert({
             podcast_id:podcast.id,
-            user_id:user?.id,
+            user_id:currentUser?.id,
 
         }).throwOnError(),
         onSuccess:()=>{

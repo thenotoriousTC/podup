@@ -4,8 +4,9 @@ import {
   ThemeProvider,
   DefaultTheme,
 } from "@react-navigation/native";
-import { ClerkProvider } from "@clerk/clerk-expo";
-import { tokenCache } from '@clerk/clerk-expo/token-cache'
+import { supabase } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js';
+import React, { useState, useEffect, useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Slot } from "expo-router";
 import PlayerProvider from "@/providers/playerprovider";
@@ -17,9 +18,30 @@ export default function RootLayout() {
     Lobster_400Regular,
   });
 
-  const queryClient = new QueryClient();
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
 
-  const theme = {
+  useEffect(() => {
+    setSessionLoading(true); // Explicitly set loading to true at the start of the effect
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setSessionLoading(false);
+    }).catch(() => setSessionLoading(false)); // Also set loading false on error
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      setSession(currentSession);
+      // If an auth state change happens, we are no longer in the "initial" session loading phase.
+      setSessionLoading(false); 
+    });
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  const queryClient = useMemo(() => new QueryClient(), []);
+
+  const theme = useMemo(() => ({
     ...DefaultTheme,
     colors: {
       ...DefaultTheme.colors,
@@ -30,26 +52,19 @@ export default function RootLayout() {
       border: "#dddddd",
       notification: "#ff453a",
     },
-  };
+  }), []);
 
-  // Wait for fonts to load before rendering the app
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading fonts...</Text>
-      </View>
-    );
-  }
+
+  // You might want to show a loading indicator while the session is being fetched
+  // For now, we'll proceed to render, and navigation logic will handle auth state
 
   return (
     <ThemeProvider value={theme}>
       <QueryClientProvider client={queryClient}>
-        <ClerkProvider tokenCache={tokenCache}>
-          <PlayerProvider>
-            <Slot />
-          </PlayerProvider>
-        </ClerkProvider>
+        <PlayerProvider>
+          <Slot />
+        </PlayerProvider>
       </QueryClientProvider>
     </ThemeProvider>
-  )
+  );
 }

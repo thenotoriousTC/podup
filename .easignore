@@ -1,0 +1,121 @@
+# OSX
+.DS_Store
+
+# Xcode
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+ios/.xcode.env.local
+
+# Android/IntelliJ
+build/
+.idea
+.gradle
+local.properties
+*.iml
+*.hprof
+.cxx
+
+# Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Fastlane
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Bundle artifact
+*.jsbundle
+
+# Ruby / CocoaPods
+/ios/Pods/
+/vendor/bundle/
+
+# Temporary files
+*.swp
+*~
+
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+
+# Build outputs
+android/app/build/
+
+
+# Documentation
+**/docs/
+**/README.md
+
+# Test files
+**/__tests__/
+**/*.test.js
+**/*.spec.js
+**/*.test.ts
+**/*.spec.ts
+**/__mocks__/
+
+# Local development
+.local-*
+
+# Expo
+.expo/
+web-build/
+dist/
+
+# Git
+.git/
+.gitignore
+
+# Cache
+.cache/
+
+
+# Android build files
+android/
+!android/app/build.gradle
+!android/build.gradle
+!android/settings.gradle
+!android/gradle.properties
+!android/gradle/
+!android/gradlew
+!android/gradlew.bat
+
+# iOS build files
+ios/
+!ios/Podfile
+!ios/Podfile.lock
+!ios/Podfile.properties.json
+!ios/Podfile.properties.json.license
+!ios/YourAppName.xcodeproj/project.pbxproj
+!ios/YourAppName/Info.plist
+!ios/YourAppName/Images.xcassets/AppIcon.appiconset/
+!ios/YourAppName/Images.xcassets/Contents.json
+!ios/YourAppName/Images.xcassets/SplashScreenBackground.imageset/
+!ios/YourAppName/Images.xcassets/SplashScreenBackground.imageset/Contents.json
+!ios/YourAppName/Images.xcassets/SplashScreenBackground.imageset/image.png
+!ios/YourAppName/Images.xcassets/SplashScreenBackground.imageset/image@2x.png
+!ios/YourAppName/Images.xcassets/SplashScreenBackground.imageset/image@3x.png

@@ -1,67 +1,72 @@
 import * as React from 'react';
 import {Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useSignUp } from '@clerk/clerk-expo';
+import { supabase } from '@/lib/supabase';
 import { Link, useRouter } from 'expo-router';
 
 export default function SignUpScreen() {
-  const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
 
   const [emailAddress, setEmailAddress] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [pendingVerification, setPendingVerification] = React.useState(false);
   const [code, setCode] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
-    if (!isLoaded) return;
+    if (loading) return;
+    setLoading(true);
 
-    console.log(emailAddress, password);
-
-    // Start sign-up process using email and password provided
     try {
-      await signUp.create({
-        emailAddress,
-        password,
+      const { data, error } = await supabase.auth.signUp({
+        email: emailAddress,
+        password: password,
       });
 
-      // Send user an email with verification code
-      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
-
-      // Set 'pendingVerification' to true to display second form
-      // and capture OTP code
-      setPendingVerification(true);
-    } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2));
+      if (error) {
+        Alert.alert('Sign Up Error', error.message);
+        console.error('Supabase Sign Up Error:', error.message);
+      } else if (data.user) {
+        // User created, Supabase sends verification email (with OTP ideally)
+        setPendingVerification(true);
+      } else {
+        Alert.alert('Sign Up Error', 'An unexpected issue occurred. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Unexpected Sign Up Exception:', JSON.stringify(err, null, 2));
+      Alert.alert('Sign Up Error', err.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
     }
   };
 
   // Handle submission of verification form
   const onVerifyPress = async () => {
-    if (!isLoaded) return;
+    if (loading) return;
+    setLoading(true);
 
     try {
-      // Use the code the user provided to attempt verification
-      const signUpAttempt = await signUp.attemptEmailAddressVerification({
-        code,
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: emailAddress, // Make sure emailAddress is still available in this scope
+        token: code,
+        type: 'signup',
       });
 
-      // If verification was completed, set the session to active
-      // and redirect the user
-      if (signUpAttempt.status === 'complete') {
-        await setActive({ session: signUpAttempt.createdSessionId });
-        router.replace('/');
+      if (error) {
+        Alert.alert('Verification Error', error.message);
+        console.error('Supabase Verification Error:', error.message);
+      } else if (data.session && data.user) {
+        // Verification successful, user is logged in.
+        // Redirection will be handled by layout listeners, or navigate immediately:
+        router.replace('/(protected)');
       } else {
-        // If the status is not complete, check why. User may need to
-        // complete further steps.
-        console.error(JSON.stringify(signUpAttempt, null, 2));
+        Alert.alert('Verification Error', 'Could not verify OTP. Please try again.');
       }
-    } catch (err) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
-      console.error(JSON.stringify(err, null, 2));
+    } catch (err: any) {
+      console.error('Unexpected Verification Exception:', JSON.stringify(err, null, 2));
+      Alert.alert('Verification Error', err.message || 'An unexpected error occurred.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,11 +93,12 @@ export default function SignUpScreen() {
             </View>
 
             <TouchableOpacity
-              className='w-full bg-blue-600 p-4 rounded-lg mt-6'
+              className={`w-full p-4 rounded-lg mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
               onPress={onVerifyPress}
+              disabled={loading}
             >
               <Text className='text-white text-center font-semibold'>
-                Verify Email
+                {loading ? 'Verifying...' : 'Verify Email'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -138,11 +144,12 @@ export default function SignUpScreen() {
           </View>
 
           <TouchableOpacity
-            className='w-full bg-blue-600 p-4 rounded-lg mt-6'
+            className={`w-full p-4 rounded-lg mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
             onPress={onSignUpPress}
+            disabled={loading}
           >
             <Text className='text-white text-center font-semibold'>
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </Text>
           </TouchableOpacity>
         </View>

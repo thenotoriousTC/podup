@@ -1,7 +1,6 @@
 import { Redirect, Slot, Tabs } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import "../../../../global.css";
-import { useAuth } from "@clerk/clerk-expo";
 import { ActivityIndicator, StyleSheet, View as RNView } from "react-native";
 import React from "react";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";

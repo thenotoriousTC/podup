@@ -1,29 +1,55 @@
-import React from 'react';
-import { useAuth, useUser } from '@clerk/clerk-expo';
-import { Pressable, Text, View, StyleSheet, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
+import { Pressable, Text, View, StyleSheet, Image, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
 export default function Profile() {
-    const { signOut } = useAuth();
-    const { user } = useUser();
-    
+    const [currentUser, setCurrentUser] = React.useState<User | null>(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchUser = async () => {
+            setLoading(true);
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+                Alert.alert('Error fetching user', error.message);
+                console.error('Error fetching user:', error);
+            } else {
+                setCurrentUser(user);
+            }
+            setLoading(false);
+        };
+        fetchUser();
+    }, []);
+
+    const handleSignOut = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            Alert.alert('Error signing out', error.message);
+            console.error('Error signing out:', error);
+        }
+        // Navigation to auth screen will be handled by the root layout's auth state listener
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Profile</Text>
             </View>
+
             
             <View style={styles.card}>
                 <View style={styles.userInfo}>
                     <View style={styles.avatarContainer}>
                         <Image 
-                            source={{ uri: user?.imageUrl || 'https://via.placeholder.com/100' }} 
+                            source={{ uri: currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture || 'https://via.placeholder.com/100' }} 
                             style={styles.avatar} 
                         />
                     </View>
                     <View style={styles.userDetails}>
-                        <Text style={styles.userName}>{user?.fullName || 'User'}</Text>
-                        <Text style={styles.userEmail}>{user?.primaryEmailAddress?.emailAddress || 'No email'}</Text>
+                        <Text style={styles.userName}>{currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || 'User'}</Text>
+                        <Text style={styles.userEmail}>{currentUser?.email || 'No email'}</Text>
                     </View>
                 </View>
             </View>
@@ -48,7 +74,7 @@ export default function Profile() {
                     
                     <View style={styles.divider} />
                     
-                    <Pressable style={styles.menuItem} onPress={() => signOut()}>
+                    <Pressable style={styles.menuItem} onPress={handleSignOut}>
                         <AntDesign name="logout" size={22} color="#007AFF" />
                         <Text style={styles.menuItemText}>Sign Out</Text>
                         <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />

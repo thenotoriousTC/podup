@@ -4,8 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAudioRecorder, useAudioPlayer, RecordingPresets, AudioModule, useAudioPlayerStatus } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
-import { useUser } from '@clerk/clerk-expo';
-import { useSupabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
 
 interface Recording {
   id: string;
@@ -16,7 +16,7 @@ interface Recording {
 }
 
 export default function RecordingScreen() {
-  const { user } = useUser();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -25,7 +25,7 @@ export default function RecordingScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const [userPodcasts, setUserPodcasts] = useState<any[]>([]);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
-  const supabase = useSupabase();
+  // const supabaseClient = supabase; // Supabase client is directly used via import
   
   // Form fields for podcast metadata
   const [podcastTitle, setPodcastTitle] = useState('');
@@ -39,6 +39,16 @@ export default function RecordingScreen() {
   const playerStatus = useAudioPlayerStatus(audioPlayer);
 
   useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const { data: { user: supaUser }, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Error fetching current user:', error.message);
+      } else {
+        setCurrentUser(supaUser);
+      }
+    };
+    fetchCurrentUser();
+
     const getPermissions = async () => {
       try {
         // Request microphone permissions
@@ -69,7 +79,9 @@ export default function RecordingScreen() {
     };
     
     getPermissions();
-    fetchUserPodcasts();
+    if (currentUser?.id) {
+      fetchUserPodcasts();
+    }
     loadSavedRecordings();
   }, []);
 
@@ -137,13 +149,13 @@ export default function RecordingScreen() {
   };
 
   const fetchUserPodcasts = async () => {
-    if (!user?.id) return;
+    if (!currentUser?.id) return;
     
     try {
       const { data, error } = await supabase
         .from('podcasts')
         .select('*')
-        .eq('author', user.fullName || user.firstName || 'Anonymous')
+        .eq('author', currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Anonymous')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -154,7 +166,7 @@ export default function RecordingScreen() {
   };
 
   const startRecording = async () => {
-    if (!user?.id) {
+    if (!currentUser?.id) {
       Alert.alert("Error", "Please log in to record audio");
       return;
     }
@@ -193,7 +205,7 @@ export default function RecordingScreen() {
         
         // Save with unique filename
         const timestamp = Date.now();
-        const fileName = `${user?.id}_recording_${timestamp}.m4a`;
+        const fileName = `${currentUser?.id}_recording_${timestamp}.m4a`;
         const permanentUri = recordingsDir + fileName;
         
         try {
@@ -329,7 +341,7 @@ export default function RecordingScreen() {
   };
 
   const publishPodcast = async () => {
-    if (!selectedRecording || !user?.id || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage) {
+    if (!selectedRecording || !currentUser?.id || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage) {
       Alert.alert("Error", "Please provide a title, description, and cover image for your podcast");
       return;
     }
@@ -347,7 +359,7 @@ export default function RecordingScreen() {
           encoding: FileSystem.EncodingType.Base64,
         });
         
-        const imageFileName = `podcast_image_${user.id}_${Date.now()}.jpg`;
+        const imageFileName = `podcast_image_${currentUser.id}_${Date.now()}.jpg`;
         
         // Upload image to storage
         const { data: imageUploadData, error: imageUploadError } = await supabase.storage
@@ -376,7 +388,7 @@ export default function RecordingScreen() {
         encoding: FileSystem.EncodingType.Base64,
       });
       
-      const audioFileName = `podcast_${user.id}_${Date.now()}.m4a`;
+      const audioFileName = `podcast_${currentUser.id}_${Date.now()}.m4a`;
       
       // Upload audio to Supabase Storage
       const { data: audioUploadData, error: audioUploadError } = await supabase.storage
@@ -404,7 +416,7 @@ export default function RecordingScreen() {
         .insert({
           title: podcastTitle.trim(),
           description: podcastDescription.trim(),
-          author: user.fullName || user.firstName || 'Anonymous',
+          author: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Anonymous',
           audio_url: audioUrlData.publicUrl,
           image_url: imageUrl,
           duration: selectedRecording.duration,
@@ -453,7 +465,7 @@ export default function RecordingScreen() {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  if (!user) {
+  if (!currentUser) {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="person-circle-outline" size={64} color="#007AFF" />
