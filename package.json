@@ -14,7 +14,7 @@
     "@supabase/supabase-js": "^2.50.0",
     "@tanstack/react-query": "^5.79.0",
     "dotenv": "^16.5.0",
-    "expo": "53.0.9",
+    "expo": "53.0.11",
     "expo-audio": "~0.4.6",
     "expo-build-properties": "~0.14.6",
     "expo-constants": "~17.1.6",
@@ -29,7 +29,7 @@
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-native": "0.79.2",
+    "react-native": "0.79.3",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
@@ -44,5 +44,12 @@
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    }
+  }
 }
