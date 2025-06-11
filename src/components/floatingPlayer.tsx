@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import {AntDesign} from '@expo/vector-icons';
+import { Image, Pressable, Text, View } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
+
 /*
 type Book ={
     id:string;
@@ -16,33 +17,59 @@ type BookListItem ={
 book :Book
 }
 */
-export default function FloatingPlayer () {
-    
-   // const player = useAudioPlayer({ uri: book.audio_url });
-   const {player,podcast}=usePlayer()
-   const playerStatus= useAudioPlayerStatus(player);
-  if ( !podcast) return null;
+
+export default function FloatingPlayer() {
+  const { player, podcast } = usePlayer();
+  const playerStatus = useAudioPlayerStatus(player);
+
+  if (!podcast) return null;
+
   return (
-    <View className=' left-1 right-1 bg-white p-2 shadow-2xl shadow-black rounded-t-lg'>
-    <Link  href='/player' asChild>
-      <Pressable className='flex-row gap-4 items-center '>
-        <Image source={{uri:podcast.thumbnail_url}}
-         className='w-16 aspect-square rounded-md'
+    <View className=" bottom-0 inset-x-0 bg-white dark:bg-[#1c1c1e] p-4 flex-row items-center \
+      rounded-t-2xl shadow-lg border-t border-gray-200 dark:border-[#2c2c2e] ">
+      <Link href="/player" asChild>
+        <Pressable className="flex-row items-center flex-1 active:opacity-70">
+
+          {/* Podcast artwork */}
+          <Image
+            source={{ uri: podcast.thumbnail_url }}
+            className="w-14 h-14 rounded-lg"
           />
-        <View className='flex-1'>
-          <Text >{podcast.author}</Text>
-      <Text className='text-2xl text-red-500'>{podcast.title}</Text>
-      
-      <StatusBar style="auto" />
-    </View>
-        
-        
-        <AntDesign name={playerStatus.isBuffering?"loading2":playerStatus.playing?"pause":"playcircleo"} size={24} onPress={() => {
+
+          {/* Title & author */}
+          <View className="flex-1 ml-4">
+            <Text className="text-sm text-gray-500 dark:text-gray-400">
+              {podcast.author}
+            </Text>
+            <Text className="mt-1 text-base font-semibold text-black dark:text-white" numberOfLines={1}>
+              {podcast.title}
+            </Text>
+          </View>
+
+          {/* Status bar alignment */}
+          <StatusBar style="auto" />
+        </Pressable>
+      </Link>
+
+      {/* Play/Pause control */}
+      <Pressable
+        onPress={() => {
           playerStatus.playing ? player.pause() : player.play();
-           
-        }
-        }
-    
-    />
-    </Pressable></Link></View>)
+        }}
+        className="ml-2 p-2 active:opacity-70"
+      >
+        <AntDesign
+          name={
+            playerStatus.isBuffering
+              ? 'loading2'
+              : playerStatus.playing
+              ? 'pausecircle'
+              : 'playcircleo'
+          }
+          size={28}
+          color={playerStatus.playing ? '#0A84FF' : '#8E8E93'}
+        />
+      </Pressable>
+    </View>
+  );
 }

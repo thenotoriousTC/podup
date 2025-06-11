@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, Pressable, StyleSheet, Text, View, Alert } from 'react-native';
-import {AntDesign} from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Image, TouchableOpacity, Alert, View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,82 +9,103 @@ import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 
 interface Podcast {
-    id: string;
-    title: string;
-    author: string;
-    audio_url: string;
-    thumbnail_url?: string;
+  id: string;
+  title: string;
+  author: string;
+  audio_url: string;
+  thumbnail_url?: string;
 }
 
 interface DiscoveryPodcastListItemProps {
-    podcast: Podcast;
+  podcast: Podcast;
 }
 
 export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastListItemProps) {
-    const { setPodcast, player } = usePlayer();
-    const supabaseClient = supabase; // Use the imported supabase client directly
-    const queryClient = useQueryClient();
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [isInLibrary, setIsInLibrary] = useState(false);
+  const { setPodcast, player, podcast: currentPodcast } = usePlayer();
+  const playerStatus = useAudioPlayerStatus(player);
+  const isCurrentTrack = currentPodcast?.id === podcast.id;
+  const isPlaying = isCurrentTrack && playerStatus.playing;
+  const supabaseClient = supabase;
+  const queryClient = useQueryClient();
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { user }, error } = await supabaseClient.auth.getUser();
-            if (error) {
-                console.error('Error fetching user:', error.message);
-            } else {
-                setCurrentUser(user);
-            }
-        };
-        fetchUser();
-    }, [supabaseClient]);
-    const {mutate}=useMutation({
-        mutationFn:async()=>supabaseClient.from('user-library').insert({
-            podcast_id:podcast.id,
-            user_id:currentUser?.id,
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isInLibrary, setIsInLibrary] = useState(false);
 
-        }).throwOnError(),
-        onSuccess:()=>{
-            queryClient.invalidateQueries({queryKey:['my-library']})
-        }
-    })
+  useEffect(() => {
+    supabaseClient.auth.getUser().then(({ data: { user }, error }) => {
+      if (error) console.error('Error fetching user:', error.message);
+      else setCurrentUser(user);
+    });
+  }, []);
 
-    
-    const handlePress = async () => {
-        try {
-            setPodcast(podcast);
-            await player.play();
-        } catch (error) {
-            console.error('Error playing audio:', error);
-        }
-    };
+  const addToLibrary = useMutation({
+    mutationFn: async () =>
+      supabaseClient
+        .from('user-library')
+        .insert({ podcast_id: podcast.id, user_id: currentUser?.id })
+        .throwOnError(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-library'] }),
+  });
 
-    return (
-        <View className='flex-row gap-4 items-center p-4 active:opacity-70  ' >
-            <Image 
-                source={{ uri: podcast.thumbnail_url }}
-                className='w-16 aspect-square rounded-md'
-            />
-            <View className='flex-1'>
-                <Text className='text-gray-600'>{podcast.author}</Text>
-                <Text className='text-2xl text-red-500'>{podcast.title}</Text>
-                <StatusBar style="auto" />
-            </View>
-           <Pressable
-            onPress={handlePress}
-            className='active:opacity-70'
-        > <AntDesign name='playcircleo' size={24} color="#666" />
-        </Pressable>
-     
-            <AntDesign 
-            onPress={()=>{
-                mutate();
-                setIsInLibrary(true);
-                Alert.alert('Success', 'Added to library');
-            }}
-            name={isInLibrary ? "heart" : "hearto"} 
-            size={24} 
-            color={isInLibrary ? "#ff0000" : "#666"} />
-        </View>
-    );
+  const onPlayPausePress = () => {
+    if (!isCurrentTrack) {
+      setPodcast(podcast);
+      player.play();
+    } else {
+      playerStatus.playing ? player.pause() : player.play();
+    }
+  };
+
+  const onHeartPress = () => {
+    if (!currentUser) {
+      Alert.alert('Please log in to save podcasts.');
+      return;
+    }
+    addToLibrary.mutate();
+    setIsInLibrary(true);
+    Alert.alert('Added to Library', `"${podcast.title}" has been saved.`);
+  };
+
+  return (
+    <View className="flex-row items-center p-4 bg-white dark:bg-[#1c1c1e] rounded-xl shadow-md">
+      <Image
+        source={{ uri: podcast.thumbnail_url }}
+        className="w-16 h-16 rounded-lg"
+      />
+      <View className="flex-1 ml-4">
+        <Text className="text-sm text-gray-500 dark:text-gray-400">{podcast.author}</Text>
+        <Text className="mt-1 text-lg font-semibold text-black dark:text-white">
+          {podcast.title}
+        </Text>
+      </View>
+
+      {/* Play/Pause */}
+      <TouchableOpacity
+        onPress={onPlayPausePress}
+        activeOpacity={0.7}
+        className="p-2"
+      >
+        <Ionicons
+          name={isPlaying ? 'pause-circle' : 'play-circle'}
+          size={32}
+          color={isPlaying ? '#0A84FF' : '#8E8E93'}
+        />
+      </TouchableOpacity>
+
+      {/* Favorite */}
+      <TouchableOpacity
+        onPress={onHeartPress}
+        activeOpacity={0.7}
+        className="p-2 ml-2"
+      >
+        <Ionicons
+          name={isInLibrary ? 'heart' : 'heart-outline'}
+          size={28}
+          color={isInLibrary ? '#FF453A' : '#8E8E93'}
+        />
+      </TouchableOpacity>
+
+      <StatusBar style="auto" />
+    </View>
+  );
 }
