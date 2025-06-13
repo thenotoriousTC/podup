@@ -50,12 +50,12 @@ export default function Player() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-[#1c1c1e]">
+    <SafeAreaView className="flex-1 bg-white ">
       {/* Header with subtle blur background */}
       <View className="relative">
         <Pressable
           onPress={() => router.back()}
-          className="absolute top-4 left-4 p-3 bg-white/80 dark:bg-[#1c1c1e]/80 rounded-full shadow-md backdrop-blur-sm"
+          className="absolute top-4 left-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm"
         >
           <EvilIcons name="chevron-down" size={24} color="#1C1C1E" />
         </Pressable>
@@ -76,14 +76,14 @@ export default function Player() {
           {/* Title and Author */}
           <View className="items-center px-4">
             <Text
-              className="text-2xl font-bold text-center text-black dark:text-white mb-2"
+              className="text-2xl font-bold text-center text-black  mb-2"
               style={{ lineHeight: 32, letterSpacing: -0.5 }}
               numberOfLines={2}
             >
               {podcast.title}
             </Text>
             <Text
-              className="text-lg font-medium text-center text-gray-500 dark:text-gray-400"
+              className="text-lg font-medium text-center text-gray-500 "
             >
               {podcast.author}
             </Text>

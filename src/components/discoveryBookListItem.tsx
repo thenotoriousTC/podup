@@ -79,8 +79,8 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
         className="w-16 h-16 rounded-lg"
       />
       <View className="flex-1 ml-4">
-        <Text className="text-sm text-gray-500 dark:text-gray-400">{podcast.author}</Text>
-        <Text className="mt-1 text-lg font-semibold text-black dark:text-white">
+        <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
+        <Text className="mt-1 text-lg font-semibold text-black ">
           {podcast.title}
         </Text>
       </View>

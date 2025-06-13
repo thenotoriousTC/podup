@@ -17,8 +17,8 @@ export default function FloatingPlayer() {
   };
 
   return (
-    <View className=" bottom-0 inset-x-0 bg-white dark:bg-[#1c1c1e] p-4 flex-row items-center \
-      rounded-t-2xl shadow-lg border-t border-gray-200 dark:border-[#2c2c2e] ">
+    <View className=" bottom-0 inset-x-0 bg-white p-4 flex-row items-center \
+      rounded-t-2xl shadow-lg border-t border-gray-200 ">
       <Link href="/player" asChild>
         <Pressable className="flex-row items-center flex-1 active:opacity-70">
 
@@ -31,10 +31,10 @@ export default function FloatingPlayer() {
 
           {/* Title & author */}
           <View className="flex-1 ml-4">
-            <Text className="text-sm text-gray-500 dark:text-gray-400">
+            <Text className="text-sm text-gray-500 ">
               {podcast.author}
             </Text>
-            <Text className="mt-1 text-base font-semibold text-black dark:text-white" numberOfLines={1}>
+            <Text className="mt-1 text-base font-semibold text-black " numberOfLines={1}>
               {podcast.title}
             </Text>
           </View>
