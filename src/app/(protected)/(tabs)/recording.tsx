@@ -419,6 +419,8 @@ export default function RecordingScreen() {
           author: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Anonymous',
           audio_url: audioUrlData.publicUrl,
           image_url: imageUrl,
+          thumbnail_url: imageUrl, // For compatibility with existing seeded data
+
           duration: selectedRecording.duration,
           created_at: new Date().toISOString(),
         });

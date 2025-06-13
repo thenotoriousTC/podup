@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 
 interface Podcast {
+  image_url: string | undefined;
   id: string;
   title: string;
   author: string;
@@ -46,6 +47,11 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
         .throwOnError(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-library'] }),
   });
+  const getImageUrl = (podcast: Podcast) => {
+    // Check both possible image columns
+    return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
+  };
+  const imageSource = { uri: getImageUrl(podcast) };
 
   const onPlayPausePress = () => {
     if (!isCurrentTrack) {
@@ -67,9 +73,9 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
   };
 
   return (
-    <View className="flex-row items-center p-4 bg-white dark:bg-[#1c1c1e] rounded-xl shadow-md">
+    <View className="flex-row items-center p-4 bg-white  rounded-xl shadow-md">
       <Image
-        source={{ uri: podcast.thumbnail_url }}
+        source={imageSource}
         className="w-16 h-16 rounded-lg"
       />
       <View className="flex-1 ml-4">

@@ -5,24 +5,16 @@ import { Link } from 'expo-router';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 
-/*
-type Book ={
-    id:string;
-    title : string;
-    author : string;
-    audio_url : string;
-    thumbnail_url ?: string;
-}
-type BookListItem ={
-book :Book
-}
-*/
-
 export default function FloatingPlayer() {
   const { player, podcast } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
 
   if (!podcast) return null;
+
+  // Helper function to get the correct image URL with fallback
+  const getImageUrl = (podcast: any) => {
+    return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
+  };
 
   return (
     <View className=" bottom-0 inset-x-0 bg-white dark:bg-[#1c1c1e] p-4 flex-row items-center \
@@ -32,8 +24,9 @@ export default function FloatingPlayer() {
 
           {/* Podcast artwork */}
           <Image
-            source={{ uri: podcast.thumbnail_url }}
+            source={{ uri: getImageUrl(podcast) }}
             className="w-14 h-14 rounded-lg"
+            defaultSource={{ uri: 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast' }}
           />
 
           {/* Title & author */}

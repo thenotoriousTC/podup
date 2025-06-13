@@ -4,13 +4,50 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import PlaybackBar from "@/components/PlaybackBar";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from "@/providers/playerprovider";
 
 export default function Player() {
   const { player, podcast } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
+
+  // Helper function to get the correct image URL with fallback
+  const getImageUrl = (podcast: any) => {
+    return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
+  };
+
+  // Function to skip backward by 10 seconds
+  const skipBackward = () => {
+    if (player && playerStatus.currentTime !== null) {
+      const newTime = Math.max(0, playerStatus.currentTime - 10);
+      player.seekTo(newTime);
+    }
+  };
+
+  // Function to skip forward by 10 seconds
+  const skipForward = () => {
+    if (player && playerStatus.currentTime !== null && playerStatus.duration !== null) {
+      const newTime = Math.min(playerStatus.duration, playerStatus.currentTime + 10);
+      player.seekTo(newTime);
+    }
+  };
+
+  // Function to toggle repeat mode
+  const toggleRepeat = () => {
+    if (player) {
+      // Use the correct method for expo-audio
+      player.loop = !player.loop;
+    }
+  };
+
+  // Function to toggle mute
+  const toggleMute = () => {
+    if (player) {
+      // Toggle between volume 0 (muted) and 1 (full volume)
+      player.volume = player.volume > 0 ? 0 : 1;
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-[#1c1c1e]">
@@ -29,9 +66,10 @@ export default function Player() {
         <View className="items-center mt-16 mb-8">
           <View className="w-72 h-72 rounded-2xl overflow-hidden mb-8 shadow-xl">
             <Image
-              source={{ uri: podcast.thumbnail_url }}
+              source={{ uri: getImageUrl(podcast) }}
               className="w-full h-full"
               resizeMode="cover"
+              defaultSource={{ uri: 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast' }}
             />
           </View>
 
@@ -64,19 +102,14 @@ export default function Player() {
         {/* Control Buttons */}
         <View className="flex-row justify-center items-center px-8">
           {/* Skip Backward */}
-          <Pressable
-            className="p-4 mr-6"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <AntDesign name="stepbackward" size={28} color="#1C1C1E" />
-          </Pressable>
-
-          {/* Rewind */}
+        
+          {/* Rewind 10 seconds */}
           <Pressable
             className="p-4 mr-4"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={skipBackward}
           >
-            <Ionicons name="play-back" size={32} color="#1C1C1E" />
+            <MaterialIcons name="replay-10" size={32} color="black" />
           </Pressable>
 
           {/* Play/Pause Button */}
@@ -95,52 +128,34 @@ export default function Player() {
             />
           </Pressable>
 
-          {/* Fast Forward */}
+          {/* Fast Forward 10 seconds */}
           <Pressable
             className="p-4 ml-4"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={skipForward}
           >
-            <Ionicons name="play-forward" size={32} color="#1C1C1E" />
+            <MaterialIcons name="forward-10" size={32} color="black" />
           </Pressable>
 
           {/* Skip Forward */}
-          <Pressable
-            className="p-4 ml-6"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <AntDesign name="stepforward" size={28} color="#1C1C1E" />
-          </Pressable>
+          
         </View>
 
         {/* Additional Controls Row */}
-        <View className="flex-row justify-between items-center px-8 mt-8">
+        <View className="flex-row justify-center items-center px-8 mt-8 space-x-16">
           <Pressable
             className="p-3"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            onPress={toggleRepeat}
           >
-            <Ionicons name="shuffle" size={24} color="#8E8E93" />
+            <Ionicons 
+              name="repeat" 
+              size={40} 
+              color={player?.loop ? "#007AFF" : "#8E8E93"} 
+            />
           </Pressable>
 
-          <Pressable
-            className="p-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <Ionicons name="repeat" size={24} color="#8E8E93" />
-          </Pressable>
-
-          <Pressable
-            className="p-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <Ionicons name="list" size={24} color="#8E8E93" />
-          </Pressable>
-
-          <Pressable
-            className="p-3"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-          >
-            <Ionicons name="volume-medium" size={24} color="#8E8E93" />
-          </Pressable>
+          
         </View>
       </View>
     </SafeAreaView>

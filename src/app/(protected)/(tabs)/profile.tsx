@@ -3,10 +3,12 @@ import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { Pressable, Text, View, StyleSheet, Image, Alert } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function Profile() {
     const [currentUser, setCurrentUser] = React.useState<User | null>(null);
     const [loading, setLoading] = React.useState(true);
+    const router = useRouter();
 
     React.useEffect(() => {
         const fetchUser = async () => {
@@ -69,6 +71,17 @@ export default function Profile() {
                     <Pressable style={styles.menuItem}>
                         <AntDesign name="setting" size={22} color="#007AFF" />
                         <Text style={styles.menuItemText}>Settings</Text>
+                        <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
+                    </Pressable>
+                    
+                    <View style={styles.divider} />
+                    
+                    <Pressable 
+                        style={styles.menuItem}
+                        onPress={() => router.push('/(protected)/UPLOAD')}
+                    >
+                        <AntDesign name="upload" size={22} color="#007AFF" />
+                        <Text style={styles.menuItemText}>Upload your podcasts</Text>
                         <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
                     </Pressable>
                     
