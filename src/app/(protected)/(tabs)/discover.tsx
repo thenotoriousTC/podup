@@ -74,7 +74,7 @@ export default function App() {
             />
             <TextInput
               className="flex-1 text-gray-800 text-base ml-3"
-              placeholder="Search podcasts..."
+              placeholder="بحث عن محتوى..."
               placeholderTextColor="#9CA3AF"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -100,7 +100,7 @@ export default function App() {
           {/* Search Results Count */}
           {searchQuery.length > 0 && (
             <Text className="text-sm text-gray-500 mt-2 px-1">
-              {filteredPodcasts.length} podcast{filteredPodcasts.length !== 1 ? 's' : ''} found
+              {filteredPodcasts.length} podcast{filteredPodcasts.length !== 1 ? 's' : ''}     مطابق
             </Text>
           )}
         </View>
@@ -112,17 +112,17 @@ export default function App() {
           <View className="flex-1 items-center justify-center">
             <Ionicons name="search" size={64} color="#D1D5DB" />
             <Text className="text-gray-500 text-lg font-medium mt-4">
-              No podcasts found
+              لم يتم العثور على محتوى
             </Text>
             <Text className="text-gray-400 text-sm mt-2 text-center px-8">
-              Try adjusting your search terms or browse all podcasts
+              حاول تحسين كلمات البحث أو ابحث عن محتوى مختلف
             </Text>
             <TouchableOpacity 
               onPress={clearSearch}
               className="mt-4 bg-blue-500 px-6 py-3 rounded-lg"
               activeOpacity={0.8}
             >
-              <Text className="text-white font-medium">Clear Search</Text>
+              <Text className="text-white font-medium">مسح البحث</Text>
             </TouchableOpacity>
           </View>
         ) : (

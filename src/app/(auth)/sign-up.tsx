@@ -27,8 +27,8 @@ export default function SignUpScreen() {
       } else if (data.user) {
         // User created, Supabase sends verification email
         Alert.alert(
-          'Verification Email Sent',
-          'Please check your email to verify your account before signing in.',
+          'تم إرسال رسالة التحقق',
+          'الرجاء التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول',
           [
             {
               text: 'OK',
@@ -51,19 +51,19 @@ export default function SignUpScreen() {
     <View className='flex-1  p-6'>
       <View className='flex-1 justify-center'>
         <Text className='text-3xl font-bold text-center mb-8 '>
-          Create Account
+          إنشاء حساب
         </Text>
 
         <View className='gap-4'>
           <View>
             <Text className='text-sm font-medium  mb-1'>
-              Email
+              البريد الإلكتروني
             </Text>
             <TextInput
               className='w-full p-4 border border-gray-200 rounded-lg '
               autoCapitalize='none'
               value={emailAddress}
-              placeholder='Enter email'
+              placeholder='البريد الإلكتروني'
               placeholderTextColor='#9CA3AF'
               onChangeText={setEmailAddress}
             />
@@ -71,12 +71,12 @@ export default function SignUpScreen() {
 
           <View>
             <Text className='text-sm font-medium  mb-1'>
-              Password
+                كلمة المرور
             </Text>
             <TextInput
-              className='w-full p-4 border border-gray-200 rounded-lg '
+              className='w-full p-4 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-blue-600 focus:ring-1  '
               value={password}
-              placeholder='Enter password'
+              placeholder='كلمة المرور'
               placeholderTextColor='#9CA3AF'
               secureTextEntry={true}
               onChangeText={setPassword}
@@ -89,17 +89,18 @@ export default function SignUpScreen() {
             disabled={loading}
           >
             <Text className='text-white text-center font-semibold'>
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'إنشاء حساب...' : 'إنشاء حساب'}
             </Text>
           </TouchableOpacity>
         </View>
-
-        <View className='flex-row justify-center items-center mt-6 gap-2'>
-          <Text className='text-gray-400'>Already have an account?</Text>
+<View className='flex-row justify-center items-center mt-6 gap-2'>
+         
           <Link href='/sign-in'>
-            <Text className='text-blue-400 font-semibold ml-1'>Sign in</Text>
-          </Link>
+            <Text className='text-blue-400 font-semibold ml-1'>تسجيل الدخول</Text>
+          </Link> 
+          <Text className='text-gray-400'>  هل لديك حساب؟</Text>
         </View>
+        
       </View>
     </View>
   );

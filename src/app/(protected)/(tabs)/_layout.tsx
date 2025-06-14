@@ -39,7 +39,7 @@ export default function RootLayout() {
       <Tabs.Screen
         name="discover"
         options={{
-          title: "Discover",
+          title: "اكتشف محتوى",
           headerTitle: "PodUp",
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="search1" size={size} color={color} />
@@ -48,9 +48,10 @@ export default function RootLayout() {
       />
       <Tabs.Screen
         name="index"
+         
         options={{
-          title: "Library",
-          headerTitle: "My Library",
+          title: "مكتبة",
+          headerTitle: "مكتبتي",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="library" size={size} color={color} />
           ),
@@ -60,8 +61,8 @@ export default function RootLayout() {
       <Tabs.Screen
         name="recording"
         options={{
-          title: "Record",
-          headerTitle: "Audio Recording",
+          title: "تسجيل",
+          headerTitle: "تسجيل",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="mic" size={size} color={color} />
           ),
@@ -69,8 +70,8 @@ export default function RootLayout() {
       /><Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
-          headerTitle: "Profile",
+          title: "الملف الشخصي",
+          headerTitle: "الملف الشخصي",
           tabBarIcon: ({ color, size }) => (
             <Octicons name="person" size={size} color={color} />
           ),

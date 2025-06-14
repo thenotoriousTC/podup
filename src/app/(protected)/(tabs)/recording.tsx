@@ -228,21 +228,21 @@ export default function RecordingScreen() {
           console.log('Recording saved to:', permanentUri);
           
           Alert.alert(
-            "Recording Complete!", 
-            "Your recording has been saved. You can now listen to it and publish it as a podcast.",
-            [{ text: "OK" }]
+            "تم حفظ المحتوى!", 
+            "تم حفظ المحتوى بنجاح. يمكنك الآن سماعه ونشره كمحتوى.",
+            [{ text: "حسنًا" }]
           );
         } catch (fileError) {
           console.error('Error saving file:', fileError);
-          Alert.alert("Error", "Failed to save recording");
+          Alert.alert("خطأ", "فشل في حفظ المحتوى");
         }
       } else {
         console.error('No recording URI available');
-        Alert.alert("Error", "Recording failed to save");
+        Alert.alert("خطأ", "فشل في حفظ المحتوى");
       }
     } catch (error) {
       console.error("Failed to stop recording:", error);
-      Alert.alert("Error", "Failed to stop recording");
+      Alert.alert("خطأ", "فشل في إيقاف التسجيل");
     }
   };
 
@@ -258,18 +258,18 @@ export default function RecordingScreen() {
       }
     } catch (error) {
       console.error("Error playing recording:", error);
-      Alert.alert("Error", "Failed to play recording");
+      Alert.alert("خطأ", "فشل في تشغيل المحتوى");
     }
   };
 
   const deleteRecording = async (recording: Recording) => {
     Alert.alert(
-      "Delete Recording",
-      "Are you sure you want to delete this recording?",
+      "حذف المحتوى",
+      "هل أنت متأكد من حذف هذا المحتوى؟",
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "إلغاء", style: "cancel" },
         {
-          text: "Delete",
+          text: "حذف",
           style: "destructive",
           onPress: async () => {
             try {
@@ -287,10 +287,10 @@ export default function RecordingScreen() {
                 setCurrentPlayingId(null);
               }
               
-              Alert.alert("Success", "Recording deleted");
+              Alert.alert("تم حذف المحتوى", "تم حذف المحتوى بنجاح");
             } catch (error) {
               console.error("Error deleting recording:", error);
-              Alert.alert("Error", "Failed to delete recording");
+              Alert.alert("خطأ", "فشل في حذف المحتوى");
             }
           }
         }
@@ -319,7 +319,7 @@ export default function RecordingScreen() {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to select image');
+      Alert.alert('خطأ', 'فشل في اختيار الصورة');
     }
   };
 
@@ -342,7 +342,7 @@ export default function RecordingScreen() {
 
   const publishPodcast = async () => {
     if (!selectedRecording || !currentUser?.id || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage) {
-      Alert.alert("Error", "Please provide a title, description, and cover image for your podcast");
+      Alert.alert("خطأ", "الرجاء تقديم عنوان، ووصف، وصورة لغلاف المحتوى");
       return;
     }
     
@@ -444,14 +444,14 @@ export default function RecordingScreen() {
       await fetchUserPodcasts();
       
       Alert.alert(
-        "Podcast Published!",
-        "Your podcast has been published and is now available for others to listen to!",
-        [{ text: "Great!" }]
+        "تم نشر المحتوى!",
+        "تم نشر المحتوى بنجاح!",
+        [{ text: "رائع!" }]
       );
       
     } catch (error) {
       console.error("Publish error:", error);
-      Alert.alert("Publish Failed", `There was an error publishing your podcast: ${error || 'Unknown error'}`);
+      Alert.alert("فشل النشر", `حدث خطأ أثناء نشر المحتوى: ${error || 'خطأ غير معروف'}`);
     } finally {
       setIsUploading(false);
     }
@@ -509,10 +509,10 @@ export default function RecordingScreen() {
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
           <Text className="text-2xl font-bold text-blue-500 mb-2">
-            Create Your Podcast
+            تسجيل
           </Text>
           <Text className="text-base text-gray-600 text-center">
-            Record, manage, and publish your podcasts
+            تسجيل، إدارة، ونشر محتواك
           </Text>
         </View>
 
@@ -529,7 +529,7 @@ export default function RecordingScreen() {
           </View>
           
           <Text className="text-2xl font-bold text-blue-500 mb-3 text-center">
-            {isRecording ? "Recording in progress" : "Ready to Record"}
+            {isRecording ? " جاري التسجيل" : "جاهز للتسجيل"}
           </Text>
           
           {isRecording && (
@@ -546,7 +546,7 @@ export default function RecordingScreen() {
             disabled={isUploading}
           >
             <Text className="text-white text-lg font-bold">
-              {isRecording ? "Stop Recording" : "Start Recording"}
+              {isRecording ? "إيقاف التسجيل" : "بدء التسجيل"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -555,7 +555,7 @@ export default function RecordingScreen() {
         {recordings.length > 0 && (
           <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm">
             <Text className="text-xl font-bold text-gray-800 mb-4">
-              Your Recordings ({recordings.length})
+              تسجيلاتك ({recordings.length})
             </Text>
             
             {recordings.map((recording) => (
@@ -607,10 +607,10 @@ export default function RecordingScreen() {
         {showMetadataForm && selectedRecording && (
           <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm">
             <Text className="text-xl font-bold text-gray-800 text-center mb-2">
-              Publish Podcast
+              نشر محتوى
             </Text>
             <Text className="text-base text-gray-600 text-center mb-6">
-              Add details about your podcast
+              أضف التفاصيل حول محتوىك
             </Text>
             
             {/* Cover Image Section */}
@@ -641,7 +641,7 @@ export default function RecordingScreen() {
             {/* Title Input */}
             <View className="mb-5">
               <Text className="text-base font-semibold text-gray-800 mb-2">
-                Podcast Title *
+                عنوان المحتوى *
               </Text>
               <TextInput
                 className="border border-gray-300 rounded-lg p-3 text-base bg-gray-50 text-gray-800"
@@ -657,7 +657,7 @@ export default function RecordingScreen() {
             {/* Description Input */}
             <View className="mb-5">
               <Text className="text-base font-semibold text-gray-800 mb-2">
-                Description *
+                وصف *
               </Text>
               <TextInput
                 className="border border-gray-300 rounded-lg p-3 text-base bg-gray-50 text-gray-800 min-h-[100px]"
@@ -706,7 +706,7 @@ export default function RecordingScreen() {
                   <Ionicons name="cloud-upload" size={24} color="#FFFFFF" />
                 )}
                 <Text className="text-white text-base font-bold ml-2">
-                  {isUploading ? "Publishing..." : "Publish Podcast"}
+                  {isUploading ? "Publishing..." : "نشر المحتوى"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -717,10 +717,10 @@ export default function RecordingScreen() {
         {userPodcasts.length > 0 && (
           <View className="items-center p-5 bg-white rounded-2xl shadow-sm">
             <Text className="text-lg font-bold text-gray-800 mb-2">
-              Your Published Podcasts
+              المحتوى المنشور
             </Text>
             <Text className="text-base text-blue-500">
-              {userPodcasts.length} podcast{userPodcasts.length !== 1 ? 's' : ''} published
+              {userPodcasts.length} محتوى {userPodcasts.length !== 1 ? 's' : ''} نشر
             </Text>
           </View>
         )}

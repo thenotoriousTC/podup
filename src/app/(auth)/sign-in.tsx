@@ -88,7 +88,10 @@ export default function Page() {
         >
           <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
             <Text className='text-3xl font-bold text-center mb-8'>
-              Welcome Back
+              مرحبًا بك
+            </Text>
+            <Text className='text-center mb-8'>
+              قم بتسجيل الدخول أو إنشاء حساب جديد
             </Text>
 
             {emailVerificationMessage ? (
@@ -103,13 +106,13 @@ export default function Page() {
             <View className='gap-4'>
               <View>
                 <Text className='text-sm font-medium mb-1'>
-                  Email
+                  البريد الإلكتروني
                 </Text>
                 <TextInput
                   className='w-full p-4 border border-gray-100 rounded-lg'
                   autoCapitalize='none'
                   value={emailAddress}
-                  placeholder='Enter email'
+                  placeholder='البريد الإلكتروني'
                   placeholderTextColor='#9CA3AF'
                   onChangeText={setEmailAddress}
                   keyboardType="email-address"
@@ -120,12 +123,12 @@ export default function Page() {
 
               <View>
                 <Text className='text-sm font-medium mb-1'>
-                  Password
+                  كلمة المرور
                 </Text>
                 <TextInput
                   className='w-full p-4 border border-gray-100 rounded-lg'
                   value={password}
-                  placeholder='Enter password'
+                  placeholder='كلمة المرور'
                   placeholderTextColor='#9CA3AF'
                   secureTextEntry={true}
                   onChangeText={setPassword}
@@ -141,17 +144,18 @@ export default function Page() {
                 disabled={loading}
               >
                 <Text className='text-white text-center font-semibold'>
-                  {loading ? 'Signing In...' : 'Sign In'}
+                  {loading ? '    تسجيل الدخول...' : 'تسجيل الدخول'}
                 </Text>
               </TouchableOpacity>
             </View>
-
-            <View className='flex-row justify-center items-center mt-6 gap-2'>
-              <Text className='text-gray-400'>Don't have an account?</Text>
-              <Link href='/sign-up'>
-                <Text className='text-blue-400 font-semibold ml-1'>Sign up</Text>
-              </Link>
+<View className='flex-row justify-center items-center mt-6 gap-2'>
+            <Link href='/sign-up'>
+                <Text className='text-blue-400 font-semibold ml-1'>إنشاء حساب</Text>
+              </Link> 
+               <Text className='text-gray-400'>ليس لديك حساب؟</Text>
+              
             </View>
+            
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
