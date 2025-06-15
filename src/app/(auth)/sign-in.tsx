@@ -27,7 +27,7 @@ export default function Page() {
       if (error) {
         // Check specifically for email not confirmed error
         if (error.message.toLowerCase().includes('email not confirmed')) {
-          setEmailVerificationMessage('Please check your email to verify your account before signing in.');
+          setEmailVerificationMessage('يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول');
         } else {
           Alert.alert('Sign In Error', error.message);
         }
@@ -35,11 +35,11 @@ export default function Page() {
       } else if (data.session) {
         router.replace('/(protected)');
       } else {
-        Alert.alert('Sign In Error', 'An unexpected error occurred during sign in.');
+        Alert.alert('Sign In Error', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }
     } catch (err: any) {
       console.error('Unexpected Sign In Exception:', JSON.stringify(err, null, 2));
-      Alert.alert('Sign In Error', err.message || 'An unexpected error occurred. Please try again.');
+      Alert.alert('Sign In Error', err.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -59,10 +59,10 @@ export default function Page() {
       if (error) {
         Alert.alert('Error', error.message);
       } else {
-        Alert.alert('Success', 'Verification email resent. Please check your inbox.');
+        Alert.alert('Success', 'تم إرسال رسالة التحقق. يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول');
       }
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to resend verification email');
+      Alert.alert('Error', err.message || 'فشل في إعادة إرسال رسالة التحقق');
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ export default function Page() {
               <View className="mb-4 p-3 bg-yellow-100 rounded-lg">
                 <Text className="text-yellow-800">{emailVerificationMessage}</Text>
                 <TouchableOpacity onPress={onResendVerification}>
-                  <Text className="text-blue-600 mt-2 font-semibold">Resend verification email</Text>
+                  <Text className="text-blue-600 mt-2 font-semibold">إعادة إرسال رسالة التحقق</Text>
                 </TouchableOpacity>
               </View>
             ) : null}
@@ -109,7 +109,7 @@ export default function Page() {
                   البريد الإلكتروني
                 </Text>
                 <TextInput
-                  className='w-full p-4 border border-gray-100 rounded-lg'
+                  className='w-full p-4 border border-gray-100 rounded-lg text-black'
                   autoCapitalize='none'
                   value={emailAddress}
                   placeholder='البريد الإلكتروني'
@@ -126,7 +126,7 @@ export default function Page() {
                   كلمة المرور
                 </Text>
                 <TextInput
-                  className='w-full p-4 border border-gray-100 rounded-lg'
+                  className='w-full p-4 border border-gray-100 rounded-lg text-black'
                   value={password}
                   placeholder='كلمة المرور'
                   placeholderTextColor='#9CA3AF'

@@ -37,11 +37,11 @@ export default function SignUpScreen() {
           ]
         );
       } else {
-        Alert.alert('Sign Up Error', 'An unexpected issue occurred. Please try again.');
+        Alert.alert('Sign Up Error', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }
     } catch (err: any) {
       console.error('Unexpected Sign Up Exception:', JSON.stringify(err, null, 2));
-      Alert.alert('Sign Up Error', err.message || 'An unexpected error occurred.');
+      Alert.alert('Sign Up Error', err.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -60,7 +60,7 @@ export default function SignUpScreen() {
               البريد الإلكتروني
             </Text>
             <TextInput
-              className='w-full p-4 border border-gray-200 rounded-lg '
+              className='w-full p-4 border border-gray-200 text-black rounded-lg '
               autoCapitalize='none'
               value={emailAddress}
               placeholder='البريد الإلكتروني'
@@ -74,7 +74,7 @@ export default function SignUpScreen() {
                 كلمة المرور
             </Text>
             <TextInput
-              className='w-full p-4 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-blue-600 focus:ring-1  '
+              className='w-full p-4 border border-gray-200 text-black rounded-lg focus:border-blue-600 focus:ring-blue-600 focus:ring-1  '
               value={password}
               placeholder='كلمة المرور'
               placeholderTextColor='#9CA3AF'

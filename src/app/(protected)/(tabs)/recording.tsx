@@ -167,7 +167,7 @@ export default function RecordingScreen() {
 
   const startRecording = async () => {
     if (!currentUser?.id) {
-      Alert.alert("Error", "Please log in to record audio");
+      Alert.alert("Error", "يرجى تسجيل الدخول لتسجيل الصوت");
       return;
     }
 
@@ -181,7 +181,7 @@ export default function RecordingScreen() {
       setIsRecording(true);
     } catch (error) {
       console.error("Failed to start recording:", error);
-      Alert.alert("Error", "Failed to start recording");
+      Alert.alert("Error", "فشل في بدء التسجيل");
     }
   };
 
@@ -616,7 +616,7 @@ export default function RecordingScreen() {
             {/* Cover Image Section */}
             <View className="mb-5">
               <Text className="text-base font-semibold text-gray-800 mb-2">
-                Cover Image *
+                صورة الغلاف *
               </Text>
               <TouchableOpacity
                 className="border-2 border-dashed border-gray-300 rounded-xl p-6 items-center justify-center bg-gray-50"
@@ -633,7 +633,7 @@ export default function RecordingScreen() {
                   <Ionicons name="image" size={48} color="#9CA3AF" />
                 )}
                 <Text className="text-base font-medium text-blue-500 mt-2">
-                  {podcastImage ? "Change Cover Image" : "Select Cover Image"}
+                  {podcastImage ? "تغيير صورة الغلاف" : "اختيار صورة الغلاف"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -647,7 +647,7 @@ export default function RecordingScreen() {
                 className="border border-gray-300 rounded-lg p-3 text-base bg-gray-50 text-gray-800"
                 value={podcastTitle}
                 onChangeText={setPodcastTitle}
-                placeholder="Enter your podcast title..."
+                placeholder="عنوان المحتوى..."
                 placeholderTextColor="#9CA3AF"
                 multiline={false}
                 maxLength={100}
@@ -663,7 +663,7 @@ export default function RecordingScreen() {
                 className="border border-gray-300 rounded-lg p-3 text-base bg-gray-50 text-gray-800 min-h-[100px]"
                 value={podcastDescription}
                 onChangeText={setPodcastDescription}
-                placeholder="Describe your podcast episode..."
+                placeholder="وصف المحتوى..."
                 placeholderTextColor="#9CA3AF"
                 multiline={true}
                 maxLength={500}
@@ -687,7 +687,7 @@ export default function RecordingScreen() {
               >
                 <Ionicons name="arrow-back" size={20} color="#007AFF" />
                 <Text className="ml-2 text-base font-semibold text-blue-500">
-                  Cancel
+                  إلغاء
                 </Text>
               </TouchableOpacity>
               
@@ -706,7 +706,7 @@ export default function RecordingScreen() {
                   <Ionicons name="cloud-upload" size={24} color="#FFFFFF" />
                 )}
                 <Text className="text-white text-base font-bold ml-2">
-                  {isUploading ? "Publishing..." : "نشر المحتوى"}
+                  {isUploading ? "نشر ..." : "نشر المحتوى"}
                 </Text>
               </TouchableOpacity>
             </View>

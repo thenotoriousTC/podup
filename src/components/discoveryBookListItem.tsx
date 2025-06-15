@@ -64,12 +64,12 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
 
   const onHeartPress = () => {
     if (!currentUser) {
-      Alert.alert('Please log in to save podcasts.');
+      Alert.alert('يرجى تسجيل الدخول لحفظ المحتوى.');
       return;
     }
     addToLibrary.mutate();
     setIsInLibrary(true);
-    Alert.alert('Added to Library', `"${podcast.title}" has been saved.`);
+    Alert.alert('تم الحفظ', `"${podcast.title}" تم الحفظ بنجاح.`);
   };
 
   return (

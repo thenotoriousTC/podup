@@ -46,7 +46,7 @@ const UploadScreen = () => {
       // Request permission
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please grant permission to access your photo library.');
+        Alert.alert('Permission needed', 'يرجى الموافقة على إذن الوصول إلى مكتبة الصور.');
         return;
       }
 
@@ -62,7 +62,7 @@ const UploadScreen = () => {
       }
     } catch (error) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to pick image. Please try again.');
+      Alert.alert('Error', 'فشل في اختيار الصورة. يرجى المحاولة مرة أخرى.');
     }
   };
 
@@ -84,7 +84,7 @@ const UploadScreen = () => {
       }
     } catch (error) {
       console.error('Error picking audio:', error);
-      Alert.alert('Error', 'Failed to pick audio file. Please try again.');
+      Alert.alert('Error', 'فشل في اختيار ملف الصوت. يرجى المحاولة مرة أخرى.');
     }
   };
 
@@ -106,27 +106,27 @@ const UploadScreen = () => {
 
   const validateForm = () => {
     if (!currentUser?.id) {
-      Alert.alert('Authentication Error', 'Please log in to upload a podcast.');
+      Alert.alert('Authentication Error', 'يرجى تسجيل الدخول لتحميل المحتوى.');
       return false;
     }
     if (!title.trim()) {
-      Alert.alert('Validation Error', 'Please enter a podcast title.');
+      Alert.alert('Validation Error', 'يرجى إدخال عنوان المحتوى.');
       return false;
     }
     if (!author.trim()) {
-      Alert.alert('Validation Error', 'Please enter a Podcast Creator name.');
+      Alert.alert('Validation Error', 'يرجى إدخال اسم مبدع المحتوى.');
       return false;
     }
     if (!description.trim()) {
-      Alert.alert('Validation Error', 'Please enter a podcast description.');
+      Alert.alert('Validation Error', 'يرجى إدخال وصف المحتوى.');
       return false;
     }
     if (!audio) {
-      Alert.alert('Validation Error', 'Please select an audio file.');
+      Alert.alert('Validation Error', 'يرجى اختيار ملف الصوت.');
       return false;
     }
     if (!image) {
-      Alert.alert('Validation Error', 'Please select a cover image.');
+      Alert.alert('Validation Error', 'يرجى اختيار صورة الغلاف.');
       return false;
     }
     return true;
