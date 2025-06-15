@@ -37,7 +37,7 @@ export default function App() {
      
 
 
-    <View className=' flex-1 items-center justify-center p-1'>
+    <View className=' flex-1 items-center justify-center p-1  pt-20'>
     <FlatList
     data={data}
     contentContainerClassName='gap-4'

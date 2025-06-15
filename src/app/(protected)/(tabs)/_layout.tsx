@@ -51,7 +51,7 @@ export default function RootLayout() {
          
         options={{
           title: "مكتبة",
-          headerTitle: "مكتبتي",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="library" size={size} color={color} />
           ),
@@ -62,7 +62,7 @@ export default function RootLayout() {
         name="recording"
         options={{
           title: "تسجيل",
-          headerTitle: "تسجيل",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="mic" size={size} color={color} />
           ),
@@ -71,7 +71,7 @@ export default function RootLayout() {
         name="profile"
         options={{
           title: "الملف الشخصي",
-          headerTitle: "الملف الشخصي",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Octicons name="person" size={size} color={color} />
           ),

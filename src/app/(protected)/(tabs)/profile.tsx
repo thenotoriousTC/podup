@@ -35,21 +35,16 @@ export default function Profile() {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Profile</Text>
+        <View style={styles.container} className='pt-10 align-center '>
+            <View style={styles.header} className='text-right'>
+                <Text style={styles.title}>الملف الشخصي</Text>
             </View>
 
             
             <View style={styles.card}>
                 <View style={styles.userInfo}>
-                    <View style={styles.avatarContainer}>
-                        <Image 
-                            source={{ uri: currentUser?.user_metadata?.avatar_url || currentUser?.user_metadata?.picture || 'https://via.placeholder.com/100' }} 
-                            style={styles.avatar} 
-                        />
-                    </View>
-                    <View style={styles.userDetails}>
+                    
+                    <View >
                         <Text style={styles.userName}>{currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || 'User'}</Text>
                         <Text style={styles.userEmail}>{currentUser?.email || 'No email'}</Text>
                     </View>
@@ -57,31 +52,22 @@ export default function Profile() {
             </View>
             
             <View style={styles.menuSection}>
-                <Text style={styles.sectionTitle}>Account</Text>
+                <Text style={styles.sectionTitle}>الحساب</Text>
                 
                 <View style={styles.menuCard}>
-                    <Pressable style={styles.menuItem}>
-                        <AntDesign name="user" size={22} color="#007AFF" />
-                        <Text style={styles.menuItemText}>Edit Profile</Text>
-                        <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
-                    </Pressable>
+                   
                     
-                    <View style={styles.divider} />
                     
-                    <Pressable style={styles.menuItem}>
-                        <AntDesign name="setting" size={22} color="#007AFF" />
-                        <Text style={styles.menuItemText}>Settings</Text>
-                        <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
-                    </Pressable>
                     
-                    <View style={styles.divider} />
+                    
+                    
                     
                     <Pressable 
                         style={styles.menuItem}
                         onPress={() => router.push('/(protected)/UPLOAD')}
                     >
                         <AntDesign name="upload" size={22} color="#007AFF" />
-                        <Text style={styles.menuItemText}>Upload your podcasts</Text>
+                        <Text style={styles.menuItemText}>  تحميل  </Text>
                         <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
                     </Pressable>
                     
@@ -89,7 +75,7 @@ export default function Profile() {
                     
                     <Pressable style={styles.menuItem} onPress={handleSignOut}>
                         <AntDesign name="logout" size={22} color="#007AFF" />
-                        <Text style={styles.menuItemText}>Sign Out</Text>
+                        <Text style={styles.menuItemText}>تسجيل الخروج</Text>
                         <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
                     </Pressable>
                 </View>
@@ -112,21 +98,25 @@ const styles = StyleSheet.create({
         fontSize: 34,
         fontWeight: 'bold',
         color: '#007AFF',
+        textAlign: 'right',
     },
     card: {
         backgroundColor: 'white',
         borderRadius: 12,
         padding: 16,
+        marginRight: 0,
         marginBottom: 24,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 3,
+        textAlign: 'right',
     },
     userInfo: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'flex-end',
     },
     avatarContainer: {
         shadowColor: '#000',
@@ -135,23 +125,23 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
     },
     avatar: {
-        width: 70,
         height: 70,
         borderRadius: 35,
     },
-    userDetails: {
-        marginLeft: 16,
-    },
+
     userName: {
         fontSize: 20,
         fontWeight: '600',
         color: '#000',
+        textAlign: 'right',
     },
     userEmail: {
         fontSize: 16,
         color: '#3C3C43',
         opacity: 0.6,
         marginTop: 4,
+        textAlign: 'right',
+
     },
     menuSection: {
         marginBottom: 24,
@@ -161,6 +151,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#007AFF',
         marginBottom: 12,
+        textAlign: 'right',
     },
     menuCard: {
         backgroundColor: 'white',
@@ -181,6 +172,7 @@ const styles = StyleSheet.create({
         marginLeft: 16,
         flex: 1,
         color: '#000',
+        textAlign: 'right',
     },
     menuArrow: {
         marginLeft: 'auto',
@@ -189,5 +181,6 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: '#E5E5EA',
         marginLeft: 54,
+        textAlign: 'right',
     },
 });

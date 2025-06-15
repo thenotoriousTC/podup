@@ -7,6 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
+import { Stack } from 'expo-router';
 
 interface AudioFile {
   uri: string;
@@ -259,6 +260,11 @@ const UploadScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-50">
+     <Stack.Screen options={{ headerShown: true,
+     headerTitle: "   ",
+
+
+      }} />
       <ScrollView 
         className="flex-1" 
         contentContainerStyle={{ paddingBottom: 24 }}
@@ -267,13 +273,13 @@ const UploadScreen = () => {
         <View className="p-6 space-y-6">
           {/* Header */}
           <View className="items-center mb-4">
-            <Text className="text-2xl font-bold text-gray-800">Upload Podcast</Text>
-            <Text className="text-gray-600 mt-1">Share your story with the world</Text>
+            <Text className="text-2xl font-bold text-gray-800">  تحميل  </Text>
+            <Text className="text-gray-600 mt-1">شارك قصةك مع العالم</Text>
           </View>
 
           {/* Cover Image Picker */}
           <View className="items-center">
-            <Text className="text-gray-700 font-semibold mb-2">Cover Image *</Text>
+            <Text className="text-gray-700 font-semibold mb-2">الغلاف *</Text>
             <Pressable 
               onPress={pickImage}
               className="w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 shadow-sm"
@@ -295,8 +301,8 @@ const UploadScreen = () => {
               ) : (
                 <View className="items-center p-4">
                   <MaterialIcons name="add-photo-alternate" size={36} color="#9CA3AF" />
-                  <Text className="text-gray-500 text-center mt-2 font-medium">Add Cover Image</Text>
-                  <Text className="text-gray-400 text-xs mt-1">Optional</Text>
+                  <Text className="text-gray-500 text-center mt-2 font-medium">إضافة صورة الغلاف</Text>
+                  <Text className="text-gray-400 text-xs mt-1">اختياري</Text>
                 </View>
               )}
             </Pressable>
@@ -304,7 +310,7 @@ const UploadScreen = () => {
 
           {/* Audio File Picker */}
           <View>
-            <Text className="text-gray-700 font-semibold mb-2">Audio File *</Text>
+            <Text className="text-gray-700 font-semibold mb-2">الملف الصوتي *</Text>
             <Pressable 
               onPress={pickAudio}
               className="bg-white p-6 rounded-2xl border-2 border-dashed border-gray-200 items-center shadow-sm"
@@ -315,26 +321,26 @@ const UploadScreen = () => {
                     <Feather name="music" size={24} color="#3B82F6" />
                   </View>
                   <Text className="text-lg font-semibold text-gray-800 text-center" numberOfLines={1}>
-                    {audio.name}
+                    {audio.name}    
                   </Text>
                   <Text className="text-gray-500 text-sm mt-1">
-                    {audio.size ? formatFileSize(audio.size) : 'Size unknown'}
+                    {audio.size ? formatFileSize(audio.size) : 'حجم غير معروف'}
                   </Text>
                   <Pressable 
                     onPress={removeAudio}
                     className="mt-3 bg-red-100 px-3 py-1 rounded-full"
                   >
-                    <Text className="text-red-600 text-sm">Remove</Text>
+                    <Text className="text-red-600 text-sm">حذف</Text>
                   </Pressable>
                 </View>
               ) : (
                 <View className="items-center">
                   <Feather name="upload-cloud" size={32} color="#9CA3AF" />
                   <Text className="text-lg font-semibold text-gray-800 mt-2">
-                    Select Audio File
+                    اختر ملف الصوت
                   </Text>
                   <Text className="text-gray-500 text-sm mt-1">
-                    MP3, WAV, AAC, M4A, etc.
+                    MP3, WAV, AAC, M4A, الخ....  
                   </Text>
                 </View>
               )}
@@ -345,11 +351,11 @@ const UploadScreen = () => {
           <View className="space-y-4">
             <View>
               <Text className="text-gray-700 font-semibold mb-2">
-                Title *
+                العنوان *
               </Text>
               <TextInput
                 className="bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm"
-                placeholder="Enter podcast title"
+                placeholder="أدخل العنوان"
                 value={title}
                 onChangeText={setTitle}
                 maxLength={100}
@@ -358,11 +364,11 @@ const UploadScreen = () => {
 
             <View>
               <Text className="text-gray-700 font-semibold mb-2">
-                Podcast Creator *
+                المُنشئ *
               </Text>
               <TextInput
                 className="bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm"
-                placeholder="Enter Creator name"
+                placeholder="أدخل اسم المُنشئ"
                 value={author}
                 onChangeText={setAuthor}
                 maxLength={50}
@@ -371,11 +377,11 @@ const UploadScreen = () => {
 
             <View>
               <Text className="text-gray-700 font-semibold mb-2">
-                Description *
+                  الوصف *
               </Text>
               <TextInput
                 className="bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm"
-                placeholder="Enter podcast description"
+                placeholder="أدخل وصف البودكاست"
                 multiline
                 numberOfLines={4}
                 value={description}
@@ -396,11 +402,11 @@ const UploadScreen = () => {
             disabled={isUploading}
           >
             {isUploading ? (
-              <Text className="text-white font-semibold text-lg">Uploading...</Text>
+              <Text className="text-white font-semibold text-lg">جاري التحميل...  </Text>
             ) : (
               <View className="flex-row items-center">
                 <Feather name="upload" size={20} color="white" />
-                <Text className="text-white font-semibold text-lg ml-2">Upload Podcast</Text>
+                <Text className="text-white font-semibold text-lg ml-2">  تحميل</Text>
               </View>
             )}
           </Pressable>

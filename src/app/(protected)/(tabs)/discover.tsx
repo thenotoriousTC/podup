@@ -52,13 +52,13 @@ export default function App() {
   if (error) {
     return (
       <View className="flex-1 items-center justify-center p-4 pt-12">
-        <Text>Error fetching podcasts</Text>
+        <Text>خطأ في جلب المحتوى</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 ">
       <StatusBar style="auto" />
       
       {/* Search Bar Container */}
@@ -100,7 +100,7 @@ export default function App() {
           {/* Search Results Count */}
           {searchQuery.length > 0 && (
             <Text className="text-sm text-gray-500 mt-2 px-1">
-              {filteredPodcasts.length} podcast{filteredPodcasts.length !== 1 ? 's' : ''}     مطابق
+              {filteredPodcasts.length} podcast{filteredPodcasts.length !== 1 ? 's' : ''}         مطابق
             </Text>
           )}
         </View>

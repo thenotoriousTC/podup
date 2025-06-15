@@ -62,14 +62,14 @@ export default function RecordingScreen() {
         if (!audioStatus.granted) {
           Alert.alert(
             "Permission Required", 
-            "We need microphone access to record audio."
+            "نحتاج إلى الوصول إلى الميكروفون لتسجيل الصوت."
           );
         }
         
         if (!imageStatus.granted) {
           Alert.alert(
             "Permission Required", 
-            "We need photo library access to select podcast cover images."
+            "نحتاج إلى الوصول إلى المكتبة الصور لاختيار صورة الغلاف."
           );
         }
       } catch (error) {
@@ -472,7 +472,7 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="person-circle-outline" size={64} color="#007AFF" />
         <Text className="text-xl font-bold text-red-500 mt-4 mb-2 text-center">
-          Please log in to record podcasts
+          يرجى تسجيل الدخول لتسجيل الصوت
         </Text>
       </View>
     );
@@ -483,7 +483,7 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
         <Text className="mt-4 text-base text-blue-500">
-          Requesting permissions...
+          طلب إذن...
         </Text>
       </View>
     );
@@ -494,17 +494,17 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="mic-off" size={64} color="#FF3B30" />
         <Text className="text-xl font-bold text-red-500 mt-4 mb-2 text-center">
-          Microphone permission denied
+          رفض إذن الميكروفون
         </Text>
         <Text className="text-base text-gray-600 text-center max-w-[80%]">
-          Please enable microphone access in your device settings
+          يرجى تفعيل الوصول إلى الميكروفون في إعدادات جهازك
         </Text>
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-50">
+    <ScrollView className="flex-1 bg-slate-50 pt-10">
       <View className="p-4">
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
