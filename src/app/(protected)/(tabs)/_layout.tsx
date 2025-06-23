@@ -1,11 +1,10 @@
 import { Redirect, Slot, Tabs } from "expo-router";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import "../../../../global.css";
 import { ActivityIndicator, StyleSheet, View as RNView } from "react-native";
 import React from "react";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";
-import { Ionicons, Octicons } from "@expo/vector-icons";
+import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import LobsterText from "@/components/LobsterText";
 
 export default function RootLayout() {
@@ -16,8 +15,8 @@ export default function RootLayout() {
         headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "#000000",
+        tabBarActiveTintColor: "#000000",
+        tabBarInactiveTintColor: "#8E8E93",
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarLabelPosition: "below-icon",
         headerTitleAlign: "center",
@@ -39,41 +38,42 @@ export default function RootLayout() {
       <Tabs.Screen
         name="discover"
         options={{
-          title: "اكتشف محتوى",
+          title: "اكتشف",
           headerTitle: "PodUp",
-          tabBarIcon: ({ color, size }) => (
-            <AntDesign name="search1" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Entypo name={focused ? "compass" : "compass"} size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="index"
-         
+        name="index"                  
         options={{
-          title: "مكتبة",
+          title: "المفضلة",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="library" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <FontAwesome name={focused ? "heart" : "heart-o"} size={size} color={color} />
           ),
         }}
       />
-      
+             
       <Tabs.Screen
         name="recording"
         options={{
           title: "تسجيل",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="mic" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons name={focused ? "microphone" : "microphone-outline"} size={size} color={color} />
           ),
         }}
-      /><Tabs.Screen
+      />
+      
+      <Tabs.Screen
         name="profile"
         options={{
           title: "الملف الشخصي",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Octicons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={size} color={color} />
           ),
         }}
       />
@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: '#FFFFFF',
     elevation: 0, // Android
+    borderBottomWidth: 0,
   },
   headerTitle: {
     color: '#007AFF',
@@ -93,22 +94,25 @@ const styles = StyleSheet.create({
     fontFamily: 'Lobster_400Regular',
   },
   tabBarContainer: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
+    backgroundColor: 'transparent',
   },
   tabBar: {
     backgroundColor: '#FFFFFF',
     borderTopWidth: 0,
-    elevation: 0, // Android
-    height: 83,
-    paddingTop: 5,
-    paddingBottom: 30,
+    elevation: 8, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    height: 90,
+    paddingTop: 8,
+    paddingBottom: 32,
+    paddingHorizontal: 16,
   },
   tabBarLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '500',
     textAlign: 'center',
+    marginTop: 2,
   },
 });
