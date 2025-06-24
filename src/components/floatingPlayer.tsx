@@ -1,13 +1,50 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View, Animated } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
+import { useEffect, useRef } from 'react';
 
 export default function FloatingPlayer() {
   const { player, podcast } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
+  
+  // Animation reference for loading spinner
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  // Create spinning animation
+  useEffect(() => {
+    let spinAnimation: Animated.CompositeAnimation;
+    
+    if (playerStatus.isBuffering) {
+      // Start continuous spinning animation
+      spinAnimation = Animated.loop(
+        Animated.timing(spinValue, {
+          toValue: 1,
+          duration: 1000, // 1 second per rotation
+          useNativeDriver: true,
+        })
+      );
+      spinAnimation.start();
+    } else {
+      // Stop animation and reset
+      spinValue.stopAnimation();
+      spinValue.setValue(0);
+    }
+
+    return () => {
+      if (spinAnimation) {
+        spinAnimation.stop();
+      }
+    };
+  }, [playerStatus.isBuffering, spinValue]);
+
+  // Convert animated value to rotation
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   if (!podcast) return null;
 
@@ -51,17 +88,21 @@ export default function FloatingPlayer() {
         }}
         className="ml-2 p-2 active:opacity-70"
       >
-        <AntDesign
-          name={
-            playerStatus.isBuffering
-              ? 'loading2'
-              : playerStatus.playing
-              ? 'pausecircle'
-              : 'playcircleo'
-          }
-          size={28}
-          color={playerStatus.playing ? '#0A84FF' : '#8E8E93'}
-        />
+        {playerStatus.isBuffering ? (
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <AntDesign
+              name="loading1"
+              size={28}
+              color="#0A84FF"
+            />
+          </Animated.View>
+        ) : (
+          <AntDesign
+            name={playerStatus.playing ? 'pausecircle' : 'playcircleo'}
+            size={28}
+            color={playerStatus.playing ? '#0A84FF' : '#8E8E93'}
+          />
+        )}
       </Pressable>
     </View>
   );

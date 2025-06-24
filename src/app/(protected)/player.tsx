@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image, Animated } from "react-native";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SafeAreaView } from "react-native";
@@ -7,29 +7,66 @@ import PlaybackBar from "@/components/PlaybackBar";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from "@/providers/playerprovider";
+import { useEffect, useRef } from 'react';
 
 export default function Player() {
-  const { player, podcast } = usePlayer();
+  const { player, podcast, seekTo } = usePlayer(); // Use seekTo from context
   const playerStatus = useAudioPlayerStatus(player);
+  
+  // Animation reference for loading spinner
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  // Create spinning animation
+  useEffect(() => {
+    let spinAnimation: Animated.CompositeAnimation;
+    
+    if (playerStatus.isBuffering) {
+      // Start continuous spinning animation
+      spinAnimation = Animated.loop(
+        Animated.timing(spinValue, {
+          toValue: 1,
+          duration: 1000, // 1 second per rotation
+          useNativeDriver: true,
+        })
+      );
+      spinAnimation.start();
+    } else {
+      // Stop animation and reset
+      spinValue.stopAnimation();
+      spinValue.setValue(0);
+    }
+
+    return () => {
+      if (spinAnimation) {
+        spinAnimation.stop();
+      }
+    };
+  }, [playerStatus.isBuffering, spinValue]);
+
+  // Convert animated value to rotation
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   // Helper function to get the correct image URL with fallback
   const getImageUrl = (podcast: any) => {
     return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
   };
 
-  // Function to skip backward by 10 seconds
+  // Function to skip backward by 10 seconds - now uses debounced seekTo
   const skipBackward = () => {
-    if (player && playerStatus.currentTime !== null) {
+    if (playerStatus.currentTime !== null) {
       const newTime = Math.max(0, playerStatus.currentTime - 10);
-      player.seekTo(newTime);
+      seekTo(newTime); // Use debounced seekTo
     }
   };
 
-  // Function to skip forward by 10 seconds
+  // Function to skip forward by 10 seconds - now uses debounced seekTo
   const skipForward = () => {
-    if (player && playerStatus.currentTime !== null && playerStatus.duration !== null) {
+    if (playerStatus.currentTime !== null && playerStatus.duration !== null) {
       const newTime = Math.min(playerStatus.duration, playerStatus.currentTime + 10);
-      player.seekTo(newTime);
+      seekTo(newTime); // Use debounced seekTo
     }
   };
 
@@ -38,14 +75,6 @@ export default function Player() {
     if (player) {
       // Use the correct method for expo-audio
       player.loop = !player.loop;
-    }
-  };
-
-  // Function to toggle mute
-  const toggleMute = () => {
-    if (player) {
-      // Toggle between volume 0 (muted) and 1 (full volume)
-      player.volume = player.volume > 0 ? 0 : 1;
     }
   };
 
@@ -90,19 +119,17 @@ export default function Player() {
           </View>
         </View>
 
-        {/* Progress Bar */}
+        {/* Progress Bar - now uses debounced seekTo */}
         <View className="px-4 mb-8">
           <PlaybackBar
             duration={playerStatus.duration}
             currentTime={playerStatus.currentTime}
-            onSeek={(seconds) => player.seekTo(seconds)}
+            onSeek={seekTo} // Use debounced seekTo instead of direct player.seekTo
           />
         </View>
 
         {/* Control Buttons */}
         <View className="flex-row justify-center items-center px-8">
-          {/* Skip Backward */}
-        
           {/* Rewind 10 seconds */}
           <Pressable
             className="p-4 mr-4"
@@ -120,12 +147,22 @@ export default function Player() {
               playerStatus.playing ? player.pause() : player.play();
             }}
           >
-            <AntDesign
-              name={playerStatus.playing ? 'pause' : 'play'}
-              size={32}
-              color="#1C1C1E"
-              style={{ marginLeft: playerStatus.playing ? 0 : 2 }}
-            />
+            {playerStatus.isBuffering ? (
+              <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                <AntDesign
+                  name="loading1"
+                  size={32}
+                  color="#1C1C1E"
+                />
+              </Animated.View>
+            ) : (
+              <AntDesign
+                name={playerStatus.playing ? 'pause' : 'play'}
+                size={32}
+                color="#1C1C1E"
+                style={{ marginLeft: playerStatus.playing ? 0 : 2 }}
+              />
+            )}
           </Pressable>
 
           {/* Fast Forward 10 seconds */}
@@ -136,9 +173,6 @@ export default function Player() {
           >
             <MaterialIcons name="forward-10" size={32} color="black" />
           </Pressable>
-
-          {/* Skip Forward */}
-          
         </View>
 
         {/* Additional Controls Row */}
@@ -154,8 +188,6 @@ export default function Player() {
               color={player?.loop ? "#007AFF" : "#8E8E93"} 
             />
           </Pressable>
-
-          
         </View>
       </View>
     </SafeAreaView>

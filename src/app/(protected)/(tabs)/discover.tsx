@@ -58,14 +58,14 @@ export default function App() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50 ">
+    <View className="flex-1 bg-white ">
       <StatusBar style="auto" />
       
       {/* Search Bar Container */}
-      <View className="px-4 pt-12 pb-4 bg-white shadow-sm">
+      <View className="px-4 pt-12 pb-4 bg-white">
         <View className="relative">
           {/* Search Input */}
-          <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3 border border-gray-200">
+          <View className="flex-row items-center bg-gray-100 rounded-xl px-4 py-3 border border-gray-200 shadow-xl">
             <Ionicons 
               name="search" 
               size={20} 
