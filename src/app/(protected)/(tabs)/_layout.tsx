@@ -1,11 +1,17 @@
 import { Redirect, Slot, Tabs } from "expo-router";
 import "../../../../global.css";
-import { ActivityIndicator, StyleSheet, View as RNView } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View as RNView } from "react-native";
 import React from "react";
-import { BottomTabBar } from "@react-navigation/bottom-tabs";
+import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";
 import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import LobsterText from "@/components/LobsterText";
+
+const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps) => (
+  <Pressable onPress={onPress} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    {children}
+  </Pressable>
+);
 
 export default function RootLayout() {
   return (
@@ -19,6 +25,7 @@ export default function RootLayout() {
         tabBarInactiveTintColor: "#8E8E93",
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarLabelPosition: "below-icon",
+        tabBarButton: CustomTabBarButton,
         headerTitleAlign: "center",
         headerTitle: ({ children }) => (
           <LobsterText size={26} color="#007AFF">
@@ -30,7 +37,7 @@ export default function RootLayout() {
         <RNView style={styles.tabBarContainer}>
           <FloatingPlayer />
           <BottomTabBar
-            {...props}
+            {...props}     
           />
         </RNView>
       )}
@@ -94,20 +101,30 @@ const styles = StyleSheet.create({
     fontFamily: 'Lobster_400Regular',
   },
   tabBarContainer: {
-    backgroundColor: 'transparent',
+    backgroundColor: 'white',
+    borderRadius: 30,
+    marginHorizontal: 2,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 1,
+      height: 4,
+    },
+    shadowOpacity: 0.30,
+    shadowRadius: 4.65,
+    elevation: 8,
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    right: 10,
   },
   tabBar: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
     borderTopWidth: 0,
-    elevation: 8, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    height: 90,
+    elevation: 0,
+    height: 75,
     paddingTop: 8,
-    paddingBottom: 32,
-    paddingHorizontal: 16,
+    paddingBottom: 10,
   },
   tabBarLabel: {
     fontSize: 12,
