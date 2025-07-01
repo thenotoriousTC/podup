@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView, TextInput, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useAudioRecorder, useAudioPlayer, RecordingPresets, AudioModule, useAudioPlayerStatus } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
@@ -508,9 +508,6 @@ export default function RecordingScreen() {
       <View className="p-4">
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
-          <Text className="text-2xl font-bold text-blue-500 mb-2">
-            تسجيل
-          </Text>
           <Text className="text-base text-gray-600 text-center">
             تسجيل، إدارة، ونشر محتواك
           </Text>
@@ -553,8 +550,8 @@ export default function RecordingScreen() {
 
         {/* Recordings List */}
         {recordings.length > 0 && (
-          <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm">
-            <Text className="text-xl font-bold text-gray-800 mb-4">
+          <View className="bg-white rounded-3xl p-5 mb-16 shadow-2xl">
+            <Text className="text-xl font-bold text-gray-800 mb-4 text-center">
               تسجيلاتك ({recordings.length})
             </Text>
             
@@ -575,10 +572,10 @@ export default function RecordingScreen() {
                     onPress={() => playRecording(recording)}
                     disabled={isUploading}
                   >
-                    <Ionicons
+                    <Feather
                       name={currentPlayingId === recording.id && playerStatus.playing ? "pause" : "play"}
                       size={24}
-                      color="#007AFF"
+                      color="black"
                     />
                   </TouchableOpacity>
                   
@@ -587,7 +584,7 @@ export default function RecordingScreen() {
                     onPress={() => selectRecordingForPublish(recording)}
                     disabled={isUploading}
                   >
-                    <Ionicons name="cloud-upload" size={24} color="#10B981" />
+                    <Ionicons name="cloud-upload" size={24} color="#3b82f6" />
                   </TouchableOpacity>
                   
                   <TouchableOpacity
@@ -605,7 +602,7 @@ export default function RecordingScreen() {
 
         {/* Metadata Form Section */}
         {showMetadataForm && selectedRecording && (
-          <View className="bg-white rounded-2xl p-5 mb-6 shadow-sm">
+          <View className="bg-white rounded-2xl p-5 mb-6 shadow-xl">
             <Text className="text-xl font-bold text-gray-800 text-center mb-2">
               نشر محتوى
             </Text>
