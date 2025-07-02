@@ -132,7 +132,7 @@ export default function App() {
             renderItem={({ item }) => <DiscoveryPodcastListItem podcast={item} />}
             keyExtractor={(item) => item.id}
             className="w-full"
-            contentContainerStyle={{ gap: 16, paddingBottom: 24 }}
+            contentContainerStyle={{ gap: 16, paddingBottom: 120 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           />
