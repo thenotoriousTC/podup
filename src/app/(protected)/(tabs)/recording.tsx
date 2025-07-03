@@ -5,7 +5,7 @@ import { useAudioRecorder, useAudioPlayer, RecordingPresets, AudioModule, useAud
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
-import { User } from '@supabase/supabase-js';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface Recording {
   id: string;
@@ -16,7 +16,7 @@ interface Recording {
 }
 
 export default function RecordingScreen() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { user: currentUser } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [recordingDuration, setRecordingDuration] = useState(0);
@@ -39,16 +39,6 @@ export default function RecordingScreen() {
   const playerStatus = useAudioPlayerStatus(audioPlayer);
 
   useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const { data: { user: supaUser }, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error('Error fetching current user:', error.message);
-      } else {
-        setCurrentUser(supaUser);
-      }
-    };
-    fetchCurrentUser();
-
     const getPermissions = async () => {
       try {
         // Request microphone permissions
@@ -83,7 +73,7 @@ export default function RecordingScreen() {
       fetchUserPodcasts();
     }
     loadSavedRecordings();
-  }, []);
+  }, [currentUser]);
 
   // Timer for recording duration
   useEffect(() => {
@@ -504,7 +494,7 @@ export default function RecordingScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 pt-10">
+    <ScrollView className="flex-1 bg-slate-50 pt-10 ">
       <View className="p-4">
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
@@ -514,7 +504,7 @@ export default function RecordingScreen() {
         </View>
 
         {/* Recording Section */}
-        <View className="items-center mb-8">
+        <View className="bg-white rounded-2xl p-6 shadow-lg items-center mb-8">
           <View className={`w-32 h-32 rounded-full justify-center items-center mb-6 ${
             isRecording ? 'bg-red-50 border-4 border-red-500' : 'bg-white border-4 border-blue-200'
           }`}>
@@ -550,7 +540,7 @@ export default function RecordingScreen() {
 
         {/* Recordings List */}
         {recordings.length > 0 && (
-          <View className="bg-white rounded-3xl p-5 mb-16 shadow-2xl">
+          <View className="bg-white rounded-2xl p-5 mb-8 shadow-lg">
             <Text className="text-xl font-bold text-gray-800 mb-4 text-center">
               تسجيلاتك ({recordings.length})
             </Text>
@@ -602,7 +592,7 @@ export default function RecordingScreen() {
 
         {/* Metadata Form Section */}
         {showMetadataForm && selectedRecording && (
-          <View className="bg-white rounded-2xl p-5 mb-6 shadow-xl">
+          <View className="bg-white rounded-2xl p-5 mb-6 shadow-lg">
             <Text className="text-xl font-bold text-gray-800 text-center mb-2">
               نشر محتوى
             </Text>
@@ -712,7 +702,7 @@ export default function RecordingScreen() {
 
         {/* User's Published Podcasts */}
         {userPodcasts.length > 0 && (
-          <View className="items-center p-5 bg-white rounded-2xl shadow-sm">
+          <View className="items-center p-5 bg-white rounded-2xl shadow-lg mb-8">
             <Text className="text-lg font-bold text-gray-800 mb-2">
               المحتوى المنشور
             </Text>

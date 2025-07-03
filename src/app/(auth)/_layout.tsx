@@ -1,34 +1,16 @@
-import { Redirect, Stack } from 'expo-router'
-import { supabase } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
-import React, { useState, useEffect } from 'react';
+import { Redirect, Stack } from 'expo-router';
+import { useAuth } from '@/providers/AuthProvider';
 
-export default function AuthRoutesLayout() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => {
-      authListener?.subscription.unsubscribe();
-    };
-  }, []);
+export default function AuthLayout() {
+  const { session, loading } = useAuth();
 
   if (loading) {
-    return null;
+    return null; // Or a loading indicator
   }
 
   if (session) {
-    return <Redirect href={'/(protected)'} />;
+    return <Redirect href="/(protected)" />;
   }
 
-  return <Stack />
+  return <Stack />;
 }

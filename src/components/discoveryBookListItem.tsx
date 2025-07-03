@@ -6,7 +6,7 @@ import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
+import { useAuth } from '@/providers/AuthProvider';
 
 interface Podcast {
   image_url: string | undefined;
@@ -28,16 +28,8 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
   const isPlaying = isCurrentTrack && playerStatus.playing;
   const supabaseClient = supabase;
   const queryClient = useQueryClient();
-
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { user: currentUser } = useAuth();
   const [isInLibrary, setIsInLibrary] = useState(false);
-
-  useEffect(() => {
-    supabaseClient.auth.getUser().then(({ data: { user }, error }) => {
-      if (error) console.error('Error fetching user:', error.message);
-      else setCurrentUser(user);
-    });
-  }, []);
 
   const addToLibrary = useMutation({
     mutationFn: async () =>
