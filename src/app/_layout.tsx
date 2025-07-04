@@ -5,6 +5,7 @@ import { Slot } from "expo-router";
 import PlayerProvider from "@/providers/playerprovider";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { ActivityIndicator, View } from "react-native";
+import { useFonts, Pacifico_400Regular } from '@expo-google-fonts/pacifico';
 
 const queryClient = new QueryClient();
 
@@ -23,8 +24,11 @@ const theme = {
 
 function RootLayoutNav() {
   const { loading } = useAuth();
+  const [fontsLoaded] = useFonts({
+    'Pacifico-Regular': Pacifico_400Regular,
+  });
 
-  if (loading) {
+  if (loading || !fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />

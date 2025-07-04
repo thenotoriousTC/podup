@@ -6,6 +6,7 @@ import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-
 import FloatingPlayer from "@/components/floatingPlayer";
 import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import LobsterText from "@/components/LobsterText";
+import { PacificoText } from "@/components/PacificoText";
 
 const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps) => (
   <Pressable onPress={onPress} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -28,9 +29,9 @@ export default function RootLayout() {
         tabBarButton: CustomTabBarButton,
         headerTitleAlign: "center",
         headerTitle: ({ children }) => (
-          <LobsterText size={26} color="#007AFF">
+          <PacificoText style={{ color: '#007AFF', fontSize: 30 }}>
             {children}
-          </LobsterText>
+          </PacificoText>
         ),
       }}
       tabBar={(props) => (
@@ -97,8 +98,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#007AFF',
     fontSize: 30,
-    fontWeight: '600',
-    fontFamily: 'Lobster_400Regular',
+    fontFamily : 'Pacifico-Regular',
   },
   tabBarContainer: {
     backgroundColor: 'white',
