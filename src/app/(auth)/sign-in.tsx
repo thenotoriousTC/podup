@@ -72,8 +72,8 @@ export default function Page() {
     <View className='flex-1'>
       <KeyboardAvoidingView 
         style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        behavior='padding'
+        keyboardVerticalOffset={ 0}
       >
         <ScrollView 
           className='flex-1'
@@ -105,7 +105,7 @@ export default function Page() {
 
             <View className='gap-4'>
               <View>
-                <Text className='text-sm font-medium mb-1'>
+                <Text className='text-sm font-medium mb-1 text-right'>
                   البريد الإلكتروني
                 </Text>
                 <TextInput
@@ -122,7 +122,7 @@ export default function Page() {
               </View>
 
               <View>
-                <Text className='text-sm font-medium mb-1'>
+                <Text className='text-sm font-medium mb-1 text-right'>
                   كلمة المرور
                 </Text>
                 <TextInput

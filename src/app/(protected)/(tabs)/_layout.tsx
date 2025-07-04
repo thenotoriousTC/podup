@@ -4,7 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, View as RNView } from "react-
 import React from "react";
 import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";
-import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 import LobsterText from "@/components/LobsterText";
 import { PacificoText } from "@/components/PacificoText";
 
@@ -81,7 +81,7 @@ export default function RootLayout() {
           title: "الملف الشخصي",
           headerShown: false,
           tabBarIcon: ({ color, size, focused }) => (
-            <MaterialCommunityIcons name={focused ? "account" : "account-outline"} size={size} color={color} />
+            <Octicons name={focused ? "person-fill" : "person"} size={size} color={color} />
           ),
         }}
       />
@@ -103,7 +103,9 @@ const styles = StyleSheet.create({
   tabBarContainer: {
     backgroundColor: 'white',
     borderRadius: 30,
-    marginHorizontal: 2,
+    marginRight:4,
+    marginLeft:4,
+
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -113,18 +115,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.30,
     shadowRadius: 4.65,
     elevation: 8,
-    position: 'absolute',
+    position:'relative',
     bottom: 10,
-    left: 10,
-    right: 10,
+  
   },
   tabBar: {
     backgroundColor: 'transparent',
     borderTopWidth: 0,
     elevation: 0,
     height: 75,
-    paddingTop: 8,
-    paddingBottom: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   tabBarLabel: {
     fontSize: 12,

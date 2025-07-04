@@ -48,7 +48,7 @@ export default function FloatingPlayer() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} className=' shadow-2xl rounded-full shadow-gray-400 '>
       <Link href="/player" asChild>
         <Pressable style={styles.pressableContainer}>
           <Image
@@ -95,11 +95,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 15,
-    shadowColor: 'blue',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 0.04,
+    borderColor: '#000000',
+    
+   
   },
   pressableContainer: {
     flexDirection: 'row',

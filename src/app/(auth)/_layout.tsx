@@ -3,6 +3,8 @@ import { useAuth } from '@/providers/AuthProvider';
 
 export default function AuthLayout() {
   const { session, loading } = useAuth();
+  
+
 
   if (loading) {
     return null; // Or a loading indicator
@@ -12,5 +14,12 @@ export default function AuthLayout() {
     return <Redirect href="/(protected)" />;
   }
 
-  return <Stack />;
+  return (
+      <Stack 
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+    
+  );
 }

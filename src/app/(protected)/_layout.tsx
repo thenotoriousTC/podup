@@ -24,6 +24,7 @@ export default function ProtectedLayout() {
       <Stack
         screenOptions={{
           headerStyle: styles.header,
+          headerShown:false,
           headerTitleStyle: styles.headerTitle,
           headerShadowVisible: false,
         }}
