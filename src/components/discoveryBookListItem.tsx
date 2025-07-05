@@ -65,7 +65,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
   };
 
   return (
-    <View className="flex-row items-center p-4 bg-white  rounded-xl shadow-md">
+    <View className="flex-row items-center p-4 bg-white  rounded-xl shadow-md m-4">
       <Image
         source={imageSource}
         className="w-16 h-16 rounded-lg"

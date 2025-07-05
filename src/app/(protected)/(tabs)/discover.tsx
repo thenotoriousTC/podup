@@ -124,7 +124,7 @@ export default function App() {
       </View>
 
       {/* Podcasts List */}
-      <ScrollView className="flex-1 px-4">
+      <ScrollView className="flex-1 px-4 mb-24">
         {groupedPodcasts.length === 0 && searchQuery.length > 0 ? (
           <View className="flex-1 items-center justify-center mt-20">
             <Ionicons name="search" size={64} color="#D1D5DB" />
