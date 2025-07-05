@@ -7,7 +7,8 @@ import {
   Text, 
   View, 
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView
 } from 'react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useMemo } from 'react';
@@ -25,16 +26,32 @@ export default function App() {
 
   const queryClient = useQueryClient();
 
-  // Filter podcasts based on search query
-  const filteredPodcasts = useMemo(() => {
+  // Group podcasts by category and filter based on search query
+  const groupedPodcasts = useMemo(() => {
     if (!data?.data) return [];
-    if (!searchQuery.trim()) return data.data;
-    
-    return data.data.filter((podcast) =>
-      podcast.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      podcast.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      podcast.author?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    let podcasts = data.data;
+
+    if (searchQuery.trim()) {
+      podcasts = podcasts.filter((podcast) =>
+        podcast.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        podcast.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        podcast.author?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    const grouped = podcasts.reduce((acc, podcast) => {
+      const category = podcast.category || 'Mix';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(podcast);
+      return acc;
+    }, {});
+
+    return Object.keys(grouped).map(category => ({
+      title: category,
+      data: grouped[category],
+    }));
   }, [data?.data, searchQuery]);
 
   const clearSearch = () => {
@@ -100,16 +117,16 @@ export default function App() {
           {/* Search Results Count */}
           {searchQuery.length > 0 && (
             <Text className="text-sm text-gray-500 mt-2 px-1">
-              {filteredPodcasts.length} podcast{filteredPodcasts.length !== 1 ? 's' : ''}         مطابق
+              {groupedPodcasts.reduce((acc, section) => acc + section.data.length, 0)} podcast{groupedPodcasts.reduce((acc, section) => acc + section.data.length, 0) !== 1 ? 's' : ''}         مطابق
             </Text>
           )}
         </View>
       </View>
 
       {/* Podcasts List */}
-      <View className="flex-1 px-4">
-        {filteredPodcasts.length === 0 && searchQuery.length > 0 ? (
-          <View className="flex-1 items-center justify-center">
+      <ScrollView className="flex-1 px-4">
+        {groupedPodcasts.length === 0 && searchQuery.length > 0 ? (
+          <View className="flex-1 items-center justify-center mt-20">
             <Ionicons name="search" size={64} color="#D1D5DB" />
             <Text className="text-gray-500 text-lg font-medium mt-4">
               لم يتم العثور على محتوى
@@ -126,18 +143,21 @@ export default function App() {
             </TouchableOpacity>
           </View>
         ) : (
-          <FlatList
-            data={filteredPodcasts}
-            contentContainerClassName="gap-4 pb-6"
-            renderItem={({ item }) => <DiscoveryPodcastListItem podcast={item} />}
-            keyExtractor={(item) => item.id}
-            className="w-full"
-            contentContainerStyle={{ gap: 16, paddingBottom: 120 }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          />
+          groupedPodcasts.map(section => (
+            <View key={section.title} className="mb-8">
+              <Text className="text-2xl font-bold text-gray-800 mb-4">{section.title}</Text>
+              <FlatList
+                data={section.data}
+                renderItem={({ item }) => <DiscoveryPodcastListItem podcast={item} />}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 16 }}
+              />
+            </View>
+          ))
         )}
-      </View>
+      </ScrollView>
     </View>
   );
 }

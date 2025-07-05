@@ -1,5 +1,5 @@
-// UPLOAD.tsx - Fixed version
-import { View, Text, Pressable, ScrollView, TextInput, Image, Alert } from 'react-native';
+// UPLOAD.tsx - With Progress Bar
+import { View, Text, Pressable, ScrollView, TextInput, Image, Alert, Modal, FlatList, TouchableOpacity, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { AntDesign, MaterialIcons, Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,6 +16,29 @@ interface AudioFile {
   mimeType?: string;
 }
 
+interface UploadProgress {
+  phase: 'image' | 'audio' | 'database' | 'complete';
+  percentage: number;
+  message: string;
+}
+
+const categories = [
+  'Comedy',
+  'Finance',
+  'Entertainment',
+  'Technology',
+  'Science',
+  'Sports',
+  'News',
+  'Health & Fitness',
+  'Business',
+  'Education',
+  'Arts',
+  'History',
+];
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
 const UploadScreen = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [title, setTitle] = useState('');
@@ -23,7 +46,10 @@ const UploadScreen = () => {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [audio, setAudio] = useState<AudioFile | null>(null);
+  const [category, setCategory] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -121,6 +147,10 @@ const UploadScreen = () => {
       Alert.alert('Validation Error', 'يرجى إدخال وصف المحتوى.');
       return false;
     }
+    if (!category.trim()) {
+      Alert.alert('Validation Error', 'يرجى إدخال فئة المحتوى.');
+      return false;
+    }
     if (!audio) {
       Alert.alert('Validation Error', 'يرجى اختيار ملف الصوت.');
       return false;
@@ -142,6 +172,25 @@ const UploadScreen = () => {
     return bytes;
   };
 
+  // Helper function to simulate progress during file operations
+  const simulateProgress = async (phase: 'image' | 'audio' | 'database', message: string, duration: number = 2000) => {
+    const steps = 20;
+    const stepDuration = duration / steps;
+    
+    for (let i = 0; i <= steps; i++) {
+      const percentage = (i / steps) * 100;
+      setUploadProgress({
+        phase,
+        percentage,
+        message: `${message} (${Math.round(percentage)}%)`
+      });
+      
+      if (i < steps) {
+        await new Promise(resolve => setTimeout(resolve, stepDuration));
+      }
+    }
+  };
+
   const handleUpload = async () => {
     if (!validateForm()) return;
 
@@ -154,9 +203,18 @@ const UploadScreen = () => {
       let imageUrl = null;
       if (image) {
         console.log('Uploading image...');
+        setUploadProgress({
+          phase: 'image',
+          percentage: 0,
+          message: 'جاري تحميل صورة الغلاف...'
+        });
+        
         const imageData = await FileSystem.readAsStringAsync(image, {
           encoding: FileSystem.EncodingType.Base64,
         });
+        
+        // Simulate progress for image upload
+        await simulateProgress('image', 'تحميل صورة الغلاف', 1500);
         
         const imageFileName = `podcast_image_${currentUser!.id}_${Date.now()}.jpg`;
         
@@ -179,14 +237,30 @@ const UploadScreen = () => {
         
         imageUrl = imageUrlData.publicUrl;
         console.log('Image uploaded successfully:', imageUrl);
+        
+        setUploadProgress({
+          phase: 'image',
+          percentage: 100,
+          message: 'تم تحميل صورة الغلاف بنجاح!'
+        });
       }
       
       // Upload audio file
       if (audio) {
         console.log('Uploading audio...');
+        setUploadProgress({
+          phase: 'audio',
+          percentage: 0,
+          message: 'جاري تحميل الملف الصوتي...'
+        });
+        
         const audioData = await FileSystem.readAsStringAsync(audio.uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
+        
+        // Simulate progress for audio upload (longer duration for larger files)
+        const audioUploadDuration = audio.size && audio.size > 10000000 ? 4000 : 2500; // 4s for large files, 2.5s for smaller
+        await simulateProgress('audio', 'تحميل الملف الصوتي', audioUploadDuration);
         
         const audioFileExtension = audio.name.split('.').pop() || 'm4a';
         const audioFileName = `podcast_${currentUser!.id}_${Date.now()}.${audioFileExtension}`;
@@ -210,8 +284,23 @@ const UploadScreen = () => {
         
         console.log('Audio uploaded successfully:', audioUrlData.publicUrl);
         
-        // Save to podcasts table - FIXED: Using both image_url and thumbnail_url
+        setUploadProgress({
+          phase: 'audio',
+          percentage: 100,
+          message: 'تم تحميل الملف الصوتي بنجاح!'
+        });
+        
+        // Save to database
         console.log('Saving to database...');
+        setUploadProgress({
+          phase: 'database',
+          percentage: 0,
+          message: 'جاري حفظ البيانات...'
+        });
+        
+        // Simulate database save progress
+        await simulateProgress('database', 'حفظ بيانات البودكاست', 1000);
+        
         const { error: dbError } = await supabase
           .from('podcasts')
           .insert({
@@ -219,9 +308,10 @@ const UploadScreen = () => {
             description: description.trim(),
             author: author.trim(),
             audio_url: audioUrlData.publicUrl,
-            image_url: imageUrl, // For new uploads
-            thumbnail_url: imageUrl, // For compatibility with existing seeded data
-            duration: 0, // You might want to calculate actual duration
+            image_url: imageUrl,
+            thumbnail_url: imageUrl,
+            category: category.trim(),
+            duration: 0,
             created_at: new Date().toISOString(),
           });
         
@@ -232,48 +322,119 @@ const UploadScreen = () => {
         
         console.log('Podcast saved to database successfully');
         
-        Alert.alert(
-          'Success!', 
-          'Your podcast has been uploaded successfully and is now available for others to listen to!', 
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // Reset form
-                setTitle('');
-                setAuthor(currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || '');
-                setDescription('');
-                setImage(null);
-                setAudio(null);
+        setUploadProgress({
+          phase: 'complete',
+          percentage: 100,
+          message: 'تم تحميل البودكاست بنجاح!'
+        });
+        
+        // Show success message after a short delay
+        setTimeout(() => {
+          Alert.alert(
+            'Success!', 
+            'Your podcast has been uploaded successfully and is now available for others to listen to!', 
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  // Reset form and progress
+                  setTitle('');
+                  setAuthor(currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || '');
+                  setDescription('');
+                  setImage(null);
+                  setAudio(null);
+                  setCategory('');
+                  setUploadProgress(null);
+                }
               }
-            }
-          ]
-        );
+            ]
+          );
+        }, 1000);
       }
     } catch (error) {
       console.error('Upload error:', error);
+      setUploadProgress(null);
       Alert.alert('Upload Failed', `There was an error uploading your podcast: ${error || 'Unknown error'}`);
     } finally {
       setIsUploading(false);
     }
   };
 
+  const ProgressBar = ({ progress }: { progress: UploadProgress }) => {
+    const progressWidth = (progress.percentage / 100) * (screenWidth - 48); // 48px for padding
+    
+    return (
+      <View className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+        <View className="items-center mb-4">
+          <View className="flex-row items-center mb-2">
+            <MaterialIcons 
+              name={
+                progress.phase === 'image' ? 'image' : 
+                progress.phase === 'audio' ? 'audiotrack' : 
+                progress.phase === 'database' ? 'storage' : 'check-circle'
+              } 
+              size={24} 
+              color={progress.percentage === 100 ? '#10B981' : '#3B82F6'} 
+            />
+            <Text className="text-lg font-semibold text-gray-800 ml-2">
+              {progress.message}
+            </Text>
+          </View>
+          
+          <View className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <View 
+              className={`h-full rounded-full transition-all duration-300 ${
+                progress.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'
+              }`}
+              style={{ width: progressWidth }}
+            />
+          </View>
+          
+          <Text className="text-sm text-gray-600 mt-2">
+            {Math.round(progress.percentage)}% مكتمل
+          </Text>
+        </View>
+        
+        {progress.phase !== 'complete' && (
+          <View className="flex-row items-center justify-center">
+            <MaterialIcons name="hourglass-empty" size={16} color="#9CA3AF" />
+            <Text className="text-sm text-gray-500 ml-1">
+              يرجى عدم إغلاق التطبيق أثناء التحميل
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   return (
     <View className="flex-1 bg-gray-50">
-     <Stack.Screen options={{ headerShown: true,
-     headerTitle: "   ",
-
-
+      <Stack.Screen options={{ 
+        headerShown: true,
+        headerTitle: "   ",
       }} />
-      <ScrollView 
-        className="flex-1" 
-        contentContainerStyle={{ paddingBottom: 24 }}
-        showsVerticalScrollIndicator={false}
+      
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }}
+        behavior='padding'
+        keyboardVerticalOffset={0}
       >
+        <ScrollView 
+          className="flex-1" 
+          contentContainerStyle={{ 
+            paddingBottom: 24,
+            flexGrow: 1, 
+            minHeight: screenHeight - 100 
+          }}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={!isUploading} // Disable scroll during upload
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
         <View className="p-6 space-y-6">
           {/* Header */}
           <View className="items-center mb-4">
-            <Text className="text-2xl font-bold text-gray-800">  تحميل  </Text>
+            <Text className="text-2xl font-bold text-gray-800">تحميل</Text>
             <Text className="text-gray-600 mt-1">شارك قصةك مع العالم</Text>
           </View>
 
@@ -282,7 +443,10 @@ const UploadScreen = () => {
             <Text className="text-gray-700 font-semibold mb-2">الغلاف *</Text>
             <Pressable 
               onPress={pickImage}
-              className="w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 shadow-sm"
+              disabled={isUploading}
+              className={`w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 shadow-sm ${
+                isUploading ? 'opacity-50' : ''
+              }`}
             >
               {image ? (
                 <View className="relative w-full h-full">
@@ -293,6 +457,7 @@ const UploadScreen = () => {
                   />
                   <Pressable 
                     onPress={removeImage}
+                    disabled={isUploading}
                     className="absolute -top-2 -right-2 bg-red-500 rounded-full w-8 h-8 items-center justify-center"
                   >
                     <AntDesign name="close" size={16} color="white" />
@@ -313,7 +478,10 @@ const UploadScreen = () => {
             <Text className="text-gray-700 font-semibold mb-2">الملف الصوتي *</Text>
             <Pressable 
               onPress={pickAudio}
-              className="bg-white p-6 rounded-2xl border-2 border-dashed border-gray-200 items-center shadow-sm"
+              disabled={isUploading}
+              className={`bg-white p-6 rounded-2xl border-2 border-dashed border-gray-200 items-center shadow-sm ${
+                isUploading ? 'opacity-50' : ''
+              }`}
             >
               {audio ? (
                 <View className="items-center w-full">
@@ -328,6 +496,7 @@ const UploadScreen = () => {
                   </Text>
                   <Pressable 
                     onPress={removeAudio}
+                    disabled={isUploading}
                     className="mt-3 bg-red-100 px-3 py-1 rounded-full"
                   >
                     <Text className="text-red-600 text-sm">حذف</Text>
@@ -354,11 +523,14 @@ const UploadScreen = () => {
                 العنوان *
               </Text>
               <TextInput
-                className="bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm"
+                className={`bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm ${
+                  isUploading ? 'opacity-50' : ''
+                }`}
                 placeholder="أدخل العنوان"
                 value={title}
                 onChangeText={setTitle}
                 maxLength={100}
+                editable={!isUploading}
               />
             </View>
 
@@ -367,20 +539,40 @@ const UploadScreen = () => {
                 المُنشئ *
               </Text>
               <TextInput
-                className="bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm"
+                className={`bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm ${
+                  isUploading ? 'opacity-50' : ''
+                }`}
                 placeholder="أدخل اسم المُنشئ"
                 value={author}
                 onChangeText={setAuthor}
                 maxLength={50}
+                editable={!isUploading}
               />
             </View>
 
             <View>
               <Text className="text-gray-700 font-semibold mb-2">
-                  الوصف *
+                الفئة *
+              </Text>
+              <Pressable
+                onPress={() => setCategoryModalVisible(true)}
+                disabled={isUploading}
+                className={`bg-white p-4 rounded-2xl border border-gray-200 shadow-sm ${
+                  isUploading ? 'opacity-50' : ''
+                }`}
+              >
+                <Text className="text-base">{category || 'اختر الفئة'}</Text>
+              </Pressable>
+            </View>
+
+            <View>
+              <Text className="text-gray-700 font-semibold mb-2">
+                الوصف *
               </Text>
               <TextInput
-                className="bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm"
+                className={`bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm ${
+                  isUploading ? 'opacity-50' : ''
+                }`}
                 placeholder="أدخل وصف البودكاست"
                 multiline
                 numberOfLines={4}
@@ -389,9 +581,15 @@ const UploadScreen = () => {
                 maxLength={500}
                 textAlignVertical="top"
                 style={{ minHeight: 100 }}
+                editable={!isUploading}
               />
             </View>
           </View>
+
+          {/* Progress Bar - Show only during upload */}
+          {isUploading && uploadProgress && (
+            <ProgressBar progress={uploadProgress} />
+          )}
 
           {/* Upload Button */}
           <Pressable 
@@ -402,16 +600,57 @@ const UploadScreen = () => {
             disabled={isUploading}
           >
             {isUploading ? (
-              <Text className="text-white font-semibold text-lg">جاري التحميل...  </Text>
+              <View className="flex-row items-center">
+                <MaterialIcons name="hourglass-empty" size={20} color="white" />
+                <Text className="text-white font-semibold text-lg ml-2">جاري التحميل...</Text>
+              </View>
             ) : (
               <View className="flex-row items-center">
                 <Feather name="upload" size={20} color="white" />
-                <Text className="text-white font-semibold text-lg ml-2">  تحميل</Text>
+                <Text className="text-white font-semibold text-lg ml-2">تحميل</Text>
               </View>
             )}
           </Pressable>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
+
+      {/* Category Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isCategoryModalVisible && !isUploading}
+        onRequestClose={() => {
+          setCategoryModalVisible(!isCategoryModalVisible);
+        }}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-2xl p-6 w-4/5">
+            <Text className="text-xl font-bold text-gray-800 mb-4">اختر الفئة</Text>
+            <FlatList
+              data={categories}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setCategory(item);
+                    setCategoryModalVisible(false);
+                  }}
+                  className="p-4 border-b border-gray-200"
+                >
+                  <Text className="text-base">{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <Pressable
+              onPress={() => setCategoryModalVisible(false)}
+              className="mt-4 bg-red-500 p-3 rounded-lg items-center"
+            >
+              <Text className="text-white font-semibold">إغلاق</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

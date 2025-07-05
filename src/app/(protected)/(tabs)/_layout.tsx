@@ -17,6 +17,7 @@ const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps) => (
 export default function RootLayout() {
   return (
     <Tabs
+    initialRouteName="discover"
       screenOptions={{
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,

@@ -3,6 +3,7 @@ export default [
     id: '1',
     title: 'The Great Gatsby',
     author: 'F. Scott Fitzgerald',
+    category: 'Arts',
     audio_url:
       'https://ia802206.us.archive.org/9/items/thenewyear_2501.poem_librivox/newyear_cawein_ar_128kb.mp3',
     thumbnail_url:
@@ -12,6 +13,7 @@ export default [
     id: '2',
     title: 'Pride and Prejudice',
     author: 'Jane Austen',
+    category: 'Arts',
     audio_url:
       'https://dn720309.ca.archive.org/0/items/fcc08_2102_librivox/fcc08_01_various_64kb.mp3',
     thumbnail_url:
@@ -21,6 +23,7 @@ export default [
     id: '3',
     title: 'The Adventures of Sherlock Holmes',
     author: 'Arthur Conan Doyle',
+    category: 'Entertainment',
     audio_url:
       'https://ia801501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_01_williams_128kb.mp3',
     thumbnail_url:
@@ -30,6 +33,7 @@ export default [
     id: '4',
     title: 'Frankenstein',
     author: 'Mary Shelley',
+    category: 'Entertainment',
     audio_url:
       'https://ia601501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_02_williams_128kb.mp3',
     thumbnail_url:
@@ -39,6 +43,7 @@ export default [
     id: '5',
     title: 'Dracula',
     author: 'Bram Stoker',
+    category: 'Entertainment',
     audio_url:
       'https://ia801501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_03_williams_128kb.mp3',
     thumbnail_url:
@@ -48,6 +53,7 @@ export default [
     id: '6',
     title: 'The Picture of Dorian Gray',
     author: 'Oscar Wilde',
+    category: 'Arts',
     audio_url:
       'https://ia801501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_04_williams_128kb.mp3',
     thumbnail_url:
@@ -57,6 +63,7 @@ export default [
     id: '7',
     title: 'Good to Great',
     author: 'Jim Collins',
+    category: 'Business',
     audio_url:
       'https://ia801501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_05_williams_128kb.mp3',
     thumbnail_url: 'https://m.media-amazon.com/images/I/51IPJiX34fL.jpg',
@@ -65,6 +72,7 @@ export default [
     id: '8',
     title: 'The Picture of Dorian Gray',
     author: 'Oscar Wilde',
+    category: 'Arts',
     audio_url:
       'https://ia801501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_06_williams_128kb.mp3',
     thumbnail_url: 'https://m.media-amazon.com/images/I/51IPJiX34fL.jpg',
@@ -73,6 +81,7 @@ export default [
     id: '9',
     title: 'The Picture of Dorian Gray',
     author: 'Oscar Wilde',
+    category: 'Arts',
     audio_url:
       'https://ia801501.us.archive.org/19/items/lostwarship_2504_librivox/lostwarship_07_williams_128kb.mp3',
     thumbnail_url: 'https://m.media-amazon.com/images/I/51IPJiX34fL.jpg',
