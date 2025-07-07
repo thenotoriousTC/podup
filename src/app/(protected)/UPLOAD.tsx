@@ -349,7 +349,7 @@ const UploadScreen = () => {
               }
             ]
           );
-        }, 1000);
+        }, 100);
       }
     } catch (error) {
       console.error('Upload error:', error);

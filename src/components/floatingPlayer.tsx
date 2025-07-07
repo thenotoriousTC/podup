@@ -7,14 +7,14 @@ import { usePlayer } from '@/providers/playerprovider';
 import { useEffect, useRef } from 'react';
 
 export default function FloatingPlayer() {
-  const { player, podcast } = usePlayer();
+  const { player, podcast, setPodcast } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
-
+  
   const spinValue = useRef(new Animated.Value(0)).current;
-
+  
   useEffect(() => {
     let spinAnimation: Animated.CompositeAnimation;
-
+    
     if (playerStatus.isBuffering) {
       spinAnimation = Animated.loop(
         Animated.timing(spinValue, {
@@ -28,25 +28,37 @@ export default function FloatingPlayer() {
       spinValue.stopAnimation();
       spinValue.setValue(0);
     }
-
+    
     return () => {
       if (spinAnimation) {
         spinAnimation.stop();
       }
     };
   }, [playerStatus.isBuffering, spinValue]);
-
+  
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
-
+  
   if (!podcast) return null;
-
+  
   const getImageUrl = (podcast: any) => {
     return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
   };
-
+  
+  const handleRemove = async () => {
+    try {
+      // Pause the audio player and seek to beginning
+      await player.pause();
+      await player.seekTo(0);
+      // Clear the podcast from state
+      setPodcast(null);
+    } catch (error) {
+      console.error('Error stopping audio:', error);
+    }
+  };
+  
   return (
     <View style={styles.container} className=' shadow-2xl rounded-full shadow-gray-400 '>
       <Link href="/player" asChild>
@@ -63,6 +75,7 @@ export default function FloatingPlayer() {
           <StatusBar style="auto" />
         </Pressable>
       </Link>
+      
       <Pressable
         onPress={() => (playerStatus.playing ? player.pause() : player.play())}
         style={styles.playPauseButton}
@@ -78,6 +91,15 @@ export default function FloatingPlayer() {
             color={playerStatus.playing ? '#0A84FF' : '#8E8E93'}
           />
         )}
+      </Pressable>
+      
+      <Pressable
+        onPress={handleRemove}
+        style={styles.removeButton}
+      >
+        <View style={styles.removeButtonInner}>
+          <AntDesign name="close" size={16} color="#666" />
+        </View>
       </Pressable>
     </View>
   );
@@ -97,8 +119,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 0.04,
     borderColor: '#000000',
-    
-   
   },
   pressableContainer: {
     flexDirection: 'row',
@@ -127,5 +147,25 @@ const styles = StyleSheet.create({
   },
   playPauseButton: {
     padding: 5,
+  },
+  removeButton: {
+    padding: 5,
+    marginLeft: 5,
+  },
+  removeButtonInner: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
   },
 });
