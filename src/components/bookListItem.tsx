@@ -3,6 +3,7 @@ import { Image, TouchableOpacity, View, Text, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 import { useAudioPlayerStatus } from 'expo-audio';
+import { useRouter } from 'expo-router';
 
 interface Podcast {
     id: string;
@@ -11,6 +12,7 @@ interface Podcast {
     audio_url: string;
     thumbnail_url?: string;
     image_url?: string;
+    description?: string;
 }
 
 interface PodcastListItemProps {
@@ -22,6 +24,7 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
     const playerStatus = useAudioPlayerStatus(player);
     const isCurrentTrack = currentPodcast?.id === podcast.id;
     const isPlaying = isCurrentTrack && playerStatus.playing;
+    const router = useRouter();
 
     const getImageUrl = (podcast: Podcast) => {
         return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
@@ -43,32 +46,48 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
         }
     };
 
+    const onCardPress = () => {
+        router.push({
+            pathname: '/podcast/[id]',
+            params: {
+                id: podcast.id,
+                title: podcast.title,
+                author: podcast.author,
+                cover: getImageUrl(podcast),
+                description: podcast.description || 'No description available.',
+                audio_url: podcast.audio_url
+            }
+        });
+    };
+
     return (
-        <View className="flex-row items-center p-4 bg-white rounded-xl shadow-md">
-            <Image
-                source={imageSource}
-                className="w-16 h-16 rounded-lg"
-            />
-            <View className="flex-1 ml-4">
-                <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
-                <Text className="mt-1 text-lg font-semibold text-black ">
-                    {podcast.title}
-                </Text>
-            </View>
-
-            <TouchableOpacity
-                onPress={onPlayPausePress}
-                activeOpacity={0.7}
-                className="p-2"
-            >
-                <Ionicons
-                    name={isPlaying ? 'pause-circle' : 'play-circle'}
-                    size={32}
-                    color={isPlaying ? '#0A84FF' : '#8E8E93'}
+        <TouchableOpacity onPress={onCardPress} activeOpacity={0.8}>
+            <View className="flex-row items-center p-4 bg-white rounded-xl shadow-md">
+                <Image
+                    source={imageSource}
+                    className="w-16 h-16 rounded-lg"
                 />
-            </TouchableOpacity>
+                <View className="flex-1 ml-4">
+                    <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
+                    <Text className="mt-1 text-lg font-semibold text-black ">
+                        {podcast.title}
+                    </Text>
+                </View>
 
-            <StatusBar style="auto" />
-        </View>
+                <TouchableOpacity
+                    onPress={onPlayPausePress}
+                    activeOpacity={0.7}
+                    className="p-2"
+                >
+                    <Ionicons
+                        name={isPlaying ? 'pause-circle' : 'play-circle'}
+                        size={32}
+                        color={isPlaying ? '#0A84FF' : '#8E8E93'}
+                    />
+                </TouchableOpacity>
+
+                <StatusBar style="auto" />
+            </View>
+        </TouchableOpacity>
     );
 }

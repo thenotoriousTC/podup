@@ -35,6 +35,20 @@ export default function FloatingPlayer() {
       }
     };
   }, [playerStatus.isBuffering, spinValue]);
+
+  // Handle when audio finishes playing
+  useEffect(() => {
+    if (podcast && playerStatus.isLoaded && !playerStatus.playing && playerStatus.currentTime > 0) {
+      // Check if we've reached the end of the audio
+      const isAtEnd = playerStatus.duration > 0 && 
+                     Math.abs(playerStatus.currentTime - playerStatus.duration) < 1;
+      
+      if (isAtEnd) {
+        console.log('Audio finished playing in floating player, ready to replay');
+        // Audio has finished, we can now replay from the beginning
+      }
+    }
+  }, [playerStatus.playing, playerStatus.currentTime, playerStatus.duration, podcast, playerStatus.isLoaded]);
   
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -58,6 +72,28 @@ export default function FloatingPlayer() {
       console.error('Error stopping audio:', error);
     }
   };
+
+  const handlePlayPause = async () => {
+    try {
+      if (playerStatus.playing) {
+        // Currently playing, pause it
+        await player.pause();
+      } else {
+        // Not playing, check if we need to replay from beginning
+        if (playerStatus.duration > 0 && 
+            Math.abs(playerStatus.currentTime - playerStatus.duration) < 1) {
+          // Audio finished, seek to beginning and play
+          await player.seekTo(0);
+          await player.play();
+        } else {
+          // Audio paused in middle, resume playing
+          await player.play();
+        }
+      }
+    } catch (error) {
+      console.error('Error during play/pause:', error);
+    }
+  };
   
   return (
     <View style={styles.container} className=' shadow-2xl rounded-full shadow-gray-400 '>
@@ -77,7 +113,7 @@ export default function FloatingPlayer() {
       </Link>
       
       <Pressable
-        onPress={() => (playerStatus.playing ? player.pause() : player.play())}
+        onPress={handlePlayPause}
         style={styles.playPauseButton}
       >
         {playerStatus.isBuffering ? (

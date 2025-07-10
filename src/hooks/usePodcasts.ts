@@ -1,11 +1,24 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export const usePodcasts = (searchQuery: string) => {
+  const queryClient = useQueryClient();
+  
   const { data, isLoading, error } = useQuery({
     queryKey: ['podcasts'],
-    queryFn: async () => supabase.from('podcasts').select('*').throwOnError(),
+    queryFn: async () => {
+      const result = await supabase
+        .from('podcasts')
+        .select('*')
+        .order('created_at', { ascending: false }) // Add ordering for newest first
+        .throwOnError();
+      
+      console.log('Fetched podcasts from database:', result.data?.length || 0);
+      return result;
+    },
+    // Add these options to improve data freshness
+    staleTime: 0, // Consider data stale immediately
   });
 
   const groupedPodcasts = useMemo(() => {
@@ -35,10 +48,16 @@ export const usePodcasts = (searchQuery: string) => {
     }));
   }, [data?.data, searchQuery]);
 
+  // Add a function to manually refresh the data
+  const refreshPodcasts = () => {
+    queryClient.invalidateQueries({ queryKey: ['podcasts'] });
+  };
+
   return {
     groupedPodcasts,
     isLoading,
     error,
-    totalResults: groupedPodcasts.reduce((acc, section) => acc + section.data.length, 0)
+    totalResults: groupedPodcasts.reduce((acc, section) => acc + section.data.length, 0),
+    refreshPodcasts, // Export the refresh function
   };
 };

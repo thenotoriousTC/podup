@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
+import { useRouter } from 'expo-router';
 
 interface Podcast {
   image_url: string | undefined;
@@ -15,6 +16,7 @@ interface Podcast {
   author: string;
   audio_url: string;
   thumbnail_url?: string;
+  description?: string;
 }
 
 interface DiscoveryPodcastListItemProps {
@@ -30,6 +32,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
   const [isInLibrary, setIsInLibrary] = useState(false);
+  const router = useRouter();
 
   const addToLibrary = useMutation({
     mutationFn: async () =>
@@ -64,46 +67,60 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
     Alert.alert('تم الحفظ', `"${podcast.title}" تم الحفظ بنجاح.`);
   };
 
+  const onCardPress = () => {
+    router.push({
+        pathname: '/podcast/[id]',
+        params: {
+            id: podcast.id,
+            title: podcast.title,
+            author: podcast.author,
+            image_url: getImageUrl(podcast),
+            description: podcast.description || 'No description available.',
+            audio_url: podcast.audio_url
+        }
+    });
+};
+
   return (
-    <View className="flex-row items-center p-4 bg-white  rounded-xl shadow-md m-4">
-      <Image
-        source={imageSource}
-        className="w-16 h-16 rounded-lg"
-      />
-      <View className="flex-1 ml-4">
-        <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
-        <Text className="mt-1 text-lg font-semibold text-black ">
-          {podcast.title}
-        </Text>
-      </View>
-
-      {/* Play/Pause */}
-      <TouchableOpacity
-        onPress={onPlayPausePress}
-        activeOpacity={0.7}
-        className="p-2"
-      >
-        <Ionicons
-          name={isPlaying ? 'pause-circle' : 'play-circle'}
-          size={32}
-          color={isPlaying ? '#0A84FF' : '#8E8E93'}
+      <TouchableOpacity onPress={onCardPress} className="flex-row items-center p-4 bg-white  rounded-xl shadow-md m-4">
+        <Image
+          source={imageSource}
+          className="w-16 h-16 rounded-lg"
         />
-      </TouchableOpacity>
+        <View className="flex-1 ml-4">
+          <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
+          <Text className="mt-1 text-lg font-semibold text-black ">
+            {podcast.title}
+          </Text>
+        </View>
 
-      {/* Favorite */}
-      <TouchableOpacity
-        onPress={onHeartPress}
-        activeOpacity={0.7}
-        className="p-2 ml-2"
-      >
-        <Ionicons
-          name={isInLibrary ? 'heart' : 'heart-outline'}
-          size={28}
-          color={isInLibrary ? '#FF453A' : '#8E8E93'}
-        />
-      </TouchableOpacity>
+        {/* Play/Pause */}
+        <TouchableOpacity
+          onPress={onPlayPausePress}
+          activeOpacity={0.7}
+          className="p-2"
+        >
+          <Ionicons
+            name={isPlaying ? 'pause-circle' : 'play-circle'}
+            size={32}
+            color={isPlaying ? '#0A84FF' : '#8E8E93'}
+          />
+        </TouchableOpacity>
 
-      <StatusBar style="auto" />
-    </View>
+        {/* Favorite */}
+        <TouchableOpacity
+          onPress={onHeartPress}
+          activeOpacity={0.7}
+          className="p-2 ml-2"
+        >
+          <Ionicons
+            name={isInLibrary ? 'heart' : 'heart-outline'}
+            size={28}
+            color={isInLibrary ? '#FF453A' : '#8E8E93'}
+          />
+        </TouchableOpacity>
+
+        <StatusBar style="auto" />
+      </TouchableOpacity>
   );
 }

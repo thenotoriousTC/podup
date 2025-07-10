@@ -43,11 +43,34 @@ export default function Player() {
     };
   }, [playerStatus.isBuffering, spinValue]);
 
+  // Handle when audio finishes playing - same logic as floatingPlayer
+  useEffect(() => {
+    if (podcast && playerStatus.isLoaded && !playerStatus.playing && playerStatus.currentTime > 0) {
+      // Check if we've reached the end of the audio
+      const isAtEnd = playerStatus.duration > 0 && 
+                     Math.abs(playerStatus.currentTime - playerStatus.duration) < 1;
+      
+      if (isAtEnd) {
+        console.log('Audio finished playing in main player, ready to replay');
+        // Audio has finished, we can now replay from the beginning
+      }
+    }
+  }, [playerStatus.playing, playerStatus.currentTime, playerStatus.duration, podcast, playerStatus.isLoaded]);
+
   // Convert animated value to rotation
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
+
+  if (!podcast) {
+    // or a loading indicator
+    return (
+      <SafeAreaView className="flex-1 bg-white justify-center items-center">
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
 
   // Helper function to get the correct image URL with fallback
   const getImageUrl = (podcast: any) => {
@@ -70,10 +93,30 @@ export default function Player() {
     }
   };
 
-  // Function to toggle repeat mode
+  const onPlayPause = async () => {
+    try {
+      if (playerStatus.playing) {
+        // Currently playing, pause it
+        await player.pause();
+      } else {
+        // Not playing, check if we need to replay from beginning
+        if (playerStatus.duration > 0 && 
+            Math.abs(playerStatus.currentTime - playerStatus.duration) < 1) {
+          // Audio finished, seek to beginning and play
+          await player.seekTo(0);
+          await player.play();
+        } else {
+          // Audio paused in middle, resume playing
+          await player.play();
+        }
+      }
+    } catch (error) {
+      console.error('Error during play/pause:', error);
+    }
+  };
+
   const toggleRepeat = () => {
     if (player) {
-      // Use the correct method for expo-audio
       player.loop = !player.loop;
     }
   };
@@ -96,7 +139,7 @@ export default function Player() {
           <View className="w-72 h-72 rounded-2xl overflow-hidden mb-8   bg-white  items-center justify-center mx-6 shadow-2xl shadow-violet-800/50 ">
             <Image
               source={{ uri: getImageUrl(podcast) }}
-              className="w-full h-full shadow-3xl bg-white w-20 h-20 bg-white  items-center justify-center mx-6 shadow-violet-800/50 "
+              className="w-full h-full shadow-3xl bg-white    items-center justify-center mx-6 shadow-violet-800/50 "
               resizeMode="cover"
               defaultSource={{ uri: 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast' }}
             />
@@ -132,7 +175,7 @@ export default function Player() {
         <View className="flex-row justify-center items-center px-8">
           {/* Rewind 10 seconds */}
           <Pressable
-            className="p-4 mr-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6 shadow-xl shadow-violet-800/50"
+            className="p-4 mr-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={skipBackward}
           >
@@ -143,9 +186,7 @@ export default function Player() {
           <Pressable
             className="w-20 h-20 bg-white rounded-full items-center justify-center mx-6 shadow-xl shadow-violet-800/50"
             style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.95 : 1 }] })}
-            onPress={() => {
-              playerStatus.playing ? player.pause() : player.play();
-            }}
+            onPress={onPlayPause}
           >
             {playerStatus.isBuffering ? (
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
@@ -167,7 +208,7 @@ export default function Player() {
 
           {/* Fast Forward 10 seconds */}
           <Pressable
-            className="p-4 ml-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6 shadow-xl shadow-violet-800/50"
+            className="p-4 ml-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={skipForward}
           >
@@ -178,7 +219,7 @@ export default function Player() {
         {/* Additional Controls Row */}
         <View className="flex-row justify-center items-center px-8 mt-8 space-x-16">
           <Pressable
-            className="p-3 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6 shadow-xl shadow-violet-800/50"
+            className="p-3 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={toggleRepeat}
           >
