@@ -127,15 +127,15 @@ export default function Player() {
       <View className="relative">
         <Pressable
           onPress={() => router.back()}
-          className="absolute top-4 left-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
+          className="absolute top-12 left-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
         >
-          <EvilIcons name="chevron-down" size={24} color="#1C1C1E" />
+          <EvilIcons name="chevron-down" size={34} color="#1C1C1E" />
         </Pressable>
       </View>
 
       <View className="flex-1 justify-between px-6 pb-8">
         {/* Album Art Section */}
-        <View className="items-center mt-16 mb-8">
+        <View className="items-center mt-36 mb-8">
           <View className="w-72 h-72 rounded-2xl overflow-hidden mb-8   bg-white  items-center justify-center mx-6 shadow-2xl shadow-violet-800/50 ">
             <Image
               source={{ uri: getImageUrl(podcast) }}

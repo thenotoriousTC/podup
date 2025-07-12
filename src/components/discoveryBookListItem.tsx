@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
@@ -28,19 +28,54 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
   const playerStatus = useAudioPlayerStatus(player);
   const isCurrentTrack = currentPodcast?.id === podcast.id;
   const isPlaying = isCurrentTrack && playerStatus.playing;
-  const supabaseClient = supabase;
-  const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
-  const [isInLibrary, setIsInLibrary] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  const addToLibrary = useMutation({
-    mutationFn: async () =>
-      supabaseClient
+  const { data: libraryItem, isLoading } = useQuery({
+    queryKey: ['library-item', podcast.id, currentUser?.id],
+    queryFn: async () => {
+      if (!currentUser?.id) return null;
+      const { data, error } = await supabase
         .from('user-library')
-        .insert({ podcast_id: podcast.id, user_id: currentUser?.id })
-        .throwOnError(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-library'] }),
+        .select('id')
+        .eq('podcast_id', podcast.id)
+        .eq('user_id', currentUser.id)
+        .single();
+      if (error && error.code !== 'PGRST116') throw error; // Ignore no rows found
+      return data;
+    },
+    enabled: !!currentUser?.id,
+  });
+
+  const isInLibrary = !!libraryItem;
+
+  const libraryMutation = useMutation({
+    mutationFn: async () => {
+      if (!currentUser?.id) throw new Error('User not logged in');
+      if (isInLibrary) {
+        // Remove from library
+        const { error } = await supabase
+          .from('user-library')
+          .delete()
+          .eq('id', libraryItem.id);
+        if (error) throw error;
+      } else {
+        // Add to library
+        const { error } = await supabase
+          .from('user-library')
+          .insert({ podcast_id: podcast.id, user_id: currentUser.id });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['library-item', podcast.id, currentUser?.id] });
+      queryClient.invalidateQueries({ queryKey: ['my-library'] });
+      Alert.alert(isInLibrary ? 'Removed from Library' : 'Added to Library');
+    },
+    onError: (error) => {
+      Alert.alert('Error', error.message);
+    },
   });
   const getImageUrl = (podcast: Podcast) => {
     // Check both possible image columns
@@ -59,12 +94,10 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
 
   const onHeartPress = () => {
     if (!currentUser) {
-      Alert.alert('يرجى تسجيل الدخول لحفظ المحتوى.');
+      Alert.alert('Please log in to save content.');
       return;
     }
-    addToLibrary.mutate();
-    setIsInLibrary(true);
-    Alert.alert('تم الحفظ', `"${podcast.title}" تم الحفظ بنجاح.`);
+    libraryMutation.mutate();
   };
 
   const onCardPress = () => {
@@ -117,6 +150,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
             name={isInLibrary ? 'heart' : 'heart-outline'}
             size={28}
             color={isInLibrary ? '#FF453A' : '#8E8E93'}
+            disabled={isLoading}
           />
         </TouchableOpacity>
 
