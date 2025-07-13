@@ -70,6 +70,17 @@ export default function Profile() {
                         <Text style={styles.menuItemText}>  تحميل  </Text>
                         <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
                     </Pressable>
+
+                    <View style={styles.divider} />
+
+                    <Pressable 
+                        style={styles.menuItem}
+                        onPress={() => router.push('/(protected)/downloads')}
+                    >
+                        <AntDesign name="download" size={22} color="#007AFF" />
+                        <Text style={styles.menuItemText}>التنزيلات</Text>
+                        <AntDesign name="right" size={16} color="#C7C7CC" style={styles.menuArrow} />
+                    </Pressable>
                     
                     <View style={styles.divider} />
                     

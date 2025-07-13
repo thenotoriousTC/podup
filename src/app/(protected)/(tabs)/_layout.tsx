@@ -64,7 +64,7 @@ export default function RootLayout() {
           ),
         }}
       />
-             
+
       <Tabs.Screen
         name="recording"
         options={{

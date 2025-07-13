@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, TouchableOpacity, View, Text, Alert } from 'react-native';
+import { Image, TouchableOpacity, View, Text, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 import { useAudioPlayerStatus } from 'expo-audio';
@@ -7,6 +7,11 @@ import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/AuthProvider';
 import { supabase } from '@/lib/supabase';
+import * as FileSystem from 'expo-file-system';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+
+const DOWNLOADED_PODCASTS_KEY = 'downloaded-podcasts';
 
 interface Podcast {
     id: string;
@@ -30,6 +35,26 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
     const router = useRouter();
     const { user: currentUser } = useAuth();
     const queryClient = useQueryClient();
+
+    const [isDownloaded, setIsDownloaded] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    useEffect(() => {
+        const checkIfDownloaded = async () => {
+            try {
+                const downloadedPodcastsRaw = await AsyncStorage.getItem(DOWNLOADED_PODCASTS_KEY);
+                if (downloadedPodcastsRaw) {
+                    const downloadedPodcasts = JSON.parse(downloadedPodcastsRaw);
+                    if (downloadedPodcasts[podcast.id]) {
+                        setIsDownloaded(true);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to check download status.', e);
+            }
+        };
+        checkIfDownloaded();
+    }, [podcast.id]);
 
     // Query to check if the item is in the user's library
     const { data: libraryItem } = useQuery({
@@ -88,6 +113,78 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
             return;
         }
         libraryMutation.mutate();
+    };
+
+    const onDownloadPress = async () => {
+        if (isDownloaded) {
+            Alert.alert(
+                'Delete Download',
+                'Are you sure you want to delete this podcast from your downloads?',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Delete',
+                        onPress: async () => {
+                            const fileUri = FileSystem.documentDirectory + `${podcast.id}.mp3`;
+                            try {
+                                // 1. Delete the local file
+                                await FileSystem.deleteAsync(fileUri);
+
+                                // 2. Remove from AsyncStorage
+                                const downloadedPodcastsRaw = await AsyncStorage.getItem(DOWNLOADED_PODCASTS_KEY);
+                                if (downloadedPodcastsRaw) {
+                                    const downloadedPodcasts = JSON.parse(downloadedPodcastsRaw);
+                                    delete downloadedPodcasts[podcast.id];
+                                    await AsyncStorage.setItem(DOWNLOADED_PODCASTS_KEY, JSON.stringify(downloadedPodcasts));
+                                }
+
+                                // 3. Update UI
+                                setIsDownloaded(false);
+                                Alert.alert('Deleted', `'${podcast.title}' has been removed from your downloads.`);
+                            } catch (e) {
+                                console.error('Failed to delete podcast.', e);
+                                Alert.alert('Error', 'Could not delete the downloaded file.');
+                            }
+                        },
+                        style: 'destructive',
+                    },
+                ]
+            );
+            return;
+        }
+
+        if (isDownloading) return;
+
+        setIsDownloading(true);
+        const fileUri = FileSystem.documentDirectory + `${podcast.id}.mp3`;
+
+        try {
+            const { uri } = await FileSystem.downloadAsync(podcast.audio_url, fileUri);
+            console.log('Finished downloading to ', uri);
+
+            const downloadedPodcastsRaw = await AsyncStorage.getItem(DOWNLOADED_PODCASTS_KEY);
+            const downloadedPodcasts = downloadedPodcastsRaw ? JSON.parse(downloadedPodcastsRaw) : {};
+
+            const newDownloadedPodcast = {
+                ...podcast,
+                local_audio_url: uri,
+            };
+
+            downloadedPodcasts[podcast.id] = newDownloadedPodcast;
+            await AsyncStorage.setItem(DOWNLOADED_PODCASTS_KEY, JSON.stringify(downloadedPodcasts));
+
+            setIsDownloaded(true);
+            Alert.alert('Download Complete', `'${podcast.title}' has been saved.`);
+
+        } catch (e) {
+            console.error(e);
+            Alert.alert('Download Failed', 'Could not download the podcast.');
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const onPlayPausePress = async () => {
@@ -158,6 +255,20 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
                         size={28}
                         color={isInLibrary ? '#FF3B30' : '#8E8E93'}
                     />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={onDownloadPress}
+                    activeOpacity={0.7}
+                    className="p-2 ml-2"
+                >
+                    {isDownloading ? (
+                        <ActivityIndicator size="small" color="#007AFF" />
+                    ) : isDownloaded ? (
+                        <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+                    ) : (
+                        <Ionicons name="download-outline" size={24} color="#555" />
+                    )}
                 </TouchableOpacity>
 
                 <StatusBar style="auto" />

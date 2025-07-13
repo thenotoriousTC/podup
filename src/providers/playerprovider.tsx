@@ -40,8 +40,11 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
         configureAudio();
     }, []);
 
+    // Determine the correct URI: use local file if available, otherwise stream.
+    const audioUri = podcast?.local_audio_url || podcast?.audio_url;
+
     const player = useAudioPlayer({ 
-        uri: podcast?.audio_url,
+        uri: audioUri,
     });
 
     // Debounced seek function to prevent rapid seeking issues
