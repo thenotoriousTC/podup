@@ -1,22 +1,29 @@
 import { AudioPlayer, useAudioPlayer, setAudioModeAsync } from "expo-audio";
 import { createContext, PropsWithChildren, useContext, useState, useEffect, useRef, useCallback } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type PlayerContextType = {
     player: AudioPlayer;
     podcast: any;
     setPodcast: (podcast: any) => void;
     seekTo: (position: number) => void;
+    getViewCount: (podcastId: string) => Promise<number>;
+    incrementViewCount: (podcastId: string) => Promise<void>;
+    getAllViewCounts: () => Promise<Record<string, number>>;
 };
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export default function PlayerProvider({ children }: PropsWithChildren) {
     const [podcast, setPodcast] = useState<any | null>(null);
-    
+        
     // Refs for managing seek operations
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const lastSeekTimeRef = useRef<number>(0);
     const isSeekingRef = useRef<boolean>(false);
+
+    // Constants for view count storage
+    const VIEW_COUNT_KEY = 'podcast_view_counts';
 
     // Configure audio session for background playback using expo-audio
     useEffect(() => {
@@ -43,7 +50,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     // Determine the correct URI: use local file if available, otherwise stream.
     const audioUri = podcast?.local_audio_url || podcast?.audio_url;
 
-    const player = useAudioPlayer({ 
+    const player = useAudioPlayer({
         uri: audioUri,
     });
 
@@ -56,7 +63,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
 
         // Store the latest seek position
         lastSeekTimeRef.current = position;
-        
+                
         // Set seeking flag
         isSeekingRef.current = true;
 
@@ -65,21 +72,57 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
             try {
                 const seekPosition = lastSeekTimeRef.current;
                 console.log(`Seeking to position: ${seekPosition}s`);
-                
+                                
                 // Perform the seek operation
                 await player.seekTo(seekPosition);
-                
+                                
                 // Reset seeking flag after a small delay to allow audio to stabilize
                 setTimeout(() => {
                     isSeekingRef.current = false;
                 }, 500);
-                
+                            
             } catch (error) {
                 console.error('Seek operation failed:', error);
                 isSeekingRef.current = false;
             }
         }, 200); // 200ms debounce delay
     }, [player]);
+
+    // View count management functions
+    const getViewCount = useCallback(async (podcastId: string): Promise<number> => {
+        try {
+            const storedCounts = await AsyncStorage.getItem(VIEW_COUNT_KEY);
+            const counts = storedCounts ? JSON.parse(storedCounts) : {};
+            return counts[podcastId] || 0;
+        } catch (error) {
+            console.error('Error getting view count:', error);
+            return 0;
+        }
+    }, []);
+
+    const incrementViewCount = useCallback(async (podcastId: string): Promise<void> => {
+        try {
+            const storedCounts = await AsyncStorage.getItem(VIEW_COUNT_KEY);
+            const counts = storedCounts ? JSON.parse(storedCounts) : {};
+            
+            counts[podcastId] = (counts[podcastId] || 0) + 1;
+            
+            await AsyncStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(counts));
+            console.log(`View count incremented for ${podcastId}: ${counts[podcastId]}`);
+        } catch (error) {
+            console.error('Error incrementing view count:', error);
+        }
+    }, []);
+
+    const getAllViewCounts = useCallback(async (): Promise<Record<string, number>> => {
+        try {
+            const storedCounts = await AsyncStorage.getItem(VIEW_COUNT_KEY);
+            return storedCounts ? JSON.parse(storedCounts) : {};
+        } catch (error) {
+            console.error('Error getting all view counts:', error);
+            return {};
+        }
+    }, []);
 
     // Cleanup timeout on unmount
     useEffect(() => {
@@ -91,7 +134,15 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     }, []);
 
     return (
-        <PlayerContext.Provider value={{ player, podcast, setPodcast, seekTo }}>
+        <PlayerContext.Provider value={{ 
+            player, 
+            podcast, 
+            setPodcast, 
+            seekTo,
+            getViewCount,
+            incrementViewCount,
+            getAllViewCounts
+        }}>
             {children}
         </PlayerContext.Provider>
     );
@@ -99,10 +150,10 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
 
 export const usePlayer = (): PlayerContextType => {
     const context = useContext(PlayerContext);
-    
+        
     if (!context) {
         throw new Error('usePlayer must be used within a PlayerProvider');
     }
-    
+        
     return context;
 };
