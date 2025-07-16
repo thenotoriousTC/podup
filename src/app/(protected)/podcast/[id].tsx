@@ -4,11 +4,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 import { useAudioPlayerStatus } from 'expo-audio';
+import { supabase } from '@/lib/supabase';
 
 const PodcastDetail = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { player, podcast: currentPodcast, setPodcast, incrementViewCount, getViewCount } = usePlayer();
+  const { player, podcast: currentPodcast, setPodcast, incrementViewCount } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
   const [viewCount, setViewCount] = useState(0);
   const hasIncrementedView = useRef(false);
@@ -28,14 +29,23 @@ const PodcastDetail = () => {
 
   // Load view count on component mount
   useEffect(() => {
-    const loadViewCount = async () => {
-      const count = await getViewCount(podcastData.id);
-      setViewCount(count);
+    const fetchPodcast = async () => {
+      if (!podcastData.id) return;
+
+      const { data, error } = await supabase
+        .from('podcasts')
+        .select('view_count')
+        .eq('id', podcastData.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching podcast view count:', error);
+      } else if (data) {
+        setViewCount(data.view_count);
+      }
     };
     
-    if (podcastData.id) {
-      loadViewCount();
-    }
+    fetchPodcast();
   }, [podcastData.id]);
 
   // Track when playback starts to increment view count

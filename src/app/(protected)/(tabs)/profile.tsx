@@ -1,7 +1,7 @@
 import React from 'react';
 import { supabase } from '@/lib/supabase';
 import { Pressable, Text, View, Alert } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { usePlayer } from '@/providers/playerprovider';
@@ -72,9 +72,9 @@ export default function Profile() {
                         className="flex-row items-center p-4"
                         onPress={() => router.push('/(protected)/UPLOAD')}
                     >
-                        <AntDesign name="upload" size={22} color="#007AFF" />
+                        <Ionicons name="cloud-upload-outline" size={32} color="#007AFF" />
                         <Text className="text-lg ml-4 flex-1 text-black text-right">تحميل</Text>
-                        <AntDesign name="right" size={16} color="#C7C7CC" />
+                        <AntDesign name="right" size={24} color="#C7C7CC" />
                     </Pressable>
 
                     <View className="h-px bg-gray-200 ml-14" />
@@ -83,17 +83,17 @@ export default function Profile() {
                         className="flex-row items-center p-4"
                         onPress={() => router.push('/(protected)/downloads')}
                     >
-                        <AntDesign name="download" size={22} color="#007AFF" />
+                        <Ionicons name="cloud-download-outline" size={32} color="#007AFF" />
                         <Text className="text-lg ml-4 flex-1 text-black text-right">التنزيلات</Text>
-                        <AntDesign name="right" size={16} color="#C7C7CC" />
+                        <AntDesign name="right" size={24} color="#C7C7CC" />
                     </Pressable>
                     
                     <View className="h-px bg-gray-200 ml-14" />
                     
                     <Pressable className="flex-row items-center p-4" onPress={handleSignOut}>
-                        <AntDesign name="logout" size={22} color="#007AFF" />
+                        <AntDesign name="logout" size={30} color="#007AFF" />
                         <Text className="text-lg ml-4 flex-1 text-black text-right">تسجيل الخروج</Text>
-                        <AntDesign name="right" size={16} color="#C7C7CC" />
+                        <AntDesign name="right" size={24} color="#C7C7CC" />
                     </Pressable>
                 </View>
             </View>

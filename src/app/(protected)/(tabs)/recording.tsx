@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView, TextInput, Image } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useAudioRecorder, useAudioPlayer, RecordingPresets, AudioModule, useAudioPlayerStatus } from 'expo-audio';
@@ -25,6 +25,8 @@ export default function RecordingScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const [userPodcasts, setUserPodcasts] = useState<any[]>([]);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const metadataFormRef = useRef<View>(null);
   // const supabaseClient = supabase; // Supabase client is directly used via import
   
   // Form fields for podcast metadata
@@ -293,6 +295,16 @@ export default function RecordingScreen() {
     setShowMetadataForm(true);
     // Pre-fill title with recording title
     setPodcastTitle(recording.title);
+    
+    // Scroll to metadata form after a short delay to ensure it's rendered
+    setTimeout(() => {
+      metadataFormRef.current?.measureInWindow((x, y) => {
+        scrollViewRef.current?.scrollTo({
+          y: y - 100, // Offset to show some content above the form
+          animated: true
+        });
+      });
+    }, 100);
   };
 
   const pickImage = async () => {
@@ -494,7 +506,7 @@ export default function RecordingScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-50 pt-10 ">
+    <ScrollView ref={scrollViewRef} className="flex-1 bg-slate-50 pt-10 ">
       <View className="p-4">
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
@@ -592,7 +604,7 @@ export default function RecordingScreen() {
 
         {/* Metadata Form Section */}
         {showMetadataForm && selectedRecording && (
-          <View className="bg-white rounded-2xl p-5 mb-6 shadow-lg">
+          <View ref={metadataFormRef} className="bg-white rounded-2xl p-5 mb-6 shadow-lg">
             <Text className="text-xl font-bold text-gray-800 text-center mb-2">
               نشر محتوى
             </Text>
@@ -707,7 +719,7 @@ export default function RecordingScreen() {
               المحتوى المنشور
             </Text>
             <Text className="text-base text-blue-500">
-              {userPodcasts.length} محتوى {userPodcasts.length !== 1 ? 's' : ''} نشر
+              {userPodcasts.length} محتوى {userPodcasts.length !== 1 ? 's' : ''} منشور
             </Text>
           </View>
         )}

@@ -1,6 +1,7 @@
 import { AudioPlayer, useAudioPlayer, setAudioModeAsync } from "expo-audio";
 import { createContext, PropsWithChildren, useContext, useState, useEffect, useRef, useCallback } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from "../lib/supabase";
 
 type PlayerContextType = {
     player: AudioPlayer;
@@ -102,13 +103,23 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
 
     const incrementViewCount = useCallback(async (podcastId: string): Promise<void> => {
         try {
+            // Increment view count locally
             const storedCounts = await AsyncStorage.getItem(VIEW_COUNT_KEY);
             const counts = storedCounts ? JSON.parse(storedCounts) : {};
-            
             counts[podcastId] = (counts[podcastId] || 0) + 1;
-            
             await AsyncStorage.setItem(VIEW_COUNT_KEY, JSON.stringify(counts));
             console.log(`View count incremented for ${podcastId}: ${counts[podcastId]}`);
+
+            // Call Supabase RPC to increment view count in the database
+            const { data, error } = await supabase.rpc('increment_view_count', {
+                podcast_id_to_update: podcastId,
+            });
+
+            if (error) {
+                console.error('Error incrementing view count on server:', error);
+            } else {
+                console.log('View count incremented on server:', data);
+            }
         } catch (error) {
             console.error('Error incrementing view count:', error);
         }
