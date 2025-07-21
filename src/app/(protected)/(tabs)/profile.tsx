@@ -69,31 +69,40 @@ export default function Profile() {
                 
                 <View className="bg-white rounded-xl shadow-lg">
                     <Pressable 
-                        className="flex-row items-center p-4"
+                        className="flex-row items-center justify-between p-4"
                         onPress={() => router.push('/(protected)/UPLOAD')}
                     >
-                        <Ionicons name="cloud-upload-outline" size={32} color="#007AFF" />
-                        <Text className="text-lg ml-4 flex-1 text-black text-right">تحميل</Text>
-                        <AntDesign name="right" size={24} color="#C7C7CC" />
+                        <View className="flex-row items-center">
+                            <AntDesign name="left" size={24} color="#C7C7CC" />
+                            <Ionicons name="cloud-upload-outline" size={32} color="#007AFF" className="ml-2" />
+                        </View>
+                        <Text className="text-lg text-black text-right">تحميل</Text>
                     </Pressable>
 
-                    <View className="h-px bg-gray-200 ml-14" />
+                    <View className="h-px bg-gray-200 mr-14" />
 
                     <Pressable 
-                        className="flex-row items-center p-4"
+                        className="flex-row items-center justify-between p-4"
                         onPress={() => router.push('/(protected)/downloads')}
                     >
-                        <Ionicons name="cloud-download-outline" size={32} color="#007AFF" />
-                        <Text className="text-lg ml-4 flex-1 text-black text-right">التنزيلات</Text>
-                        <AntDesign name="right" size={24} color="#C7C7CC" />
+                        <View className="flex-row items-center">
+                            <AntDesign name="left" size={24} color="#C7C7CC" />
+                            <Ionicons name="cloud-download-outline" size={32} color="#007AFF" className="ml-2" />
+                        </View>
+                        <Text className="text-lg text-black text-right">التنزيلات</Text>
                     </Pressable>
                     
-                    <View className="h-px bg-gray-200 ml-14" />
+                    <View className="h-px bg-gray-200 mr-14" />
                     
-                    <Pressable className="flex-row items-center p-4" onPress={handleSignOut}>
-                        <AntDesign name="logout" size={30} color="#007AFF" />
-                        <Text className="text-lg ml-4 flex-1 text-black text-right">تسجيل الخروج</Text>
-                        <AntDesign name="right" size={24} color="#C7C7CC" />
+                    <Pressable 
+                        className="flex-row items-center justify-between p-4" 
+                        onPress={handleSignOut}
+                    >
+                        <View className="flex-row items-center">
+                            <AntDesign name="left" size={24} color="#C7C7CC" />
+                            <AntDesign name="logout" size={30} color="#007AFF" className="ml-2" />
+                        </View>
+                        <Text className="text-lg text-black text-right">تسجيل الخروج</Text>
                     </Pressable>
                 </View>
             </View>

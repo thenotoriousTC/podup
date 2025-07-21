@@ -2,6 +2,22 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 
+const categoryTranslations: { [key: string]: string } = {
+  Comedy: 'كوميدي',
+  Money: 'مال',
+  Entertainment: 'ترفيه',
+  Technology: 'تكنولوجيا',
+  Science: 'علوم',
+  Sports: 'رياضة',
+  News: 'أخبار',
+  'Health & Fitness': 'صحة ',
+  Business: 'أعمال',
+  Education: 'تعليم',
+  Art: 'فن',
+  History: 'تاريخ',
+  Mix: 'متنوع',
+};
+
 export const usePodcasts = (searchQuery: string) => {
   const queryClient = useQueryClient();
   
@@ -43,7 +59,7 @@ export const usePodcasts = (searchQuery: string) => {
     }, {});
 
     return Object.keys(grouped).map(category => ({
-      title: category,
+      title: categoryTranslations[category] || category,
       data: grouped[category],
     }));
   }, [data?.data, searchQuery]);

@@ -1,10 +1,11 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Image, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { supabase } from '@/lib/supabase';
+import { StyledText } from '@/components/StyledText';
 
 const PodcastDetail = () => {
   const router = useRouter();
@@ -153,23 +154,23 @@ const PodcastDetail = () => {
               />
             </View>
             
-            <Text className="text-3xl font-bold mt-6 text-center px-4 text-black">
+            <StyledText fontWeight="Bold" className="text-3xl font-bold mt-6 text-center px-4 text-black">
               {podcastData.title}
-            </Text>
-            <Text className="text-xl text-purple-500 mt-2 font-medium">
+            </StyledText>
+            <StyledText fontWeight="SemiBold" className="text-xl text-purple-500 mt-2 font-medium">
               {podcastData.author}
-            </Text>
+            </StyledText>
             
             <View className="flex-row items-center justify-center mt-4 space-x-6">
               <View className="items-center">
                 <Ionicons name="star" size={20} color="#FCD34D" />
-                <Text className="text-yellow-500 text-sm mt-1">Featured</Text>
+                <StyledText className="text-yellow-500 text-sm mt-1">مميز</StyledText>
               </View>
               <View className="items-center pl-6">
                 <Ionicons name="eye" size={20} color="#8B5CF6" />
-                <Text className="text-purple-500 text-sm mt-1">
-                  {formatViewCount(viewCount)} plays
-                </Text>
+                <StyledText className="text-purple-500 text-sm mt-1">
+                  {formatViewCount(viewCount)} مشاهدة
+                </StyledText>
               </View>
             </View>
           </View>
@@ -189,37 +190,37 @@ const PodcastDetail = () => {
           >
             <View className="flex-row items-center justify-center">
               <Ionicons name={isPlaying ? "pause-circle" : "play-circle"} size={28} color="white" className="mr-3" />
-              <Text className="text-white font-bold text-lg ml-3">Listen</Text>
+              <StyledText fontWeight="Bold" className="text-white font-bold text-lg ml-3">إستمع</StyledText>
             </View>
           </TouchableOpacity>
 
           {podcastData.description && (
             <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-              <Text className="text-lg font-bold text-gray-900 mb-3">About This Podcast</Text>
-              <Text className="text-gray-700 leading-6 text-base">
+              <StyledText fontWeight="Bold" className="text-lg font-bold text-gray-900 mb-3 text-right">معلومات حول البودكاست</StyledText>
+              <StyledText className="text-gray-700 leading-6 text-base text-right">
                 {podcastData.description}
-              </Text>
+              </StyledText>
             </View>
           )}
 
           {podcastData.author && (
-            <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-              <View className="flex-row items-center mb-2">
+            <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text">
+              <View className="flex-row items-center mb-2 text-right">
                 <Ionicons name="person-outline" size={20} color="#8B5CF6" />
-                <Text className="text-gray-900 font-semibold ml-2">Host</Text>
+                <StyledText fontWeight="SemiBold" className="text-gray-900 font-semibold ml-2 text-right">المستضيف</StyledText>
               </View>
-              <Text className="text-gray-600 text-base">{podcastData.author}</Text>
+              <StyledText className="text-gray-600 text-base text-right">{podcastData.author}</StyledText>
             </View>
           )}
 
           {/* Stats Section */}
-          <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-            <Text className="text-lg font-bold text-gray-900 mb-3">Stats</Text>
-            <View className="flex-row items-center">
+          <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text-right">
+            <StyledText fontWeight="Bold" className="text-lg font-bold text-gray-900 mb-3 text-right">إحصائيات</StyledText>
+            <View className="flex-row items-center text-right">
               <Ionicons name="play-circle" size={20} color="#8B5CF6" />
-              <Text className="text-gray-700 ml-2">
-                {formatViewCount(viewCount)} total plays
-              </Text>
+              <StyledText className="text-gray-700 ml-2 text-right">
+                {formatViewCount(viewCount)} إجمالي المشاهدات
+              </StyledText>
             </View>
           </View>
           

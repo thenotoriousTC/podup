@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, Pressable, Text, View, Animated, StyleSheet } from 'react-native';
+import { Image, Pressable, View, Animated, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 import { useEffect, useRef } from 'react';
+import { StyledText } from './StyledText';
 
 export default function FloatingPlayer() {
   const { player, podcast, setPodcast } = usePlayer();
@@ -105,8 +106,8 @@ export default function FloatingPlayer() {
             defaultSource={{ uri: 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast' }}
           />
           <View style={styles.textContainer}>
-            <Text style={styles.authorText}>{podcast.author}</Text>
-            <Text style={styles.titleText} numberOfLines={1}>{podcast.title}</Text>
+            <StyledText style={styles.authorText}>{podcast.author}</StyledText>
+            <StyledText style={styles.titleText} numberOfLines={1}>{podcast.title}</StyledText>
           </View>
           <StatusBar style="auto" />
         </Pressable>
@@ -146,8 +147,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 80,
     marginHorizontal: 2,
-    left: 10,
-    right: 10,
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     padding: 10,
     flexDirection: 'row',
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    marginLeft: 10,
+    margin: 10,
   },
   authorText: {
     fontSize: 14,
@@ -186,7 +185,7 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     padding: 5,
-    marginLeft: 5,
+    margin: 5,
   },
   removeButtonInner: {
     width: 28,

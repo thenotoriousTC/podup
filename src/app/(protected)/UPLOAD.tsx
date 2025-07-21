@@ -23,18 +23,18 @@ interface UploadProgress {
 }
 
 const categories = [
-  'Comedy',
-  'Finance',
-  'Entertainment',
-  'Technology',
-  'Science',
-  'Sports',
-  'News',
-  'Health & Fitness',
+  'كوميدي',
+  'مال',
+  'ترفيه',
+  'تكنولوجيا',
+  'علوم',
+  'رياضة',
+  'أخبار',
+  'صحة',
   'Business',
-  'Education',
-  'Arts',
-  'History',
+  'تعليم',
+  'فن',
+  'تاريخ',
 ];
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');

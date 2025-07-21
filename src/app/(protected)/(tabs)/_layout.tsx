@@ -1,14 +1,17 @@
 import { Redirect, Slot, Tabs } from "expo-router";
 import "../../../../global.css";
-import { ActivityIndicator, Pressable, StyleSheet, View as RNView } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View as RNView, I18nManager } from "react-native";
 import React from "react";
 import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";
 import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
-import LobsterText from "@/components/LobsterText";
-import { PacificoText } from "@/components/PacificoText";
+import { StyledText } from "@/components/StyledText";
 
-const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps) => (
+// Force LTR layout
+I18nManager.allowRTL(false);
+I18nManager.forceRTL(false);
+
+const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps): React.ReactNode => (
   <Pressable onPress={onPress} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
     {children}
   </Pressable>
@@ -17,7 +20,7 @@ const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps) => (
 export default function RootLayout() {
   return (
     <Tabs
-    initialRouteName="discover"
+      initialRouteName="discover"
       screenOptions={{
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
@@ -29,18 +32,11 @@ export default function RootLayout() {
         tabBarLabelPosition: "below-icon",
         tabBarButton: CustomTabBarButton,
         headerTitleAlign: "center",
-        headerTitle: ({ children }) => (
-          <PacificoText style={{ color: '#007AFF', fontSize: 30 }}>
-            {children}
-          </PacificoText>
-        ),
       }}
       tabBar={(props) => (
         <RNView style={styles.tabBarContainer}>
           <FloatingPlayer />
-          <BottomTabBar
-            {...props}     
-          />
+          <BottomTabBar {...props} />
         </RNView>
       )}
     >
@@ -48,14 +44,13 @@ export default function RootLayout() {
         name="discover"
         options={{
           title: "اكتشف",
-          headerTitle: "PodUp",
           tabBarIcon: ({ color, size, focused }) => (
             <Entypo name={focused ? "compass" : "compass"} size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="index"                  
+        name="index"
         options={{
           title: "المفضلة",
           headerShown: false,
@@ -64,7 +59,6 @@ export default function RootLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="recording"
         options={{
@@ -75,7 +69,6 @@ export default function RootLayout() {
           ),
         }}
       />
-      
       <Tabs.Screen
         name="profile"
         options={{
@@ -99,14 +92,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#007AFF',
     fontSize: 30,
-    fontFamily : 'Pacifico-Regular',
+    fontFamily: 'Cairo-Bold',
   },
   tabBarContainer: {
     backgroundColor: 'white',
     borderRadius: 30,
-    marginRight:4,
-    marginLeft:4,
-
     marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: {
@@ -116,9 +106,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.30,
     shadowRadius: 4.65,
     elevation: 8,
-    position:'relative',
+    position: 'relative',
     bottom: 10,
-  
+    // Force LTR direction for the container
+    direction: 'ltr',
   },
   tabBar: {
     backgroundColor: 'transparent',
@@ -127,11 +118,14 @@ const styles = StyleSheet.create({
     height: 75,
     paddingTop: 5,
     paddingBottom: 5,
+    // Force LTR direction for the tab bar
+    direction: 'ltr',
   },
   tabBarLabel: {
     fontSize: 12,
     fontWeight: '500',
     textAlign: 'center',
     marginTop: 2,
+    fontFamily: 'Cairo-Regular',
   },
 });

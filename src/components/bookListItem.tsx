@@ -224,52 +224,58 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
     return (
         <TouchableOpacity onPress={onCardPress} activeOpacity={0.8}>
             <View className="flex-row items-center p-4 bg-white rounded-xl shadow-md">
+                {/* Icons on the far left */}
+                <View className="flex-row items-center">
+                    <TouchableOpacity
+                        onPress={onDownloadPress}
+                        activeOpacity={0.7}
+                        className="p-2"
+                    >
+                        {isDownloading ? (
+                            <ActivityIndicator size="small" color="#007AFF" />
+                        ) : isDownloaded ? (
+                            <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+                        ) : (
+                            <Ionicons name="download-outline" size={24} color="#555" />
+                        )}
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={onHeartPress}
+                        activeOpacity={0.7}
+                        className="p-2"
+                    >
+                        <Ionicons
+                            name={isInLibrary ? 'heart' : 'heart-outline'}
+                            size={28}
+                            color={isInLibrary ? '#FF3B30' : '#8E8E93'}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={onPlayPausePress}
+                        activeOpacity={0.7}
+                        className="p-2"
+                    >
+                        <Ionicons
+                            name={isPlaying ? 'pause-circle' : 'play-circle'}
+                            size={32}
+                            color={isPlaying ? '#0A84FF' : '#8E8E93'}
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                {/* Text content in the middle */}
+                <View className="flex-1 ml-4 mr-4">
+                    <Text className="text-sm text-gray-500 text-right">{podcast.author}</Text>
+                    <Text className="mt-1 text-lg font-semibold text-black text-right">{podcast.title}</Text>
+                </View>
+
+                {/* Image on the right */}
                 <Image
                     source={imageSource}
                     className="w-16 h-16 rounded-lg"
                 />
-                <View className="flex-1 ml-4">
-                    <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
-                    <Text className="mt-1 text-lg font-semibold text-black ">{podcast.title}</Text>
-                </View>
-
-                <TouchableOpacity
-                    onPress={onPlayPausePress}
-                    activeOpacity={0.7}
-                    className="p-2"
-                >
-                    <Ionicons
-                        name={isPlaying ? 'pause-circle' : 'play-circle'}
-                        size={32}
-                        color={isPlaying ? '#0A84FF' : '#8E8E93'}
-                    />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={onHeartPress}
-                    activeOpacity={0.7}
-                    className="p-2 ml-2"
-                >
-                    <Ionicons
-                        name={isInLibrary ? 'heart' : 'heart-outline'}
-                        size={28}
-                        color={isInLibrary ? '#FF3B30' : '#8E8E93'}
-                    />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={onDownloadPress}
-                    activeOpacity={0.7}
-                    className="p-2 ml-2"
-                >
-                    {isDownloading ? (
-                        <ActivityIndicator size="small" color="#007AFF" />
-                    ) : isDownloaded ? (
-                        <Ionicons name="checkmark-circle" size={24} color="#34C759" />
-                    ) : (
-                        <Ionicons name="download-outline" size={24} color="#555" />
-                    )}
-                </TouchableOpacity>
 
                 <StatusBar style="auto" />
             </View>

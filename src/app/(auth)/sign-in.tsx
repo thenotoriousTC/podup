@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { Link, useRouter } from 'expo-router';
-import { Alert, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
 import React from 'react';
+import { StyledText } from '@/components/StyledText';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -29,17 +30,17 @@ export default function Page() {
         if (error.message.toLowerCase().includes('email not confirmed')) {
           setEmailVerificationMessage('يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول');
         } else {
-          Alert.alert('Sign In Error', error.message);
+          Alert.alert('خطأ في تسجيل الدخول', error.message);
         }
         console.error('Supabase Sign In Error:', error.message);
       } else if (data.session) {
         router.replace('/(protected)');
       } else {
-        Alert.alert('Sign In Error', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+        Alert.alert('خطأ في تسجيل الدخول', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }
     } catch (err: any) {
       console.error('Unexpected Sign In Exception:', JSON.stringify(err, null, 2));
-      Alert.alert('Sign In Error', err.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+      Alert.alert('خطأ في تسجيل الدخول', err.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -57,12 +58,12 @@ export default function Page() {
       });
       
       if (error) {
-        Alert.alert('Error', error.message);
+        Alert.alert('خطأ', error.message);
       } else {
-        Alert.alert('Success', 'تم إرسال رسالة التحقق. يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول');
+        Alert.alert('نجاح', 'تم إرسال رسالة التحقق. يرجى التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول');
       }
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'فشل في إعادة إرسال رسالة التحقق');
+      Alert.alert('خطأ', err.message || 'فشل في إعادة إرسال رسالة التحقق');
     } finally {
       setLoading(false);
     }
@@ -86,30 +87,31 @@ export default function Page() {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
-            <Text className='text-3xl font-bold text-center mb-8'>
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#2563EB', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <StyledText fontWeight="Bold" className='text-3xl font-bold text-center mb-8'>
               مرحبًا بك
-            </Text>
-            <Text className='text-center mb-8'>
+            </StyledText>
+            <StyledText className='text-center mb-8'>
               قم بتسجيل الدخول أو إنشاء حساب جديد
-            </Text>
+            </StyledText>
 
             {emailVerificationMessage ? (
               <View className="mb-4 p-3 bg-yellow-100 rounded-lg">
-                <Text className="text-yellow-800">{emailVerificationMessage}</Text>
+                <StyledText className="text-yellow-800">{emailVerificationMessage}</StyledText>
                 <TouchableOpacity onPress={onResendVerification}>
-                  <Text className="text-blue-600 mt-2 font-semibold">إعادة إرسال رسالة التحقق</Text>
+                  <StyledText className="text-blue-600 mt-2 font-semibold">إعادة إرسال رسالة التحقق</StyledText>
                 </TouchableOpacity>
               </View>
             ) : null}
 
             <View className='gap-4'>
               <View>
-                <Text className='text-sm font-medium mb-1 text-right'>
+                <StyledText className='text-sm font-medium mb-1 text-right'>
                   البريد الإلكتروني
-                </Text>
+                </StyledText>
                 <TextInput
-                  className='w-full p-4 border border-gray-100 rounded-lg text-black'
+                  className='w-full p-4 bg-gray-100 rounded-full text-black text-right'
                   autoCapitalize='none'
                   value={emailAddress}
                   placeholder='البريد الإلكتروني'
@@ -122,11 +124,11 @@ export default function Page() {
               </View>
 
               <View>
-                <Text className='text-sm font-medium mb-1 text-right'>
+                <StyledText className='text-sm font-medium mb-1 text-right'>
                   كلمة المرور
-                </Text>
+                </StyledText>
                 <TextInput
-                  className='w-full p-4 border border-gray-100 rounded-lg text-black'
+                  className='w-full p-4 rounded-full text-black bg-gray-100 text-right'
                   value={password}
                   placeholder='كلمة المرور'
                   placeholderTextColor='#9CA3AF'
@@ -139,21 +141,21 @@ export default function Page() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-lg mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
                 onPress={onSignInPress}
                 disabled={loading}
               >
-                <Text className='text-white text-center font-semibold'>
+                <StyledText className='text-white text-center font-semibold'>
                   {loading ? '    تسجيل الدخول...' : 'تسجيل الدخول'}
-                </Text>
+                </StyledText>
               </TouchableOpacity>
             </View>
 <View className='flex-row justify-center items-center mt-6 gap-2'>
+             
             <Link href='/sign-up'>
-                <Text className='text-blue-400 font-semibold ml-1'>إنشاء حساب</Text>
+                <StyledText className='text-blue-400 font-semibold ml-1'>إنشاء حساب</StyledText>
               </Link> 
-               <Text className='text-gray-400'>ليس لديك حساب؟</Text>
-              
+                <StyledText className='text-gray-400'>ليس لديك حساب؟</StyledText>
             </View>
             
           </View>

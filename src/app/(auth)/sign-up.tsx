@@ -1,7 +1,8 @@
 import * as React from 'react';
-import {Alert, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import {Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { Link, useRouter } from 'expo-router';
+import { StyledText } from '@/components/StyledText';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -24,7 +25,7 @@ export default function SignUpScreen() {
       });
 
       if (error) {
-        Alert.alert('Sign Up Error', error.message);
+        Alert.alert('خطأ في إنشاء الحساب', error.message);
         console.error('Supabase Sign Up Error:', error.message);
       } else if (data.user) {
         // User created, Supabase sends verification email
@@ -33,17 +34,17 @@ export default function SignUpScreen() {
           'الرجاء التحقق من بريدك الإلكتروني لتأكيد حسابك قبل تسجيل الدخول',
           [
             {
-              text: 'OK',
+              text: 'حسنًا',
               onPress: () => router.replace('/(auth)/sign-in')
             }
           ]
         );
       } else {
-        Alert.alert('Sign Up Error', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+        Alert.alert('خطأ في إنشاء الحساب', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }
     } catch (err: any) {
       console.error('Unexpected Sign Up Exception:', JSON.stringify(err, null, 2));
-      Alert.alert('Sign Up Error', err.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
+      Alert.alert('خطأ في إنشاء الحساب', err.message || 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -68,17 +69,20 @@ export default function SignUpScreen() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
-            <Text className='text-3xl font-bold text-center mb-8 '>
+            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#2563EB', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <StyledText fontWeight="Bold" className='text-3xl font-bold text-center mb-8 '>
               إنشاء حساب
-            </Text>
-
+            </StyledText>
+            <StyledText className='text-center mb-8'>
+           قم بإنشاء حساب جديد  و ابدأ بالاستماع للبودكاست مجانا  
+            </StyledText>
             <View className='gap-4'>
               <View>
-                <Text className='text-sm font-medium  mb-1 text-right'>
+                <StyledText className='text-sm font-medium  mb-1 text-right'>
                   البريد الإلكتروني
-                </Text>
+                </StyledText>
                 <TextInput
-                  className='w-full p-4 border border-gray-200 text-black rounded-lg '
+                  className='w-full p-4  bg-gray-100 text-black rounded-full text-right '
                   autoCapitalize='none'
                   value={emailAddress}
                   placeholder='البريد الإلكتروني'
@@ -91,11 +95,11 @@ export default function SignUpScreen() {
               </View>
 
               <View>
-                <Text className='text-sm font-medium  mb-1 text-right'>
+                <StyledText className='text-sm font-medium  mb-1 text-right'>
                     كلمة المرور
-                </Text>
+                </StyledText>
                 <TextInput
-                  className='w-full p-4 border border-gray-200 text-black rounded-lg focus:border-blue-600 focus:ring-blue-600 focus:ring-1  '
+                  className='w-full p-4  bg-gray-100 text-black rounded-full text-right'
                   value={password}
                   placeholder='كلمة المرور'
                   placeholderTextColor='#9CA3AF'
@@ -108,21 +112,21 @@ export default function SignUpScreen() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-lg mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
                 onPress={onSignUpPress}
                 disabled={loading}
               >
-                <Text className='text-white text-center font-semibold'>
+                <StyledText className='text-white text-center font-semibold'>
                   {loading ? 'إنشاء حساب...' : 'إنشاء حساب'}
-                </Text>
+                </StyledText>
               </TouchableOpacity>
             </View>
-            <View className='flex-row justify-center items-center mt-6 gap-2'>
+            <View className='flex-row justify-center items-center mt-6 gap-2 text-right'>
              
               <Link href='/sign-in'>
-                <Text className='text-blue-400 font-semibold ml-1'>تسجيل الدخول</Text>
+                <StyledText className='text-blue-400 font-semibold ml-1'>تسجيل الدخول</StyledText>
               </Link> 
-              <Text className='text-gray-400'>  هل لديك حساب؟</Text>
+               <StyledText className='text-gray-400'>  هل لديك حساب؟</StyledText>
             </View>
             
           </View>

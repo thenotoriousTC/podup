@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, TouchableOpacity, Alert, View, Text } from 'react-native';
+import { Image, TouchableOpacity, Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
@@ -8,6 +8,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
+import { StyledText } from './StyledText';
 
 interface Podcast {
   image_url: string | undefined;
@@ -71,12 +72,13 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library-item', podcast.id, currentUser?.id] });
       queryClient.invalidateQueries({ queryKey: ['my-library'] });
-      Alert.alert(isInLibrary ? 'Removed from Library' : 'Added to Library');
+      Alert.alert(isInLibrary ? 'تمت الإزالة من المكتبة' : 'تمت الإضافة إلى المكتبة');
     },
     onError: (error) => {
-      Alert.alert('Error', error.message);
+      Alert.alert('خطأ', error.message);
     },
   });
+  
   const getImageUrl = (podcast: Podcast) => {
     // Check both possible image columns
     return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
@@ -94,7 +96,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
 
   const onHeartPress = () => {
     if (!currentUser) {
-      Alert.alert('Please log in to save content.');
+      Alert.alert('الرجاء تسجيل الدخول لحفظ المحتوى.');
       return;
     }
     libraryMutation.mutate();
@@ -108,51 +110,57 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
             title: podcast.title,
             author: podcast.author,
             image_url: getImageUrl(podcast),
-            description: podcast.description || 'No description available.',
+            description: podcast.description || 'لا يوجد وصف متاح.',
             audio_url: podcast.audio_url
         }
     });
 };
 
   return (
-      <TouchableOpacity onPress={onCardPress} className="flex-row items-center p-4 bg-white  rounded-xl shadow-md m-4">
+      <TouchableOpacity onPress={onCardPress} className="flex-row items-center p-4 bg-white rounded-xl shadow-md m-4">
+        {/* Icons on the far left */}
+        <View className="flex-row items-center">
+          {/* Favorite */}
+          <TouchableOpacity
+            onPress={onHeartPress}
+            activeOpacity={0.7}
+            className="p-2"
+          >
+            <Ionicons
+              name={isInLibrary ? 'heart' : 'heart-outline'}
+              size={28}
+              color={isInLibrary ? '#FF453A' : '#8E8E93'}
+              disabled={isLoading}
+            />
+          </TouchableOpacity>
+
+          {/* Play/Pause */}
+          <TouchableOpacity
+            onPress={onPlayPausePress}
+            activeOpacity={0.7}
+            className="p-2"
+          >
+            <Ionicons
+              name={isPlaying ? 'pause-circle' : 'play-circle'}
+              size={32}
+              color={isPlaying ? '#0A84FF' : '#8E8E93'}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Text content in the middle */}
+        <View className="flex-1 ml-4 mr-4">
+          <StyledText className="text-sm text-gray-500 text-right">{podcast.author}</StyledText>
+          <StyledText fontWeight="SemiBold" className="mt-1 text-lg font-semibold text-black text-right">
+            {podcast.title}
+          </StyledText>
+        </View>
+
+        {/* Image on the right */}
         <Image
           source={imageSource}
           className="w-16 h-16 rounded-lg"
         />
-        <View className="flex-1 ml-4">
-          <Text className="text-sm text-gray-500 ">{podcast.author}</Text>
-          <Text className="mt-1 text-lg font-semibold text-black ">
-            {podcast.title}
-          </Text>
-        </View>
-
-        {/* Play/Pause */}
-        <TouchableOpacity
-          onPress={onPlayPausePress}
-          activeOpacity={0.7}
-          className="p-2"
-        >
-          <Ionicons
-            name={isPlaying ? 'pause-circle' : 'play-circle'}
-            size={32}
-            color={isPlaying ? '#0A84FF' : '#8E8E93'}
-          />
-        </TouchableOpacity>
-
-        {/* Favorite */}
-        <TouchableOpacity
-          onPress={onHeartPress}
-          activeOpacity={0.7}
-          className="p-2 ml-2"
-        >
-          <Ionicons
-            name={isInLibrary ? 'heart' : 'heart-outline'}
-            size={28}
-            color={isInLibrary ? '#FF453A' : '#8E8E93'}
-            disabled={isLoading}
-          />
-        </TouchableOpacity>
 
         <StatusBar style="auto" />
       </TouchableOpacity>

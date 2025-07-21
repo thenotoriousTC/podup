@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image, Animated } from "react-native";
+import { View, Pressable, Image, Animated } from "react-native";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SafeAreaView } from "react-native";
@@ -8,6 +8,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from "@/providers/playerprovider";
 import { useEffect, useRef } from 'react';
+import { StyledText } from "@/components/StyledText";
 
 export default function Player() {
   const { player, podcast, seekTo } = usePlayer(); // Use seekTo from context
@@ -67,7 +68,7 @@ export default function Player() {
     // or a loading indicator
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <Text>Loading...</Text>
+        <StyledText>جار التحميل...</StyledText>
       </SafeAreaView>
     );
   }
@@ -127,7 +128,7 @@ export default function Player() {
       <View className="relative">
         <Pressable
           onPress={() => router.back()}
-          className="absolute top-12 left-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
+          className="absolute top-12 right-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
         >
           <EvilIcons name="chevron-down" size={34} color="#1C1C1E" />
         </Pressable>
@@ -147,18 +148,20 @@ export default function Player() {
 
           {/* Title and Author */}
           <View className="items-center px-4">
-            <Text
+            <StyledText
+              fontWeight="Bold"
               className="text-2xl font-bold text-center text-black  mb-2"
               style={{ lineHeight: 32, letterSpacing: -0.5 }}
               numberOfLines={2}
             >
               {podcast.title}
-            </Text>
-            <Text
+            </StyledText>
+            <StyledText
+              fontWeight="Medium"
               className="text-lg font-medium text-center text-gray-500 "
             >
               {podcast.author}
-            </Text>
+            </StyledText>
           </View>
         </View>
 
@@ -172,7 +175,7 @@ export default function Player() {
         </View>
 
         {/* Control Buttons */}
-        <View className="flex-row justify-center items-center px-8">
+        <View className="flex-row-reverse justify-center items-center px-8">
           {/* Rewind 10 seconds */}
           <Pressable
             className="p-4 mr-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
