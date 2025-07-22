@@ -39,8 +39,7 @@ export const usePodcasts = (searchQuery: string) => {
 
   const groupedPodcasts = useMemo(() => {
     if (!data?.data) return [];
-    // Filter out podcasts that do not have a user_id
-    let podcasts = data.data.filter(p => p.user_id);
+    let podcasts = data.data;
 
     if (searchQuery.trim()) {
       podcasts = podcasts.filter((podcast) =>

@@ -342,118 +342,96 @@ export default function RecordingScreen() {
     return bytes;
   };
 
-  const publishPodcast = async () => {
+      const publishPodcast = async () => {
+    // Guard against null values, even though the button should be disabled.
     if (!selectedRecording || !currentUser?.id || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage) {
       Alert.alert("خطأ", "الرجاء تقديم عنوان، ووصف، وصورة لغلاف المحتوى");
       return;
     }
-    
+
     setIsUploading(true);
-    
+    const recordingToPublish = selectedRecording; // Create a stable reference
+
     try {
       console.log('Starting podcast upload...');
-      
-      // Upload image first
-      let imageUrl = null;
-      if (podcastImage) {
-        console.log('Uploading image...');
-        const imageData = await FileSystem.readAsStringAsync(podcastImage, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        
-        const imageFileName = `podcast_image_${currentUser.id}_${Date.now()}.jpg`;
-        
-        // Upload image to storage
-        const { data: imageUploadData, error: imageUploadError } = await supabase.storage
-          .from('podcasts')
-          .upload(imageFileName, base64ToArrayBuffer(imageData), {
-            contentType: 'image/jpeg',
-          });
-        
-        if (imageUploadError) {
-          console.error('Image upload error:', imageUploadError);
-          throw imageUploadError;
-        }
-        
-        // Get public URL for image
-        const { data: imageUrlData } = supabase.storage
-          .from('podcasts')
-          .getPublicUrl(imageFileName);
-        
-        imageUrl = imageUrlData.publicUrl;
-        console.log('Image uploaded successfully:', imageUrl);
-      }
-      
-      // Upload audio file
-      console.log('Uploading audio...');
-      const audioData = await FileSystem.readAsStringAsync(selectedRecording.uri, {
+
+      // 1. Upload Cover Image
+      const imageData = await FileSystem.readAsStringAsync(podcastImage, {
         encoding: FileSystem.EncodingType.Base64,
       });
-      
+      const imageFileName = `podcast_image_${currentUser.id}_${Date.now()}.jpg`;
+      const { error: imageUploadError } = await supabase.storage
+        .from('podcasts')
+        .upload(imageFileName, base64ToArrayBuffer(imageData), {
+          contentType: 'image/jpeg',
+        });
+
+      if (imageUploadError) {
+        console.error('Image upload error:', imageUploadError);
+        throw imageUploadError;
+      }
+      const { data: publicImageUrlData } = supabase.storage.from('podcasts').getPublicUrl(imageFileName);
+      const publicImageUrl = publicImageUrlData.publicUrl;
+      console.log('Image uploaded successfully:', publicImageUrl);
+
+      // 2. Upload Audio File
+      const audioData = await FileSystem.readAsStringAsync(recordingToPublish.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
       const audioFileName = `podcast_${currentUser.id}_${Date.now()}.m4a`;
-      
-      // Upload audio to Supabase Storage
-      const { data: audioUploadData, error: audioUploadError } = await supabase.storage
+      const { error: audioUploadError } = await supabase.storage
         .from('podcasts')
         .upload(audioFileName, base64ToArrayBuffer(audioData), {
           contentType: 'audio/m4a',
         });
-      
+
       if (audioUploadError) {
         console.error('Audio upload error:', audioUploadError);
         throw audioUploadError;
       }
-      
-      // Get public URL for audio
-      const { data: audioUrlData } = supabase.storage
-        .from('podcasts')
-        .getPublicUrl(audioFileName);
-      
-      console.log('Audio uploaded successfully:', audioUrlData.publicUrl);
-      
-      // Save to podcasts table
-      console.log('Saving to database...');
-      const { error: dbError } = await supabase
-        .from('podcasts')
-        .insert({
-          title: podcastTitle.trim(),
-          description: podcastDescription.trim(),
-          author: currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Anonymous',
-          audio_url: audioUrlData.publicUrl,
-          image_url: imageUrl,
-          thumbnail_url: imageUrl, // For compatibility with existing seeded data
+      const { data: publicAudioUrlData } = supabase.storage.from('podcasts').getPublicUrl(audioFileName);
+      const publicAudioUrl = publicAudioUrlData.publicUrl;
+      console.log('Audio uploaded successfully:', publicAudioUrl);
 
-          duration: selectedRecording.duration,
-          created_at: new Date().toISOString(),
-        });
-      
-      if (dbError) {
-        console.error('Database error:', dbError);
-        throw dbError;
+      // 3. Save metadata to the 'podcasts' table
+      console.log('Saving to database...');
+      const { data: podcastData, error: podcastError } = await supabase
+        .from('podcasts')
+        .insert([
+          {
+            title: podcastTitle.trim(),
+            description: podcastDescription.trim(),
+            image_url: publicImageUrl,
+            audio_url: publicAudioUrl,
+            author: currentUser.user_metadata?.full_name || currentUser.email,
+            category: 'Mix',
+            user_id: currentUser.id,
+            duration: recordingToPublish.duration,
+            created_at: new Date().toISOString(),
+            thumbnail_url: publicImageUrl,
+          },
+        ])
+        .select();
+
+      if (podcastError) {
+        console.error('Database insert error:', podcastError);
+        throw podcastError;
       }
-      
-      console.log('Podcast saved to database successfully');
-      
-      // Clean up: remove from recordings list and delete local file
-      await FileSystem.deleteAsync(selectedRecording.uri);
-      setRecordings(prev => prev.filter(r => r.id !== selectedRecording.id));
-      
-      // Reset form
+
+      console.log('Podcast saved to database successfully:', podcastData);
+
+      // 4. Clean up local state and files
+      await FileSystem.deleteAsync(recordingToPublish.uri);
+      setRecordings(prev => prev.filter(r => r.id !== recordingToPublish.id));
       resetForm();
       setShowMetadataForm(false);
-      
-      // Refresh the published podcasts list
       await fetchUserPodcasts();
-      
-      Alert.alert(
-        "تم نشر المحتوى!",
-        "تم نشر المحتوى بنجاح!",
-        [{ text: "رائع!" }]
-      );
-      
+
+      Alert.alert("تم نشر المحتوى!", "تم نشر المحتوى بنجاح!", [{ text: "رائع!" }]);
+
     } catch (error) {
       console.error("Publish error:", error);
-      Alert.alert("فشل النشر", `حدث خطأ أثناء نشر المحتوى: ${error || 'خطأ غير معروف'}`);
+      Alert.alert("فشل النشر", `حدث خطأ أثناء نشر المحتوى: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
     } finally {
       setIsUploading(false);
     }
