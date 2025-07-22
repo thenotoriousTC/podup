@@ -15,6 +15,7 @@ const DOWNLOADED_PODCASTS_KEY = 'downloaded-podcasts';
 
 interface Podcast {
     id: string;
+    user_id?: string;
     title: string;
     author: string;
     audio_url: string;
@@ -267,7 +268,7 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
 
                 {/* Text content in the middle */}
                 <View className="flex-1 ml-4 mr-4">
-                    <Text className="text-sm text-gray-500 text-right">{podcast.author}</Text>
+                    <TouchableOpacity onPress={() => podcast.user_id && router.push(`/creator/${podcast.user_id}`)} disabled={!podcast.user_id}><Text className="text-sm text-gray-500 text-right">{podcast.author}</Text></TouchableOpacity>
                     <Text className="mt-1 text-lg font-semibold text-black text-right">{podcast.title}</Text>
                 </View>
 

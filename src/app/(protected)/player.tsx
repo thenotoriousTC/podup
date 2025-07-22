@@ -156,12 +156,14 @@ export default function Player() {
             >
               {podcast.title}
             </StyledText>
+            <Pressable onPress={() => podcast.user_id && router.push(`/creator/${podcast.user_id}`)} disabled={!podcast.user_id}>
             <StyledText
               fontWeight="Medium"
               className="text-lg font-medium text-center text-gray-500 "
             >
               {podcast.author}
             </StyledText>
+          </Pressable>
           </View>
         </View>
 

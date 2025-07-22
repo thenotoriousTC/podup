@@ -13,6 +13,7 @@ import { StyledText } from './StyledText';
 interface Podcast {
   image_url: string | undefined;
   id: string;
+  user_id?: string;
   title: string;
   author: string;
   audio_url: string;
@@ -150,7 +151,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
 
         {/* Text content in the middle */}
         <View className="flex-1 ml-4 mr-4">
-          <StyledText className="text-sm text-gray-500 text-right">{podcast.author}</StyledText>
+          <TouchableOpacity onPress={() => podcast.user_id && router.push(`/creator/${podcast.user_id}`)} disabled={!podcast.user_id}><StyledText className="text-sm text-gray-500 text-right">{podcast.author}</StyledText></TouchableOpacity>
           <StyledText fontWeight="SemiBold" className="mt-1 text-lg font-semibold text-black text-right">
             {podcast.title}
           </StyledText>

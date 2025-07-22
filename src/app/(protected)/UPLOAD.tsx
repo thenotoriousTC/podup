@@ -282,7 +282,8 @@ const UploadScreen = () => {
           .from('podcasts')
           .getPublicUrl(audioFileName);
         
-        console.log('Audio uploaded successfully:', audioUrlData.publicUrl);
+        const audioUrl = audioUrlData.publicUrl;
+        console.log('Audio uploaded successfully:', audioUrl);
         
         setUploadProgress({
           phase: 'audio',
@@ -301,19 +302,16 @@ const UploadScreen = () => {
         // Simulate database save progress
         await simulateProgress('database', 'حفظ بيانات البودكاست', 1000);
         
-        const { error: dbError } = await supabase
-          .from('podcasts')
-          .insert({
-            title: title.trim(),
-            description: description.trim(),
-            author: author.trim(),
-            audio_url: audioUrlData.publicUrl,
-            image_url: imageUrl,
-            thumbnail_url: imageUrl,
-            category: category.trim(),
-            duration: 0,
-            created_at: new Date().toISOString(),
-          });
+        const { data: dbData, error: dbError } = await supabase.from('podcasts').insert({
+          user_id: currentUser!.id, // Ensure user_id is included
+          title,
+          author,
+          description,
+          category,
+          image_url: imageUrl,
+          audio_url: audioUrl,
+          thumbnail_url: imageUrl, // Using the same for simplicity
+        }).select().single();
         
         if (dbError) {
           console.error('Database error:', dbError);

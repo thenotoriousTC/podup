@@ -1,0 +1,32 @@
+Table Structure and Relationships:
+
+podcasts table (main entity):
+
+Primary key: id (uuid)
+Fields: category (text), description (text), duration (int4), image_url (text), created_at (timestamptz), updated_at (timestamptz), title (varchar), author (varchar), audio_url (varchar), thumbnail_url (varchar), user_id (uuid), view_count (int4)
+Foreign key: user_id references auth.users.id
+
+
+profiles table:
+
+Primary key: id (uuid)
+Fields: username (text), avatar_url (text), description (text), social_links (jsonb)
+Foreign key relationship: id references auth.users.id (one-to-one relationship)
+
+
+user-library table (junction/bridge table):
+
+Primary key: id (int8)
+Foreign keys: user_id (text) and podcast_id (uuid)
+This creates a many-to-many relationship between users and podcasts
+
+
+
+Key Relationships:
+
+auth.users (external auth table) has a one-to-one relationship with profiles
+auth.users has a one-to-many relationship with podcasts (users can create multiple podcasts)
+Users and podcasts have a many-to-many relationship through the user-library table (users can save/bookmark multiple podcasts, podcasts can be saved by multiple users)
+
+Database Design Pattern:
+This follows a typical user-generated content pattern with authentication, user profiles, content creation (podcasts), and user interactions (library/bookmarks). The schema uses UUIDs for most primary keys and includes audit fields (created_at, updated_at) on the main content table.RetryClaude can make mistakes. Please double-check responses. Sonnet 4

@@ -13,6 +13,7 @@ const PodcastDetail = () => {
   const { player, podcast: currentPodcast, setPodcast, incrementViewCount } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
   const [viewCount, setViewCount] = useState(0);
+  const [creatorId, setCreatorId] = useState<string | null>(null);
   const hasIncrementedView = useRef(false);
 
   const podcastData = {
@@ -35,14 +36,15 @@ const PodcastDetail = () => {
 
       const { data, error } = await supabase
         .from('podcasts')
-        .select('view_count')
+        .select('view_count, user_id')
         .eq('id', podcastData.id)
         .single();
 
       if (error) {
-        console.error('Error fetching podcast view count:', error);
+        console.error('Error fetching podcast data:', error);
       } else if (data) {
         setViewCount(data.view_count);
+        setCreatorId(data.user_id);
       }
     };
     
@@ -157,9 +159,11 @@ const PodcastDetail = () => {
             <StyledText fontWeight="Bold" className="text-3xl font-bold mt-6 text-center px-4 text-black">
               {podcastData.title}
             </StyledText>
-            <StyledText fontWeight="SemiBold" className="text-xl text-purple-500 mt-2 font-medium">
-              {podcastData.author}
-            </StyledText>
+            <TouchableOpacity onPress={() => {if (typeof creatorId === 'string' && creatorId) {router.push(`/creator/${creatorId}`);}}} disabled={!creatorId}>
+              <StyledText fontWeight="SemiBold" className="text-xl text-purple-500 mt-2 font-medium">
+                {podcastData.author}
+              </StyledText>
+            </TouchableOpacity>
             
             <View className="flex-row items-center justify-center mt-4 space-x-6">
               <View className="items-center">
@@ -204,13 +208,15 @@ const PodcastDetail = () => {
           )}
 
           {podcastData.author && (
-            <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text">
-              <View className="flex-row items-center mb-2 text-right">
-                <Ionicons name="person-outline" size={20} color="#8B5CF6" />
-                <StyledText fontWeight="SemiBold" className="text-gray-900 font-semibold ml-2 text-right">المستضيف</StyledText>
+            <TouchableOpacity onPress={() => {if (typeof creatorId === 'string' && creatorId) {router.push(`/creator/${creatorId}`);}}} disabled={!creatorId}>
+              <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text">
+                <View className="flex-row items-center mb-2 text-right">
+                  <Ionicons name="person-outline" size={20} color="#8B5CF6" />
+                  <StyledText fontWeight="SemiBold" className="text-gray-900 font-semibold ml-2 text-right">المستضيف</StyledText>
+                </View>
+                <StyledText className="text-gray-600 text-base text-right">{podcastData.author}</StyledText>
               </View>
-              <StyledText className="text-gray-600 text-base text-right">{podcastData.author}</StyledText>
-            </View>
+            </TouchableOpacity>
           )}
 
           {/* Stats Section */}
