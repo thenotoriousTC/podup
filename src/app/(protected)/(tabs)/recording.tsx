@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView, TextInput, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, ScrollView, TextInput, Image, Modal, FlatList, Dimensions, Pressable, KeyboardAvoidingView } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useAudioRecorder, useAudioPlayer, RecordingPresets, AudioModule, useAudioPlayerStatus } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
@@ -14,6 +14,23 @@ interface Recording {
   duration: number;
   createdAt: Date;
 }
+
+const categories = [
+  'كوميدي',
+  'مال',
+  'ترفيه',
+  'تكنولوجيا',
+  'علوم',
+  'رياضة',
+  'أخبار',
+  'صحة',
+  'Business',
+  'تعليم',
+  'فن',
+  'تاريخ',
+];
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function RecordingScreen() {
   const { user: currentUser } = useAuth();
@@ -34,6 +51,8 @@ export default function RecordingScreen() {
   const [podcastDescription, setPodcastDescription] = useState('');
   const [podcastImage, setPodcastImage] = useState<string | null>(null);
   const [showMetadataForm, setShowMetadataForm] = useState(false);
+  const [category, setCategory] = useState('');
+  const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   
   // Audio recorder and player
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
@@ -329,7 +348,9 @@ export default function RecordingScreen() {
     setPodcastTitle('');
     setPodcastDescription('');
     setPodcastImage(null);
+    setCategory('');
     setSelectedRecording(null);
+    setShowMetadataForm(false);
   };
 
   // Helper function to convert base64 to ArrayBuffer for upload
@@ -342,10 +363,11 @@ export default function RecordingScreen() {
     return bytes;
   };
 
-      const publishPodcast = async () => {
+  const publishPodcast = async () => {
     // Guard against null values, even though the button should be disabled.
-    if (!selectedRecording || !currentUser?.id || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage) {
-      Alert.alert("خطأ", "الرجاء تقديم عنوان، ووصف، وصورة لغلاف المحتوى");
+    if (!selectedRecording || !currentUser || !podcastTitle || !podcastDescription || !podcastImage || !category) {
+      Alert.alert('خطأ', 'يرجى ملء جميع الحقول المطلوبة واختيار صورة.');
+      setIsUploading(false);
       return;
     }
 
@@ -397,20 +419,17 @@ export default function RecordingScreen() {
       console.log('Saving to database...');
       const { data: podcastData, error: podcastError } = await supabase
         .from('podcasts')
-        .insert([
-          {
-            title: podcastTitle.trim(),
-            description: podcastDescription.trim(),
-            image_url: publicImageUrl,
-            audio_url: publicAudioUrl,
-            author: currentUser.user_metadata?.full_name || currentUser.email,
-            category: 'Mix',
-            user_id: currentUser.id,
-            duration: recordingToPublish.duration,
-            created_at: new Date().toISOString(),
-            thumbnail_url: publicImageUrl,
-          },
-        ])
+        .insert({
+          user_id: currentUser.id,
+          title: podcastTitle,
+          author: currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Anonymous',
+          description: podcastDescription,
+          category: category,
+          image_url: publicImageUrl,
+          audio_url: publicAudioUrl,
+          thumbnail_url: publicImageUrl, // Using the same for simplicity
+          duration: recordingToPublish.duration,
+        })
         .select();
 
       if (podcastError) {
@@ -484,7 +503,8 @@ export default function RecordingScreen() {
   }
 
   return (
-    <ScrollView ref={scrollViewRef} className="flex-1 bg-slate-50 pt-10 ">
+    <KeyboardAvoidingView behavior={ 'height'} className="flex-1">
+      <ScrollView ref={scrollViewRef} className="flex-1 bg-slate-50 pt-10 ">
       <View className="p-4">
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
@@ -631,6 +651,22 @@ export default function RecordingScreen() {
               />
             </View>
             
+            {/* Category Picker */}
+            <View className="mb-5">
+              <Text className="text-base font-semibold text-gray-800 mb-2">
+                الفئة *
+              </Text>
+              <Pressable
+                onPress={() => setCategoryModalVisible(true)}
+                disabled={isUploading}
+                className={`bg-gray-50 p-3 rounded-lg border border-gray-300 shadow-sm ${
+                  isUploading ? 'opacity-50' : ''
+                }`}
+              >
+                <Text className="text-base text-gray-800">{category || 'اختر الفئة'}</Text>
+              </Pressable>
+            </View>
+            
             {/* Description Input */}
             <View className="mb-5">
               <Text className="text-base font-semibold text-gray-800 mb-2">
@@ -670,12 +706,12 @@ export default function RecordingScreen() {
               
               <TouchableOpacity 
                 className={`flex-1 ml-3 py-3 px-5 rounded-lg flex-row items-center justify-center ${
-                  isUploading || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage
+                  isUploading || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage || !category
                     ? 'bg-gray-400' 
                     : 'bg-green-500'
                 }`}
                 onPress={publishPodcast}
-                disabled={isUploading || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage}
+                disabled={isUploading || !podcastTitle.trim() || !podcastDescription.trim() || !podcastImage || !category}
               >
                 {isUploading ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
@@ -703,5 +739,41 @@ export default function RecordingScreen() {
         )}
       </View>
     </ScrollView>
-  );
-}
+    
+
+    {/* Category Modal */}
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isCategoryModalVisible}
+      onRequestClose={() => setCategoryModalVisible(false)}
+    >
+      <View className="flex-1 justify-center items-center bg-black/50">
+        <View className="bg-white rounded-2xl p-6 w-4/5 max-h-[70%]">
+          <Text className="text-xl font-bold text-gray-800 mb-4">اختر الفئة</Text>
+          <FlatList
+            data={categories}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  setCategory(item);
+                  setCategoryModalVisible(false);
+                }}
+                className="p-4 border-b border-gray-200"
+              >
+                <Text className="text-base text-gray-800">{item}</Text>
+              </TouchableOpacity>
+            )}
+          />
+          <Pressable
+            onPress={() => setCategoryModalVisible(false)}
+            className="mt-4 bg-red-500 p-3 rounded-lg items-center"
+          >
+            <Text className="text-white font-semibold">إغلاق</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal></KeyboardAvoidingView>
+    
+  )}

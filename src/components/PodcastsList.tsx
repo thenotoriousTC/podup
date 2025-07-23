@@ -22,9 +22,9 @@ export const PodcastsList = ({
       {showEmptyState ? (
         <EmptySearchResults onClearSearch={onClearSearch} />
       ) : (
-        groupedPodcasts.map(section => (
+        groupedPodcasts.map((section, index) => (
           <PodcastSection 
-            key={section.title}
+            key={`${section.title}-${index}`}
             title={section.title}
             data={section.data}
           />

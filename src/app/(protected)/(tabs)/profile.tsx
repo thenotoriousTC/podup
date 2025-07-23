@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Pressable, Text, View, Alert } from 'react-native';
+import { Pressable, Text, View, Alert, Image } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
@@ -76,7 +76,7 @@ export default function Profile() {
 
             <View className="bg-white rounded-xl p-4 mb-6 shadow-lg">
                 <View className="flex-row items-center justify-end">
-                    <View>
+                    <View className="mr-4">
                         <Text className="text-xl font-semibold text-black text-right">
                             {profile?.full_name || currentUser?.email?.split('@')[0] || 'User'}
                         </Text>
@@ -84,6 +84,10 @@ export default function Profile() {
                             {currentUser?.email || 'No email'}
                         </Text>
                     </View>
+                    <Image
+                        source={{ uri: profile?.avatar_url || 'https://i.pinimg.com/736x/c0/74/9b/c0749b7cc401421662ae901ec8f9f660.jpg' }}
+                        className="w-16 h-16 rounded-full"
+                    />
                 </View>
             </View>
             
