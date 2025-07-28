@@ -129,6 +129,8 @@ const CreatorPage = () => {
     return <View className="flex-1 p-2.5 pt-12 bg-white"><StyledText>لم يتم العثور على المبدع</StyledText></View>;
   }
 
+  const isOwnProfile = currentUser?.id === creator.id;
+
   return (
     <SafeAreaView className="flex-1 p-2.5 pt-12 bg-white">
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -148,7 +150,7 @@ const CreatorPage = () => {
 
       {series.length > 0 && (
         <View className="mb-5">
-          <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">السلاسل الخاصة بي</StyledText>
+          <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">{isOwnProfile ? 'السلاسل الخاصة بي' : 'السلاسل'}</StyledText>
           <FlatList
             data={series}
             renderItem={({ item }) => <SeriesCard series={item} />}
@@ -160,7 +162,7 @@ const CreatorPage = () => {
         </View>
       )}
 
-      <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">البودكاستات الخاصة بي</StyledText>
+      <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">{isOwnProfile ? 'البودكاستات الخاصة بي' : 'البودكاستات'}</StyledText>
       
       {podcasts.map((item) => (
         <View key={item.id} className="flex-row items-center">
