@@ -1,4 +1,4 @@
-import { AudioPlayer, useAudioPlayer, setAudioModeAsync } from "expo-audio";
+import { AudioPlayer, useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from "expo-audio";
 import { createContext, PropsWithChildren, useContext, useState, useEffect, useRef, useCallback } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from "../lib/supabase";
@@ -6,7 +6,8 @@ import { supabase } from "../lib/supabase";
 type PlayerContextType = {
     player: AudioPlayer;
     podcast: any;
-    setPodcast: (podcast: any) => void;
+    setPodcast: (podcast: any) => void; // For loading without playing
+    playTrack: (podcast: any) => void; // For loading and playing
     seekTo: (position: number) => void;
     getViewCount: (podcastId: string) => Promise<number>;
     incrementViewCount: (podcastId: string) => Promise<void>;
@@ -17,6 +18,7 @@ const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export default function PlayerProvider({ children }: PropsWithChildren) {
     const [podcast, setPodcast] = useState<any | null>(null);
+    const [autoplay, setAutoplay] = useState(false);
         
     // Refs for managing seek operations
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,8 +56,21 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     const player = useAudioPlayer({
         uri: audioUri,
     });
+    const playerStatus = useAudioPlayerStatus(player);
+
+    useEffect(() => {
+        if (autoplay && playerStatus.isLoaded && !playerStatus.playing) {
+            player.play();
+            setAutoplay(false); // Reset autoplay flag
+        }
+    }, [playerStatus, autoplay, player]);
 
     // Debounced seek function to prevent rapid seeking issues
+    const playTrack = useCallback((newPodcast: any) => {
+        setPodcast(newPodcast);
+        setAutoplay(true);
+    }, []);
+
     const seekTo = useCallback((position: number) => {
         // Clear any existing timeout
         if (seekTimeoutRef.current) {
@@ -148,7 +163,8 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
         <PlayerContext.Provider value={{ 
             player, 
             podcast, 
-            setPodcast, 
+            setPodcast,
+            playTrack, 
             seekTo,
             getViewCount,
             incrementViewCount,

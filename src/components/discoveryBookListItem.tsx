@@ -26,7 +26,7 @@ interface DiscoveryPodcastListItemProps {
 }
 
 export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastListItemProps) {
-  const { setPodcast, player, podcast: currentPodcast } = usePlayer();
+  const { playTrack, player, podcast: currentPodcast } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
   const isCurrentTrack = currentPodcast?.id === podcast.id;
   const isPlaying = isCurrentTrack && playerStatus.playing;
@@ -88,8 +88,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
 
   const onPlayPausePress = () => {
     if (!isCurrentTrack) {
-      setPodcast(podcast);
-      player.play();
+      playTrack(podcast);
     } else {
       playerStatus.playing ? player.pause() : player.play();
     }
