@@ -30,38 +30,32 @@ const PodcastDetail = () => {
   const isPlaying = isCurrentTrack && playerStatus.playing;
   const isLoaded = playerStatus.isLoaded;
 
-  // On mount, check if this is an episode of a series
+  // On mount, fetch additional podcast data like view count
   useEffect(() => {
-    const checkSeriesMembership = async () => {
+    const fetchPodcastDetails = async () => {
       if (!podcastData.id) {
         setIsLoading(false);
         return;
       }
 
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('podcasts')
-        .select('series_id, view_count, user_id')
+        .select('view_count, user_id')
         .eq('id', podcastData.id)
         .single();
 
       if (error) {
-        console.error('Error fetching podcast:', error);
-        setIsLoading(false);
-        return;
+        console.error('Error fetching podcast details:', error);
+      } else if (data) {
+        setViewCount(data.view_count || 0);
+        setCreatorId(data.user_id || null);
       }
-
-      if (data?.series_id) {
-        // It's an episode, redirect to the series page
-        router.replace(`/series/${data.series_id}`);
-      } else {
-        // It's a standalone podcast, proceed to load
-        setViewCount(data?.view_count || 0);
-        setCreatorId(data?.user_id || null);
-        setIsLoading(false);
-      }
+      
+      setIsLoading(false);
     };
 
-    checkSeriesMembership();
+    fetchPodcastDetails();
   }, [podcastData.id]);
 
   // Track when playback starts to increment view count
