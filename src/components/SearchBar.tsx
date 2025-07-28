@@ -7,12 +7,10 @@ interface SearchBarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   resultsCount?: number;
+  onClear?: () => void;
 }
 
-export const SearchBar = ({ searchQuery, onSearchChange, resultsCount }: SearchBarProps) => {
-  const clearSearch = () => {
-    onSearchChange('');
-  };
+export const SearchBar = ({ searchQuery, onSearchChange, resultsCount, onClear }: SearchBarProps) => {
 
   return (
     <View className="px-4 pt-12 pb-4 bg-white">
@@ -32,19 +30,19 @@ export const SearchBar = ({ searchQuery, onSearchChange, resultsCount }: SearchB
           <Ionicons 
             name="search" 
             size={20} 
-            color="#9CA3AF" 
+            color="#4F46E5" 
             className="ml-3"
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity 
-              onPress={clearSearch}
+              onPress={onClear}
               className="ml-2 p-1"
               activeOpacity={0.7}
             >
               <Ionicons 
                 name="close-circle" 
                 size={20} 
-                color="#9CA3AF" 
+                color="#4F46E5" 
               />
             </TouchableOpacity>
           )}

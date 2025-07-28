@@ -11,14 +11,14 @@ import { useRouter } from 'expo-router';
 import { StyledText } from './StyledText';
 
 interface Podcast {
-  image_url: string | undefined;
+  image_url: string | null | undefined;
   id: string;
-  user_id?: string;
+  user_id?: string | null;
   title: string;
   author: string;
   audio_url: string;
-  thumbnail_url?: string;
-  description?: string;
+  thumbnail_url?: string | null;
+  description?: string | null;
 }
 
 interface DiscoveryPodcastListItemProps {

@@ -102,8 +102,8 @@ export default function Page() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#2563EB', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
-            <StyledText fontWeight="Bold" className='text-3xl font-bold text-center mb-8'>
+            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <StyledText fontWeight="Bold" className='text-3xl font-semibold text-center mb-8'>
               مرحبًا بك
             </StyledText>
             <StyledText className='text-center mb-8'>
@@ -121,7 +121,7 @@ export default function Page() {
 
             <View className='gap-4'>
               <View>
-                <StyledText className='text-sm font-medium mb-1 text-right'>
+                <StyledText className='text-sm font-semibold mb-1 text-right'>
                   البريد الإلكتروني
                 </StyledText>
                 <TextInput
@@ -138,7 +138,7 @@ export default function Page() {
               </View>
 
               <View>
-                <StyledText className='text-sm font-medium mb-1 text-right'>
+                <StyledText className='text-sm font-semibold mb-1 text-right'>
                   كلمة المرور
                 </StyledText>
                 <TextInput
@@ -155,7 +155,7 @@ export default function Page() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
                 onPress={onSignInPress}
                 disabled={loading}
               >
@@ -167,7 +167,7 @@ export default function Page() {
 <View className='flex-row justify-center items-center mt-6 gap-2'>
              
             <Link href='/sign-up'>
-                <StyledText className='text-blue-400 font-semibold ml-1'>إنشاء حساب</StyledText>
+                <StyledText className='text-indigo-600 font-semibold ml-1'>إنشاء حساب</StyledText>
               </Link> 
                 <StyledText className='text-gray-400'>ليس لديك حساب؟</StyledText>
             </View>

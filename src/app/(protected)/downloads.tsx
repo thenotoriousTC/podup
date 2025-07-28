@@ -5,6 +5,7 @@ import PodcastListItem from '@/components/bookListItem';
 import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { StyledText } from '@/components/StyledText';
 
 const DOWNLOADED_PODCASTS_KEY = 'downloaded-podcasts';
 
@@ -56,13 +57,13 @@ export default function DownloadsScreen() {
             <View style={styles.container}>
                 <View style={styles.topBar}>
                     <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
+                        <Ionicons name="arrow-back" size={24} color="#4F46E5" />
                     </TouchableOpacity>
-                    <Text style={styles.title}>Downloads</Text>
+                    <StyledText style={styles.title}>التحميلات</StyledText>
                     <View style={styles.placeholder} />
                 </View>
                 <View style={styles.centered}>
-                    <ActivityIndicator size="large" color="#007AFF" />
+                    <ActivityIndicator size="large" color="#4F46E5" />
                 </View>
             </View>
         );
@@ -73,16 +74,16 @@ export default function DownloadsScreen() {
             <View style={styles.container}>
                 <View style={styles.topBar}>
                     <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
+                        <Ionicons name="arrow-back" size={24} color="#4F46E5" />
                     </TouchableOpacity>
-                    <Text style={styles.title}>Downloads</Text>
+                    <StyledText style={styles.title}>التحميلات</StyledText>
                     <View style={styles.placeholder} />
                 </View>
                 <View style={styles.centered}>
-                    <Text style={styles.emptyText}>No downloads yet.</Text>
-                    <Text style={styles.emptySubText}>
-                        Tap the download icon on a podcast to save it for offline listening.
-                    </Text>
+                    <StyledText style={styles.emptyText}>لا توجد تحميلات.</StyledText>
+                    <StyledText style={styles.emptySubText}>
+                        اضغط على زر التحميل على البودكاست لحفظه للسماع دون اتصال.
+                    </StyledText>
                 </View>
             </View>
         );
@@ -92,8 +93,9 @@ export default function DownloadsScreen() {
         <View style={styles.container}>
             <View style={styles.topBar}>
                 <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="arrow-back" size={24} color="#4F46E5" />
                 </TouchableOpacity>
+                <StyledText style={styles.title}>التحميلات</StyledText>
                 <View style={styles.placeholder} />
             </View>
             <FlatList
@@ -121,16 +123,15 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         paddingTop: 50, // Account for status bar
         backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
+       
     },
     backButton: {
         padding: 8,
     },
     title: {
         fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        fontWeight: 'semibold',
+        color: '#4F46E5',
     },
     placeholder: {
         width: 40, // Same width as back button to center the title
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: 'semibold',
         color: '#555',
     },
     emptySubText: {

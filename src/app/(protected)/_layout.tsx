@@ -1,6 +1,7 @@
 import { View, StyleSheet, ActivityIndicator, Text } from "react-native";
 import { Redirect, Stack } from "expo-router";
 import { useAuth } from "@/providers/AuthProvider";
+import { StyledText } from "@/components/StyledText";
 
 export default function ProtectedLayout() {
   const { session, loading } = useAuth();
@@ -8,9 +9,9 @@ export default function ProtectedLayout() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text>جاري التحميل...</Text>
-        <Text className="text-red-600 text-xl mt-2">يرجى التحقق من اتصالك بالإنترنت</Text>
+        <ActivityIndicator size="large" color="#4F46E5" />
+        <StyledText>جاري التحميل...</StyledText>
+        <Text className="text-red-600 text-xl mt-20">يرجى التحقق من اتصالك بالإنترنت</Text>
       </View>
     );
   }

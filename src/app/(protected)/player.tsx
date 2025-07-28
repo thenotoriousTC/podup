@@ -130,7 +130,7 @@ export default function Player() {
           onPress={() => router.back()}
           className="absolute top-12 right-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
         >
-          <EvilIcons name="chevron-down" size={34} color="#1C1C1E" />
+          <EvilIcons name="chevron-down" size={34} color="#4F46E5" />
         </Pressable>
       </View>
 
@@ -150,7 +150,7 @@ export default function Player() {
           <View className="items-center px-4">
             <StyledText
               fontWeight="Bold"
-              className="text-2xl font-bold text-center text-black  mb-2"
+              className="text-2xl font-semibold text-center text-black  mb-2"
               style={{ lineHeight: 32, letterSpacing: -0.5 }}
               numberOfLines={2}
             >

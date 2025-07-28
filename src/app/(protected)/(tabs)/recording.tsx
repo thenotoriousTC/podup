@@ -6,6 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';
+import { StyledText } from '@/components/StyledText';
 
 interface Recording {
   id: string;
@@ -470,9 +471,9 @@ export default function RecordingScreen() {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="person-circle-outline" size={64} color="#007AFF" />
-        <Text className="text-xl font-bold text-red-500 mt-4 mb-2 text-center">
+        <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
           يرجى تسجيل الدخول لتسجيل الصوت
-        </Text>
+        </StyledText>
       </View>
     );
   }
@@ -481,9 +482,9 @@ export default function RecordingScreen() {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text className="mt-4 text-base text-blue-500">
+        <StyledText className="mt-4 text-base text-blue-500">
           طلب إذن...
-        </Text>
+        </StyledText>
       </View>
     );
   }
@@ -492,12 +493,12 @@ export default function RecordingScreen() {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="mic-off" size={64} color="#FF3B30" />
-        <Text className="text-xl font-bold text-red-500 mt-4 mb-2 text-center">
+        <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
           رفض إذن الميكروفون
-        </Text>
-        <Text className="text-base text-gray-600 text-center max-w-[80%]">
+        </StyledText>
+        <StyledText className="text-base text-gray-600 text-center max-w-[80%]">
           يرجى تفعيل الوصول إلى الميكروفون في إعدادات جهازك
-        </Text>
+        </StyledText>
       </View>
     );
   }
@@ -508,62 +509,61 @@ export default function RecordingScreen() {
       <View className="p-4">
         {/* User Info */}
         <View className="items-center mb-8 pt-5">
-          <Text className="text-base text-gray-600 text-center">
+          <StyledText className="text-base text-gray-600 text-center">
             تسجيل، إدارة، ونشر محتواك
-          </Text>
+          </StyledText>
         </View>
 
         {/* Recording Section */}
         <View className="bg-white rounded-2xl p-6 shadow-lg items-center mb-8">
           <View className={`w-32 h-32 rounded-full justify-center items-center mb-6 ${
-            isRecording ? 'bg-red-50 border-4 border-red-500' : 'bg-white border-4 border-blue-200'
+            isRecording ? 'bg-red-50 border-4 border-red-500' : 'bg-white border-4 border-indigo-400'
           }`}>
             <Ionicons 
               name={isRecording ? "mic" : "mic"} 
               size={64} 
-              color={isRecording ? "#FF3B30" : "#007AFF"} 
+              color={isRecording ? "#FF3B30" : "#4F46E5"} 
             />
           </View>
           
-          <Text className="text-2xl font-bold text-blue-500 mb-3 text-center">
+          <StyledText className="text-2xl font-semibold text-indigo-500 mb-3 text-center">
             {isRecording ? " جاري التسجيل" : "جاهز للتسجيل"}
-          </Text>
-          
+          </StyledText>
           {isRecording && (
-            <Text className="text-2xl font-bold text-red-500 mb-3">
+            <StyledText className="text-2xl font-semibold text-indigo-500 mb-3">
               {formatTime(recordingDuration)}
-            </Text>
+            </StyledText>
           )}
           
           <TouchableOpacity 
             className={`px-8 py-4 rounded-full mt-3 ${
-              isRecording ? 'bg-red-500' : 'bg-blue-500'
+              isRecording ? 'bg-red-500' : 'bg-indigo-500'
             } ${isUploading ? 'opacity-50' : ''}`}
             onPress={isRecording ? stopRecording : startRecording}
             disabled={isUploading}
           >
-            <Text className="text-white text-lg font-bold">
+            <StyledText className="text-white text-lg font-semibold">
               {isRecording ? "إيقاف التسجيل" : "بدء التسجيل"}
-            </Text>
+            </StyledText>
           </TouchableOpacity>
         </View>
 
         {/* Recordings List */}
         {recordings.length > 0 && (
           <View className="bg-white rounded-2xl p-5 mb-8 shadow-lg">
-            <Text className="text-xl font-bold text-gray-800 mb-4 text-center">
+            <StyledText className="text-xl font-semibold text-gray-800 mb-4 text-center">
               تسجيلاتك ({recordings.length})
-            </Text>
+            </StyledText>
             
             {recordings.map((recording) => (
               <View key={recording.id} className="flex-row items-center justify-between p-3 mb-3 bg-gray-50 rounded-xl">
                 <View className="flex-1 mr-3">
-                  <Text className="text-base font-semibold text-gray-800 mb-1">
+                  <StyledText className="text-base font-semibold text-gray-800 mb-1">
                     {recording.title}
-                  </Text>
-                  <Text className="text-sm text-gray-500">
+                  </StyledText>
+                  <StyledText className="text-sm text-gray-500">
                     {formatDate(recording.createdAt)} • {formatTime(recording.duration)}
-                  </Text>
+                  </StyledText>
                 </View>
                 
                 <View className="flex-row items-center">
@@ -584,7 +584,7 @@ export default function RecordingScreen() {
                     onPress={() => selectRecordingForPublish(recording)}
                     disabled={isUploading}
                   >
-                    <Ionicons name="cloud-upload" size={24} color="#3b82f6" />
+                    <Ionicons name="cloud-upload" size={24} color="#4F46E5" />
                   </TouchableOpacity>
                   
                   <TouchableOpacity
@@ -603,20 +603,20 @@ export default function RecordingScreen() {
         {/* Metadata Form Section */}
         {showMetadataForm && selectedRecording && (
           <View ref={metadataFormRef} className="bg-white rounded-2xl p-5 mb-6 shadow-lg">
-            <Text className="text-xl font-bold text-gray-800 text-center mb-2">
+            <StyledText className="text-3xl font-semibold text-indigo-500 text-center mb-12 ">
               نشر محتوى
-            </Text>
-            <Text className="text-base text-gray-600 text-center mb-6">
-              أضف التفاصيل حول محتوىك
-            </Text>
+            </StyledText>
+            <StyledText className="text-base text-gray-600 text-center mb-6">
+              أضف التفاصيل حول محتواك
+            </StyledText>
             
             {/* Cover Image Section */}
             <View className="mb-5">
-              <Text className="text-base font-semibold text-gray-800 mb-2">
+              <StyledText className="text-base font-semibold text-gray-800 mb-2 text-right">
                 صورة الغلاف *
-              </Text>
+              </StyledText>
               <TouchableOpacity
-                className="border-2 border-dashed border-gray-300 rounded-xl p-6 items-center justify-center bg-gray-50"
+                className="border-2 border-separate border-indigo-400 rounded-xl p-6 items-center justify-center bg-white"
                 onPress={pickImage}
                 disabled={isUploading}
               >
@@ -627,21 +627,21 @@ export default function RecordingScreen() {
                     resizeMode="cover"
                   />
                 ) : (
-                  <Ionicons name="image" size={48} color="#9CA3AF" />
+                  <Ionicons name="image" size={48} color="#4F46E5" />
                 )}
-                <Text className="text-base font-medium text-blue-500 mt-2">
+                <StyledText className="text-base font-medium text-indigo-500 mt-2">
                   {podcastImage ? "تغيير صورة الغلاف" : "اختيار صورة الغلاف"}
-                </Text>
+                </StyledText>
               </TouchableOpacity>
             </View>
             
             {/* Title Input */}
             <View className="mb-5">
-              <Text className="text-base font-semibold text-gray-800 mb-2">
+              <StyledText className="text-base font-semibold text-gray-800 mb-2 text-right">
                 عنوان المحتوى *
-              </Text>
+              </StyledText>
               <TextInput
-                className="border border-gray-300 rounded-lg p-3 text-base bg-gray-50 text-gray-800"
+                className="rounded-lg p-3 text-base bg-gray-50 text-gray-800 text-right"
                 value={podcastTitle}
                 onChangeText={setPodcastTitle}
                 placeholder="عنوان المحتوى..."
@@ -653,27 +653,27 @@ export default function RecordingScreen() {
             
             {/* Category Picker */}
             <View className="mb-5">
-              <Text className="text-base font-semibold text-gray-800 mb-2">
+              <StyledText className="text-base font-semibold text-gray-800 mb-2 text-right">
                 الفئة *
-              </Text>
+              </StyledText>
               <Pressable
                 onPress={() => setCategoryModalVisible(true)}
                 disabled={isUploading}
-                className={`bg-gray-50 p-3 rounded-lg border border-gray-300 shadow-sm ${
+                className={`bg-gray-50 p-3 rounded-lg  shadow-sm ${
                   isUploading ? 'opacity-50' : ''
                 }`}
               >
-                <Text className="text-base text-gray-800">{category || 'اختر الفئة'}</Text>
+                <StyledText className="text-base text-gray-800 text-right">{category || 'اختر الفئة'}</StyledText>
               </Pressable>
             </View>
             
             {/* Description Input */}
             <View className="mb-5">
-              <Text className="text-base font-semibold text-gray-800 mb-2">
+              <StyledText className="text-base font-semibold text-gray-800 mb-2 text-right">
                 وصف *
-              </Text>
+              </StyledText>
               <TextInput
-                className="border border-gray-300 rounded-lg p-3 text-base bg-gray-50 text-gray-800 min-h-[100px]"
+                className="rounded-lg p-3 text-base bg-gray-50 text-gray-800 min-h-[100px] text-right"
                 value={podcastDescription}
                 onChangeText={setPodcastDescription}
                 placeholder="وصف المحتوى..."
@@ -682,9 +682,9 @@ export default function RecordingScreen() {
                 maxLength={500}
                 textAlignVertical="top"
               />
-              <Text className="text-sm text-gray-400 mt-1">
+              <StyledText className="text-sm text-gray-400 mt-1">
                 {podcastDescription.length}/500 characters
-              </Text>
+              </StyledText>
             </View>
             
             <View className="flex-row justify-between items-center">
@@ -699,9 +699,9 @@ export default function RecordingScreen() {
                 disabled={isUploading}
               >
                 <Ionicons name="arrow-back" size={20} color="#007AFF" />
-                <Text className="ml-2 text-base font-semibold text-blue-500">
+                <StyledText className="ml-2 text-base font-semibold text-blue-500">
                   إلغاء
-                </Text>
+                </StyledText>
               </TouchableOpacity>
               
               <TouchableOpacity 
@@ -718,9 +718,9 @@ export default function RecordingScreen() {
                 ) : (
                   <Ionicons name="cloud-upload" size={24} color="#FFFFFF" />
                 )}
-                <Text className="text-white text-base font-bold ml-2">
+                <StyledText className="text-white text-base font-semibold ml-2">
                   {isUploading ? "نشر ..." : "نشر المحتوى"}
-                </Text>
+                </StyledText>
               </TouchableOpacity>
             </View>
           </View>
@@ -729,12 +729,12 @@ export default function RecordingScreen() {
         {/* User's Published Podcasts */}
         {userPodcasts.length > 0 && (
           <View className="items-center p-5 bg-white rounded-2xl shadow-lg mb-8">
-            <Text className="text-lg font-bold text-gray-800 mb-2">
+            <StyledText className="text-lg font-semibold text-gray-800 mb-2">
               المحتوى المنشور
-            </Text>
-            <Text className="text-base text-blue-500">
+            </StyledText>
+            <StyledText className="text-base text-blue-500">
               {userPodcasts.length} محتوى {userPodcasts.length !== 1 ? 's' : ''} منشور
-            </Text>
+            </StyledText>
           </View>
         )}
       </View>
@@ -750,7 +750,7 @@ export default function RecordingScreen() {
     >
       <View className="flex-1 justify-center items-center bg-black/50">
         <View className="bg-white rounded-2xl p-6 w-4/5 max-h-[70%]">
-          <Text className="text-xl font-bold text-gray-800 mb-4">اختر الفئة</Text>
+          <StyledText className="text-xl font-semibold text-gray-800 mb-4">اختر الفئة</StyledText>
           <FlatList
             data={categories}
             keyExtractor={(item) => item}
@@ -762,7 +762,7 @@ export default function RecordingScreen() {
                 }}
                 className="p-4 border-b border-gray-200"
               >
-                <Text className="text-base text-gray-800">{item}</Text>
+                <StyledText className="text-base text-gray-800">{item}</StyledText>
               </TouchableOpacity>
             )}
           />
@@ -770,7 +770,7 @@ export default function RecordingScreen() {
             onPress={() => setCategoryModalVisible(false)}
             className="mt-4 bg-red-500 p-3 rounded-lg items-center"
           >
-            <Text className="text-white font-semibold">إغلاق</Text>
+            <StyledText className="text-white font-semibold">إغلاق</StyledText>
           </Pressable>
         </View>
       </View>

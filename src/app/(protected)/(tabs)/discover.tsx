@@ -5,14 +5,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { usePlayer } from '@/providers/playerprovider';
 import { usePodcasts } from '@/hooks/usePodcasts';
 import { SearchBar } from '@/components/SearchBar';
-import { PodcastsList } from '@/components/PodcastsList';
+import DiscoverContent from '@/components/DiscoverContent';
 import { LoadingState } from '@/components/LoadingState';
 import { ErrorState } from '@/components/ErrorState';
 
 export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { podcast } = usePlayer();
-  const { groupedPodcasts, isLoading, error, totalResults, refreshPodcasts } = usePodcasts(searchQuery);
+  const { discoverContent, isLoading, error, totalResults, refreshPodcasts } = usePodcasts(searchQuery);
 
   // Auto-refresh when screen comes into focus
   useFocusEffect(
@@ -31,25 +30,21 @@ export default function DiscoverScreen() {
   }
 
   if (error) {
-    return <ErrorState />;
+    return <ErrorState onRetry={refreshPodcasts} />;
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
       <StatusBar style="auto" />
       
       <SearchBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         resultsCount={searchQuery.length > 0 ? totalResults : undefined}
+        onClear={handleClearSearch}
       />
       
-      <PodcastsList
-        groupedPodcasts={groupedPodcasts}
-        searchQuery={searchQuery}
-        onClearSearch={handleClearSearch}
-        hasPlayerActive={!!podcast}
-      />
+      <DiscoverContent content={discoverContent} />
     </View>
   );
 }

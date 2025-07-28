@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   titleText: {
     marginTop: 4,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 'semibold',
     color: 'black',
   },
   playPauseButton: {

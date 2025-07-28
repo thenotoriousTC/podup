@@ -1,11 +1,13 @@
-import { View, Text, Pressable, ScrollView, TextInput, Image, Alert, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, Image, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Stack, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { MaterialIcons } from '@expo/vector-icons';
+import { StyledText } from '@/components/StyledText';
 
 // Re-using categories from UPLOAD.tsx
 const categories = [
@@ -35,7 +37,7 @@ const OnboardingScreen = () => {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant permission to access the photo library.');
+      Alert.alert('نحتاج إلى الإذن', 'يرجى الموافقة على إذن الوصول إلى مكتبة الصور.');
       return;
     }
 
@@ -70,15 +72,15 @@ const OnboardingScreen = () => {
 
   const handleSave = async () => {
     if (!fullName.trim()) {
-      Alert.alert('Full Name Required', 'Please enter your full name.');
+      Alert.alert('الاسم الكامل مطلوب', 'يرجى إدخال اسمك الكامل.');
       return;
     }
     if (selectedInterests.length === 0) {
-      Alert.alert('Interests Required', 'Please select at least one interest.');
+      Alert.alert('الاهتمامات مطلوبة', 'يرجى اختيار اقل من اهتمام.');
       return;
     }
     if (!currentUser) {
-        Alert.alert('Error', 'Could not identify user. Please try logging in again.');
+        Alert.alert('خطأ', 'لا يمكن تحديد المستخدم. يرجى المحاولة مرة أخرى.');
         return;
     }
 
@@ -116,101 +118,110 @@ const OnboardingScreen = () => {
 
       if (updateError) throw updateError;
 
-      Alert.alert('Profile Saved!', 'Your profile has been updated successfully.');
+      Alert.alert('تم حفظ الملف الشخصي!', 'تم تحديث الملف الشخصي بنجاح.');
       router.replace('/'); // Navigate to home screen
 
     } catch (error: any) {
       console.error('Error saving profile:', error);
-      Alert.alert('Save Failed', error.message || 'An unexpected error occurred.');
+      Alert.alert('فشل الحفظ', error.message || 'حدث خطأ غير متوقع.');
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <SafeAreaView className="flex-1 bg-gray-50">
       <Stack.Screen options={{ title: 'Set Up Your Profile' }} />
       
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome!</Text>
-        <Text style={styles.subtitle}>Let's get your profile set up.</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Profile Picture</Text>
-        <TouchableOpacity onPress={pickImage} style={styles.avatarContainer} disabled={isSaving}>
-          {avatarImage ? (
-            <Image source={{ uri: avatarImage }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <MaterialIcons name="add-a-photo" size={40} color="#ccc" />
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Full Name</Text>
-        <TextInput
-          value={fullName}
-          onChangeText={setFullName}
-          placeholder="Enter your full name"
-          style={styles.input}
-          editable={!isSaving}
-        />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Your Interests</Text>
-        <Text style={styles.sectionSubtitle}>Select a few topics you enjoy.</Text>
-        <View style={styles.interestsContainer}>
-          {categories.map(interest => (
-            <TouchableOpacity
-              key={interest}
-              style={[styles.interestChip, selectedInterests.includes(interest) && styles.interestChipSelected]}
-              onPress={() => toggleInterest(interest)}
-              disabled={isSaving}
-            >
-              <Text style={[styles.interestText, selectedInterests.includes(interest) && styles.interestTextSelected]}>
-                {interest}
-              </Text>
-            </TouchableOpacity>
-          ))}
+      <ScrollView 
+        className="flex-1" 
+        contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View className="items-center mb-8">
+          <StyledText className="text-3xl font-semibold text-indigo-600 mb-1">مرحبا!</StyledText>
+          <StyledText className="text-base text-gray-600">دعنا نقوم بوضع ملفك الشخصي.</StyledText>
         </View>
-      </View>
 
-      <Pressable onPress={handleSave} style={[styles.saveButton, isSaving && styles.saveButtonDisabled]} disabled={isSaving}>
-        {isSaving ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.saveButtonText}>Save & Continue</Text>
-        )}
-      </Pressable>
-    </ScrollView>
+        {/* Avatar Section */}
+        <View className="mb-6">
+          <StyledText className="text-lg font-semibold text-gray-700 mb-3 text-right">صورة الملف الشخصي</StyledText>
+          <TouchableOpacity 
+            onPress={pickImage} 
+            className="self-center" 
+            disabled={isSaving}
+          >
+            {avatarImage ? (
+              <Image 
+                source={{ uri: avatarImage }} 
+                className="w-30 h-30 rounded-full bg-white" 
+              />
+            ) : (
+              <View className="w-40 h-40 rounded-full bg-indigo-600 justify-center items-center">
+                <MaterialIcons name="add-a-photo" size={40} color="white" />
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Full Name Section */}
+        <View className="mb-6">
+          <StyledText className="text-lg font-semibold text-gray-700 mb-3 text-right">الاسم الكامل</StyledText>
+          <TextInput
+            value={fullName}
+            onChangeText={setFullName}
+            placeholder="Enter your full name"
+            className="bg-white p-4 rounded-lg text-base border border-gray-300"
+            editable={!isSaving}
+          />
+        </View>
+
+        {/* Interests Section */}
+        <View className="mb-6">
+          <StyledText className="text-lg font-semibold text-gray-700 mb-3 text-right">الاهتمامات</StyledText>
+          <StyledText className="text-sm text-gray-500 mb-4 text-right">اختر بعض المواضيع التي تهتم بها.</StyledText>
+          <View className="flex-row flex-wrap gap-2">
+            {categories.map(interest => (
+              <TouchableOpacity
+                key={interest}
+                className={`py-2 px-4 rounded-full border ${
+                  selectedInterests.includes(interest) 
+                    ? 'bg-indigo-600 border-indigo-600' 
+                    : 'bg-white border-gray-300'
+                }`}
+                onPress={() => toggleInterest(interest)}
+                disabled={isSaving}
+              >
+                <StyledText className={
+                  selectedInterests.includes(interest) 
+                    ? 'text-white' 
+                    : 'text-gray-700'
+                }>
+                  {interest}
+                </StyledText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Save Button */}
+        <Pressable 
+          onPress={handleSave} 
+          className={`p-4 rounded-lg items-center mt-5 ${
+            isSaving ? 'bg-indigo-300' : 'bg-indigo-600'
+          }`} 
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <ActivityIndicator color="#fff" />  
+          ) : (
+            <StyledText className="text-white text-base font-semibold">حفظ و استمرار</StyledText>
+          )}
+        </Pressable>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fa' },
-  contentContainer: { padding: 20 },
-  header: { alignItems: 'center', marginBottom: 30 },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#333' },
-  subtitle: { fontSize: 16, color: '#666', marginTop: 4 },
-  section: { marginBottom: 25 },
-  sectionTitle: { fontSize: 18, fontWeight: '600', color: '#444', marginBottom: 10 },
-  sectionSubtitle: { fontSize: 14, color: '#777', marginBottom: 15 },
-  avatarContainer: { alignSelf: 'center' },
-  avatar: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#e9ecef' },
-  avatarPlaceholder: { width: 120, height: 120, borderRadius: 60, backgroundColor: '#e9ecef', justifyContent: 'center', alignItems: 'center' },
-  input: { backgroundColor: '#fff', padding: 15, borderRadius: 10, fontSize: 16, borderWidth: 1, borderColor: '#ddd' },
-  interestsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  interestChip: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd' },
-  interestChipSelected: { backgroundColor: '#007bff', borderColor: '#007bff' },
-  interestText: { color: '#333' },
-  interestTextSelected: { color: '#fff' },
-  saveButton: { backgroundColor: '#007bff', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 20 },
-  saveButtonDisabled: { backgroundColor: '#a0cfff' },
-  saveButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-});
 
 export default OnboardingScreen;

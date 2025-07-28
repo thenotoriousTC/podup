@@ -8,6 +8,7 @@ import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { Stack } from 'expo-router';
+import { StyledText } from '@/components/StyledText';
 
 interface AudioFile {
   uri: string;
@@ -349,10 +350,25 @@ const UploadScreen = () => {
           );
         }, 100);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload error:', error);
       setUploadProgress(null);
-      Alert.alert('Upload Failed', `There was an error uploading your podcast: ${error || 'Unknown error'}`);
+
+      let errorMessage = 'An unknown error occurred. Please try again.';
+      if (error instanceof Error) {
+        if (error.message.includes('Network request failed')) {
+          errorMessage = 'The upload failed due to a network issue. Please check your internet connection and try again.';
+        } else {
+          errorMessage = error.message;
+        }
+      } else if (error && typeof error.message === 'string') {
+        // Handle Supabase and other object-based errors
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+
+      Alert.alert('Upload Failed', errorMessage);
     } finally {
       setIsUploading(false);
     }
@@ -374,9 +390,9 @@ const UploadScreen = () => {
               size={24} 
               color={progress.percentage === 100 ? '#10B981' : '#3B82F6'} 
             />
-            <Text className="text-lg font-semibold text-gray-800 ml-2">
+            <StyledText className="text-lg font-semibold text-gray-800 ml-2">
               {progress.message}
-            </Text>
+            </StyledText>
           </View>
           
           <View className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -388,17 +404,17 @@ const UploadScreen = () => {
             />
           </View>
           
-          <Text className="text-sm text-gray-600 mt-2">
+          <StyledText className="text-sm text-gray-600 mt-2">
             {Math.round(progress.percentage)}% مكتمل
-          </Text>
+          </StyledText>
         </View>
         
         {progress.phase !== 'complete' && (
           <View className="flex-row items-center justify-center">
             <MaterialIcons name="hourglass-empty" size={16} color="#9CA3AF" />
-            <Text className="text-sm text-gray-500 ml-1">
+            <StyledText className="text-sm text-gray-500 ml-1">
               يرجى عدم إغلاق التطبيق أثناء التحميل
-            </Text>
+            </StyledText>
           </View>
         )}
       </View>
@@ -432,17 +448,17 @@ const UploadScreen = () => {
         <View className="p-6 space-y-6">
           {/* Header */}
           <View className="items-center mb-4">
-            <Text className="text-2xl font-bold text-gray-800">تحميل</Text>
-            <Text className="text-gray-600 mt-1">شارك قصةك مع العالم</Text>
+            <StyledText className="text-2xl font-semibold text-indigo-600">تحميل</StyledText>
+            <StyledText className="text-gray-600 mt-1">شارك قصتك مع العالم</StyledText>
           </View>
 
           {/* Cover Image Picker */}
           <View className="items-center">
-            <Text className="text-gray-700 font-semibold mb-2">الغلاف *</Text>
+            <StyledText className="text-gray-700 font-semibold mb-2">الغلاف *</StyledText>
             <Pressable 
               onPress={pickImage}
               disabled={isUploading}
-              className={`w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-dashed border-gray-300 shadow-sm ${
+              className={`w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-separate border-indigo-400 shadow-sm ${
                 isUploading ? 'opacity-50' : ''
               }`}
             >
@@ -464,8 +480,8 @@ const UploadScreen = () => {
               ) : (
                 <View className="items-center p-4">
                   <MaterialIcons name="add-photo-alternate" size={36} color="#9CA3AF" />
-                  <Text className="text-gray-500 text-center mt-2 font-medium">إضافة صورة الغلاف</Text>
-                  <Text className="text-gray-400 text-xs mt-1">اختياري</Text>
+                  <StyledText className="text-gray-500 text-center mt-2 font-medium ">إضافة صورة الغلاف</StyledText>
+                  <StyledText className="text-gray-400 text-xs mt-1">اختياري</StyledText>
                 </View>
               )}
             </Pressable>
@@ -473,11 +489,11 @@ const UploadScreen = () => {
 
           {/* Audio File Picker */}
           <View>
-            <Text className="text-gray-700 font-semibold mb-2">الملف الصوتي *</Text>
+            <StyledText className="text-gray-700 font-semibold mb-2 text-right">الملف الصوتي *</StyledText>
             <Pressable 
               onPress={pickAudio}
               disabled={isUploading}
-              className={`bg-white p-6 rounded-2xl border-2 border-dashed border-gray-200 items-center shadow-sm ${
+              className={`bg-white p-6 rounded-2xl border-2 border-indigo-400 items-center shadow-sm ${
                 isUploading ? 'opacity-50' : ''
               }`}
             >
@@ -486,29 +502,29 @@ const UploadScreen = () => {
                   <View className="bg-blue-100 rounded-full p-3 mb-3">
                     <Feather name="music" size={24} color="#3B82F6" />
                   </View>
-                  <Text className="text-lg font-semibold text-gray-800 text-center" numberOfLines={1}>
+                  <StyledText className="text-lg font-semibold text-gray-800 text-center mt-2" numberOfLines={1}>
                     {audio.name}    
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-1">
+                  </StyledText>
+                  <StyledText className="text-gray-500 text-sm mt-1">
                     {audio.size ? formatFileSize(audio.size) : 'حجم غير معروف'}
-                  </Text>
+                  </StyledText>
                   <Pressable 
                     onPress={removeAudio}
                     disabled={isUploading}
                     className="mt-3 bg-red-100 px-3 py-1 rounded-full"
                   >
-                    <Text className="text-red-600 text-sm">حذف</Text>
+                    <StyledText className="text-red-600 text-sm">حذف</StyledText>
                   </Pressable>
                 </View>
               ) : (
                 <View className="items-center">
                   <Feather name="upload-cloud" size={32} color="#9CA3AF" />
-                  <Text className="text-lg font-semibold text-gray-800 mt-2">
+                  <StyledText className="text-lg font-semibold text-gray-800 mt-2">
                     اختر ملف الصوت
-                  </Text>
-                  <Text className="text-gray-500 text-sm mt-1">
+                  </StyledText>
+                  <StyledText className="text-gray-500 text-sm mt-1">
                     MP3, WAV, AAC, M4A, الخ....  
-                  </Text>
+                  </StyledText>
                 </View>
               )}
             </Pressable>
@@ -517,11 +533,11 @@ const UploadScreen = () => {
           {/* Form Fields */}
           <View className="space-y-4">
             <View>
-              <Text className="text-gray-700 font-semibold mb-2">
+              <StyledText className="text-gray-700 font-semibold mb-2 text-right">
                 العنوان *
-              </Text>
+              </StyledText>
               <TextInput
-                className={`bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm ${
+                className={`bg-white p-4 rounded-2xl text-base text-right border border-gray-200 shadow-sm ${
                   isUploading ? 'opacity-50' : ''
                 }`}
                 placeholder="أدخل العنوان"
@@ -533,11 +549,11 @@ const UploadScreen = () => {
             </View>
 
             <View>
-              <Text className="text-gray-700 font-semibold mb-2">
+              <StyledText className="text-gray-700 font-semibold mb-2 text-right">
                 المُنشئ *
-              </Text>
+              </StyledText>
               <TextInput
-                className={`bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm ${
+                className={`bg-white p-4 rounded-2xl text-right border border-gray-200 shadow-sm ${
                   isUploading ? 'opacity-50' : ''
                 }`}
                 placeholder="أدخل اسم المُنشئ"
@@ -549,9 +565,9 @@ const UploadScreen = () => {
             </View>
 
             <View>
-              <Text className="text-gray-700 font-semibold mb-2">
+              <StyledText className="text-gray-700 font-semibold mb-2 text-right">
                 الفئة *
-              </Text>
+              </StyledText>
               <Pressable
                 onPress={() => setCategoryModalVisible(true)}
                 disabled={isUploading}
@@ -559,16 +575,16 @@ const UploadScreen = () => {
                   isUploading ? 'opacity-50' : ''
                 }`}
               >
-                <Text className="text-base">{category || 'اختر الفئة'}</Text>
+                <StyledText className="text-base text-right">{category || 'اختر الفئة'}</StyledText>
               </Pressable>
             </View>
 
             <View>
-              <Text className="text-gray-700 font-semibold mb-2">
+              <StyledText className="text-gray-700 font-semibold mb-2 text-right">
                 الوصف *
-              </Text>
+              </StyledText>
               <TextInput
-                className={`bg-white p-4 rounded-2xl text-base border border-gray-200 shadow-sm ${
+                className={`bg-white p-4 rounded-2xl text-base text-right border border-gray-200 shadow-sm ${
                   isUploading ? 'opacity-50' : ''
                 }`}
                 placeholder="أدخل وصف البودكاست"
@@ -592,7 +608,7 @@ const UploadScreen = () => {
           {/* Upload Button */}
           <Pressable 
             className={`p-4 rounded-2xl items-center mt-6 shadow-sm ${
-              isUploading ? 'bg-gray-400' : 'bg-blue-500'
+              isUploading ? 'bg-gray-400' : 'bg-indigo-500'
             }`}
             onPress={handleUpload}
             disabled={isUploading}
@@ -600,12 +616,12 @@ const UploadScreen = () => {
             {isUploading ? (
               <View className="flex-row items-center">
                 <MaterialIcons name="hourglass-empty" size={20} color="white" />
-                <Text className="text-white font-semibold text-lg ml-2">جاري التحميل...</Text>
+                <StyledText className="text-white font-semibold text-lg ml-2">جاري التحميل...</StyledText>
               </View>
             ) : (
               <View className="flex-row items-center">
                 <Feather name="upload" size={20} color="white" />
-                <Text className="text-white font-semibold text-lg ml-2">تحميل</Text>
+                <StyledText className="text-white font-semibold text-lg ml-2">تحميل</StyledText>
               </View>
             )}
           </Pressable>
@@ -624,7 +640,7 @@ const UploadScreen = () => {
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white rounded-2xl p-6 w-4/5">
-            <Text className="text-xl font-bold text-gray-800 mb-4">اختر الفئة</Text>
+            <StyledText className="text-xl font-semibold text-gray-800 mb-4">اختر الفئة</StyledText>
             <FlatList
               data={categories}
               keyExtractor={(item) => item}
@@ -636,7 +652,7 @@ const UploadScreen = () => {
                   }}
                   className="p-4 border-b border-gray-200"
                 >
-                  <Text className="text-base">{item}</Text>
+                  <StyledText className="text-base">{item}</StyledText>
                 </TouchableOpacity>
               )}
             />
@@ -644,7 +660,7 @@ const UploadScreen = () => {
               onPress={() => setCategoryModalVisible(false)}
               className="mt-4 bg-red-500 p-3 rounded-lg items-center"
             >
-              <Text className="text-white font-semibold">إغلاق</Text>
+              <StyledText className="text-white font-semibold">إغلاق</StyledText>
             </Pressable>
           </View>
         </View>

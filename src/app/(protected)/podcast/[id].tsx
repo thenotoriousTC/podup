@@ -1,4 +1,4 @@
-import { View, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Image, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { StyledText } from '@/components/StyledText';
 
 const PodcastDetail = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const params = useLocalSearchParams();
   const { player, podcast: currentPodcast, setPodcast, incrementViewCount } = usePlayer();
@@ -29,26 +30,38 @@ const PodcastDetail = () => {
   const isPlaying = isCurrentTrack && playerStatus.playing;
   const isLoaded = playerStatus.isLoaded;
 
-  // Load view count on component mount
+  // On mount, check if this is an episode of a series
   useEffect(() => {
-    const fetchPodcast = async () => {
-      if (!podcastData.id) return;
+    const checkSeriesMembership = async () => {
+      if (!podcastData.id) {
+        setIsLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from('podcasts')
-        .select('view_count, user_id')
+        .select('series_id, view_count, user_id')
         .eq('id', podcastData.id)
         .single();
 
       if (error) {
-        console.error('Error fetching podcast data:', error);
-      } else if (data) {
-        setViewCount(data.view_count);
-        setCreatorId(data.user_id);
+        console.error('Error fetching podcast:', error);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.series_id) {
+        // It's an episode, redirect to the series page
+        router.replace(`/series/${data.series_id}`);
+      } else {
+        // It's a standalone podcast, proceed to load
+        setViewCount(data?.view_count || 0);
+        setCreatorId(data?.user_id || null);
+        setIsLoading(false);
       }
     };
-    
-    fetchPodcast();
+
+    checkSeriesMembership();
   }, [podcastData.id]);
 
   // Track when playback starts to increment view count
@@ -127,36 +140,35 @@ const PodcastDetail = () => {
     return count.toString();
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
   return (
     <>
-      <ScrollView className="flex-1 bg-gray-50">
-        <View className="relative bg-gradient-to-b from-violet-600 to-purple-700 pt-12 pb-8">
-          <TouchableOpacity 
-            onPress={() => router.back()} 
-            className="absolute top-14 left-4 z-20 bg-white/20 backdrop-blur-sm rounded-full p-3"
-          >
-            <Ionicons name="arrow-back" size={24} color="#9333EA" />
-          </TouchableOpacity>
-          
-          <View className="items-center px-6 mt-12">
-            <View 
-              className="rounded-2xl overflow-hidden"
-              style={{ 
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 8 },
-                shadowOpacity: 0.3,
-                shadowRadius: 12,
-                elevation: 8
-              }}
-            >
+      <ScrollView
+        className="bg-gray-50"
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
+        <View className="relative">
+          {/* Header background */}
+          <View className="bg-violet-200 h-64 w-full" />
+
+          {/* Content */}
+          <View className="-mt-48 items-center">
+            <View className="rounded-2xl shadow-xl bg-white p-2">
               <Image
-                source={{ uri: podcastData.image_url }}
+                source={{ uri: podcastData.image_url || 'https://via.placeholder.com/150' }}
                 className="w-48 h-48"
                 style={{ borderRadius: 16 }}
               />
             </View>
             
-            <StyledText fontWeight="Bold" className="text-3xl font-bold mt-6 text-center px-4 text-black">
+            <StyledText fontWeight="Bold" className="text-3xl font-semibold mt-6 text-center px-4 text-black">
               {podcastData.title}
             </StyledText>
             <TouchableOpacity onPress={() => {if (typeof creatorId === 'string' && creatorId) {router.push(`/creator/${creatorId}`);}}} disabled={!creatorId}>
@@ -180,7 +192,7 @@ const PodcastDetail = () => {
           </View>
         </View>
 
-        <View className="px-6 -mt-4">
+        <View className="px-6 mt-4 ">
           <TouchableOpacity
             onPress={onPlayPausePress}
             className="bg-violet-600 py-4 px-8 rounded-2xl shadow-lg mb-6"
@@ -194,13 +206,13 @@ const PodcastDetail = () => {
           >
             <View className="flex-row items-center justify-center">
               <Ionicons name={isPlaying ? "pause-circle" : "play-circle"} size={28} color="white" className="mr-3" />
-              <StyledText fontWeight="Bold" className="text-white font-bold text-lg ml-3">إستمع</StyledText>
+              <StyledText fontWeight="Bold" className="text-white font-semibold text-lg ml-3">إستمع</StyledText>
             </View>
           </TouchableOpacity>
 
           {podcastData.description && (
             <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-              <StyledText fontWeight="Bold" className="text-lg font-bold text-gray-900 mb-3 text-right">معلومات حول البودكاست</StyledText>
+              <StyledText fontWeight="Bold" className="text-lg font-semibold text-gray-900 mb-3 text-right">معلومات حول البودكاست</StyledText>
               <StyledText className="text-gray-700 leading-6 text-base text-right">
                 {podcastData.description}
               </StyledText>
@@ -221,7 +233,7 @@ const PodcastDetail = () => {
 
           {/* Stats Section */}
           <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text-right">
-            <StyledText fontWeight="Bold" className="text-lg font-bold text-gray-900 mb-3 text-right">إحصائيات</StyledText>
+            <StyledText fontWeight="Bold" className="text-lg font-semibold text-gray-900 mb-3 text-right">إحصائيات</StyledText>
             <View className="flex-row items-center text-right">
               <Ionicons name="play-circle" size={20} color="#8B5CF6" />
               <StyledText className="text-gray-700 ml-2 text-right">
@@ -235,5 +247,13 @@ const PodcastDetail = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default PodcastDetail;

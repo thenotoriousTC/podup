@@ -5,6 +5,7 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 import { usePlayer } from '@/providers/playerprovider';
+import { StyledText } from '@/components/StyledText';
 
 export default function Profile() {
         const { user: currentUser, loading: authLoading } = useAuth();
@@ -63,26 +64,26 @@ export default function Profile() {
         if (authLoading || loading) {
         return (
             <View className="flex-1 justify-center items-center bg-gray-100">
-                <Text className="text-lg text-blue-500 text-center">Loading...</Text>
+                <StyledText className="text-lg text-blue-500 text-center">جاري التحميل...</StyledText>
             </View>
         );
     }
 
     return (
-        <View className="flex-1 bg-gray-100 p-4 pt-10">
-            <View className="mb-6 mt-2">
-                <Text className="text-4xl font-bold text-blue-500 text-right">الملف الشخصي</Text>
+        <View className="flex-1 bg-white p-4 pt-10">
+            <View className="pb-8 mt-2">
+                <StyledText className="text-4xl  text-indigo-500 text-right pb-8">الملف الشخصي</StyledText>
             </View>
 
             <View className="bg-white rounded-xl p-4 mb-6 shadow-lg">
                 <View className="flex-row items-center justify-end">
                     <View className="mr-4">
-                        <Text className="text-xl font-semibold text-black text-right">
+                        <StyledText className="text-xl font-semibold text-black text-right">
                             {profile?.full_name || currentUser?.email?.split('@')[0] || 'User'}
-                        </Text>
-                        <Text className="text-base text-gray-600 opacity-60 mt-1 text-right">
+                        </StyledText>
+                        <StyledText className="text-base text-gray-600 opacity-60 mt-1 text-right">
                             {currentUser?.email || 'No email'}
-                        </Text>
+                        </StyledText>
                     </View>
                     <Image
                         source={{ uri: profile?.avatar_url || 'https://i.pinimg.com/736x/c0/74/9b/c0749b7cc401421662ae901ec8f9f660.jpg' }}
@@ -92,7 +93,7 @@ export default function Profile() {
             </View>
             
             <View className="mb-6">
-                <Text className="text-xl font-semibold text-blue-500 mb-3 text-right">الحساب</Text>
+                <StyledText className="text-xl font-semibold text-indigo-500 mb-3 text-right">الحساب</StyledText>
                 
                 <View className="bg-white rounded-xl shadow-lg">
                     <Pressable 
@@ -101,9 +102,9 @@ export default function Profile() {
                     >
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="cloud-upload-outline" size={32} color="#007AFF" className="ml-2" />
+                            <Ionicons name="cloud-upload-outline" size={32} color="#4F46E5" className="ml-2" />
                         </View>
-                        <Text className="text-lg text-black text-right">تحميل</Text>
+                        <StyledText className="text-lg text-black text-right">تحميل</StyledText>
                     </Pressable>
 
                     <View className="h-px bg-gray-200 mr-14" />
@@ -114,9 +115,9 @@ export default function Profile() {
                     >
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="cloud-download-outline" size={32} color="#007AFF" className="ml-2" />
+                            <Ionicons name="cloud-download-outline" size={32} color="#4F46E5" className="ml-2" />
                         </View>
-                        <Text className="text-lg text-black text-right">التنزيلات</Text>
+                        <StyledText className="text-lg text-black text-right">التنزيلات</StyledText>
                     </Pressable>
 
                     <View className="h-px bg-gray-200 mr-14" />
@@ -132,11 +133,24 @@ export default function Profile() {
                     >
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="albums-outline" size={32} color="#007AFF" className="ml-2" />
+                            <Ionicons name="albums-outline" size={32} color="#4F46E5" className="ml-2" />
                         </View>
-                        <Text className="text-lg text-black text-right">المحتوى الخاص بي</Text>
+                        <StyledText className="text-lg text-black text-right">المحتوى الخاص بي</StyledText>
                     </Pressable>
                     
+                    <View className="h-px bg-gray-200 mr-14" />
+
+                    <Pressable 
+                        className="flex-row items-center justify-between p-4"
+                        onPress={() => router.push('/(protected)/creator/create-series')}
+                    >
+                        <View className="flex-row items-center">
+                            <AntDesign name="left" size={24} color="#C7C7CC" />
+                            <Ionicons name="duplicate-outline" size={32} color="#4F46E5" className="ml-2" />
+                        </View>
+                        <StyledText className="text-lg text-black text-right">إنشاء سلسلة جديدة</StyledText>
+                    </Pressable>
+
                     <View className="h-px bg-gray-200 mr-14" />
                     
                     <Pressable 
@@ -145,9 +159,9 @@ export default function Profile() {
                     >
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <AntDesign name="logout" size={30} color="#007AFF" className="ml-2" />
+                            <AntDesign name="logout" size={30} color="#4F46E5" className="ml-2" />
                         </View>
-                        <Text className="text-lg text-black text-right">تسجيل الخروج</Text>
+                        <StyledText className="text-lg text-black text-right">تسجيل الخروج</StyledText>
                     </Pressable>
                 </View>
             </View>

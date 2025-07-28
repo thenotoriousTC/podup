@@ -12,7 +12,7 @@ export const PodcastSection = ({ title, data }: PodcastSectionProps) => {
     <View className="mb-8">
       <View className="flex-row justify-between items-center mb-4">
         <StyledText className="text-sm text-gray-500">إسحب للمزيد ←</StyledText>
-        <StyledText fontWeight="Bold" className="text-3xl font-bold text-gray-800 ">{title}</StyledText>
+        <StyledText fontWeight="Bold" className="text-3xl font-semibold text-gray-800 ">{title}</StyledText>
       </View>
       <FlatList
         data={data}

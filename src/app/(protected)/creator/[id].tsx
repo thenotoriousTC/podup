@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Image, ActivityIndicator, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Image, ActivityIndicator, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import React from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
@@ -7,12 +7,17 @@ import { useEffect, useState } from 'react';
 import PodcastListItem from '../../../components/bookListItem';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { usePodcasts, Series } from '@/hooks/usePodcasts';
+import SeriesCard from '@/components/SeriesCard';
+import { StyledText } from '@/components/StyledText';
 
 const CreatorPage = () => {
     const { id } = useLocalSearchParams();
   const { user: currentUser } = useAuth();
+  const { getSeriesByCreatorId } = usePodcasts('');
   const [creator, setCreator] = useState<any>(null);
   const [podcasts, setPodcasts] = useState<any[]>([]);
+  const [series, setSeries] = useState<(Series & { episode_count: number })[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,6 +52,10 @@ const CreatorPage = () => {
         setPodcasts(podcastData);
       }
 
+      // Fetch creator's series
+      const seriesData = await getSeriesByCreatorId(creatorId);
+      setSeries(seriesData);
+
       setLoading(false);
     };
 
@@ -55,8 +64,8 @@ const CreatorPage = () => {
 
   const handleDelete = async (podcastId: string, imageUrl: string, audioUrl: string) => {
     Alert.alert(
-      'Confirm Deletion',
-      'Are you sure you want to delete this podcast? This action cannot be undone.',
+      'يرجى تأكيد الحذف',
+      'هل انت متأكد من حذف البودكاست؟ هذه الخطوة لا يمكن التراجع عنها.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -101,10 +110,10 @@ const CreatorPage = () => {
               if (dbError) throw dbError;
 
               setPodcasts(podcasts.filter((p) => p.id !== podcastId));
-              Alert.alert('Success', 'Podcast deleted successfully.');
+              Alert.alert('تم الحذف', 'تم حذف البودكاست بنجاح.');
             } catch (error: any) {
               console.error('Error deleting podcast:', error);
-              Alert.alert('Error', `Failed to delete podcast: ${error.message}`);
+              Alert.alert('خطأ', `فشل حذف البودكاست: ${error.message}`);
             }
           },
         },
@@ -113,15 +122,16 @@ const CreatorPage = () => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1, justifyContent: 'center' }} />;
+    return <ActivityIndicator size="large" color="#0000ff" className="flex-1 justify-center" />;
   }
 
   if (!creator) {
-    return <View style={styles.container}><Text>Creator not found.</Text></View>;
+    return <View className="flex-1 p-2.5 pt-12 bg-white"><StyledText>لم يتم العثور على المبدع</StyledText></View>;
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView className="flex-1 p-2.5 pt-12 bg-white">
+      <ScrollView showsVerticalScrollIndicator={false}>
        {/* Back Button */}
        <View >
         <TouchableOpacity
@@ -129,70 +139,49 @@ const CreatorPage = () => {
           className="flex-row items-center p-2 w-20"
         >
           <Ionicons name="arrow-back" size={28} color="black" />
-          <Text className="ml-2 text-base">Back</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.header}>
-        <Image source={{ uri: creator.avatar_url || 'https://example.com/default-avatar.png' }} style={styles.avatar} />
-        <Text style={styles.creatorName}>{creator.full_name || creator.username}</Text>
+      <View className="items-center mb-5">
+        <Image source={{ uri: creator.avatar_url || 'https://example.com/default-avatar.png' }} className="w-40 h-40 rounded-full mb-8" />
+        <StyledText className="text-2xl font-semibold">{creator.full_name || creator.username}</StyledText>
       </View>
-      <Text style={styles.podcastsHeader}>Podcasts : </Text>
-            <FlatList
-        data={podcasts}
-        renderItem={({ item }) => (
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ flex: 1 }}>
-              <PodcastListItem podcast={item} />
-            </View>
-            {currentUser?.id === creator.id && (
-              <TouchableOpacity
-                onPress={() => handleDelete(item.id, item.image_url, item.audio_url)}
-                style={styles.deleteButton}
-              >
-                <Ionicons name="trash-outline" size={24} color="red" />
-              </TouchableOpacity>
-            )}
+
+      {series.length > 0 && (
+        <View className="mb-5">
+          <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">السلاسل الخاصة بي</StyledText>
+          <FlatList
+            data={series}
+            renderItem={({ item }) => <SeriesCard series={item} />}
+            keyExtractor={(item) => item.id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+          />
+        </View>
+      )}
+
+      <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">البودكاستات الخاصة بي</StyledText>
+      
+      {podcasts.map((item) => (
+        <View key={item.id} className="flex-row items-center">
+          <View className="flex-1">
+            <PodcastListItem podcast={item} />
           </View>
-        )}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+          {currentUser?.id === creator.id && (
+            <TouchableOpacity
+              onPress={() => handleDelete(item.id, item.image_url, item.audio_url)}
+              className="p-2.5 ml-2.5"
+            >
+              <Ionicons name="trash-outline" size={24} color="red" />
+            </TouchableOpacity>
+          )}
+        </View>
+      ))}
+      
+      <View className="h-24" />
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-    paddingTop: 50,
-    backgroundColor: '#fff',
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  creatorName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  podcastsHeader: {
-    paddingLeft:5,
-    fontSize: 24,
-        fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  deleteButton: {
-    padding: 10,
-    marginLeft: 10,
-  },
-});
-
 export default CreatorPage;
-

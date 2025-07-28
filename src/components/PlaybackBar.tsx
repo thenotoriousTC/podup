@@ -1,10 +1,11 @@
-import { View ,Text,Pressable, GestureResponderEvent} from 'react-native';
+import { View ,Pressable, GestureResponderEvent} from 'react-native';
 type PlaybackBarProps = {
     currentTime: number;
     duration: number;
     onSeek?: (seconds: number) => void;
 }
 import React, { useRef, useState } from 'react';
+import { StyledText } from './StyledText';
 export default function PlaybackBar({ currentTime,duration,onSeek  }:PlaybackBarProps)  {
 
     
@@ -38,17 +39,17 @@ export default function PlaybackBar({ currentTime,duration,onSeek  }:PlaybackBar
                     style={{ width: `${value * 100}%` }}
                 />
                 <View
-                    className='absolute w-4 h-4 -translate-x-1/2 rounded-full bg-blue-400'
+                    className='absolute w-4 h-4 -translate-x-1/2 rounded-full bg-indigo-400'
                     style={{ left: `${value * 100}%` }}
                 />
             </Pressable>
             <View className='flex-row justify-between mt-2'>
-                <Text className='text-xs text-gray-500 mt-1'>
+                <StyledText className='text-xs text-gray-500 mt-1'>
                     {formatTime(currentTime)} 
-                </Text>
-                <Text className='text-xs text-gray-500'>
+                </StyledText>
+                <StyledText className='text-xs text-gray-500'>
                     {formatTime(duration)}
-                </Text>
+                </StyledText>
             </View>
         </View>
     );

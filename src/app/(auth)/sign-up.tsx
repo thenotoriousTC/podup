@@ -69,8 +69,8 @@ export default function SignUpScreen() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
-            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#2563EB', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
-            <StyledText fontWeight="Bold" className='text-3xl font-bold text-center mb-8 '>
+            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <StyledText fontWeight="Bold" className='text-3xl font-semibold text-center mb-8 '>
               إنشاء حساب
             </StyledText>
             <StyledText className='text-center mb-8'>
@@ -112,7 +112,7 @@ export default function SignUpScreen() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-blue-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
                 onPress={onSignUpPress}
                 disabled={loading}
               >
@@ -124,7 +124,7 @@ export default function SignUpScreen() {
             <View className='flex-row justify-center items-center mt-6 gap-2 text-right'>
              
               <Link href='/sign-in'>
-                <StyledText className='text-blue-400 font-semibold ml-1'>تسجيل الدخول</StyledText>
+                <StyledText className='text-indigo-600 font-semibold ml-1'>تسجيل الدخول</StyledText>
               </Link> 
                <StyledText className='text-gray-400'>  هل لديك حساب؟</StyledText>
             </View>
