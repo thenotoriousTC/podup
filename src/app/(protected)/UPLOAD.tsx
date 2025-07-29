@@ -196,179 +196,102 @@ const UploadScreen = () => {
     if (!validateForm()) return;
 
     setIsUploading(true);
-    
+    let tempImagePath: string | null = null;
+    let tempAudioPath: string | null = null;
+
     try {
-      console.log('Starting podcast upload...');
-      
-      // Upload image first
-      let imageUrl = null;
+      console.log('Starting atomic podcast upload...');
+
+      // 1. Upload image to a temporary location
       if (image) {
-        console.log('Uploading image...');
-        setUploadProgress({
-          phase: 'image',
-          percentage: 0,
-          message: 'جاري تحميل صورة الغلاف...'
-        });
+        setUploadProgress({ phase: 'image', percentage: 0, message: 'Uploading cover image...' });
+        const imageData = await FileSystem.readAsStringAsync(image, { encoding: FileSystem.EncodingType.Base64 });
+        const imageFileName = `temp/${currentUser!.id}_${Date.now()}.jpg`;
         
-        const imageData = await FileSystem.readAsStringAsync(image, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        
-        // Simulate progress for image upload
-        await simulateProgress('image', 'تحميل صورة الغلاف', 1500);
-        
-        const imageFileName = `podcast_image_${currentUser!.id}_${Date.now()}.jpg`;
-        
-        // Upload image to storage
         const { data: imageUploadData, error: imageUploadError } = await supabase.storage
           .from('podcasts')
-          .upload(imageFileName, base64ToArrayBuffer(imageData), {
-            contentType: 'image/jpeg',
-          });
+          .upload(imageFileName, base64ToArrayBuffer(imageData), { contentType: 'image/jpeg' });
+
+        if (imageUploadError) throw new Error(`Image upload failed: ${imageUploadError.message}`);
         
-        if (imageUploadError) {
-          console.error('Image upload error:', imageUploadError);
-          throw imageUploadError;
-        }
-        
-        // Get public URL for image
-        const { data: imageUrlData } = supabase.storage
-          .from('podcasts')
-          .getPublicUrl(imageFileName);
-        
-        imageUrl = imageUrlData.publicUrl;
-        console.log('Image uploaded successfully:', imageUrl);
-        
-        setUploadProgress({
-          phase: 'image',
-          percentage: 100,
-          message: 'تم تحميل صورة الغلاف بنجاح!'
-        });
+        tempImagePath = imageUploadData.path;
+        console.log('Image uploaded to temp location:', tempImagePath);
+        setUploadProgress({ phase: 'image', percentage: 100, message: 'Cover image uploaded!' });
       }
-      
-      // Upload audio file
+
+      // 2. Upload audio to a temporary location
       if (audio) {
-        console.log('Uploading audio...');
-        setUploadProgress({
-          phase: 'audio',
-          percentage: 0,
-          message: 'جاري تحميل الملف الصوتي...'
-        });
-        
-        const audioData = await FileSystem.readAsStringAsync(audio.uri, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        
-        // Simulate progress for audio upload (longer duration for larger files)
-        const audioUploadDuration = audio.size && audio.size > 10000000 ? 4000 : 2500; // 4s for large files, 2.5s for smaller
-        await simulateProgress('audio', 'تحميل الملف الصوتي', audioUploadDuration);
-        
-        const audioFileExtension = audio.name.split('.').pop() || 'm4a';
-        const audioFileName = `podcast_${currentUser!.id}_${Date.now()}.${audioFileExtension}`;
-        
-        // Upload audio to Supabase Storage
+        setUploadProgress({ phase: 'audio', percentage: 0, message: 'Uploading audio file...' });
+        const audioData = await FileSystem.readAsStringAsync(audio.uri, { encoding: FileSystem.EncodingType.Base64 });
+        const audioFileExtension = audio.name.split('.').pop() || 'mp3';
+        const audioFileName = `temp/${currentUser!.id}_${Date.now()}.${audioFileExtension}`;
+
         const { data: audioUploadData, error: audioUploadError } = await supabase.storage
           .from('podcasts')
-          .upload(audioFileName, base64ToArrayBuffer(audioData), {
-            contentType: audio.mimeType || 'audio/mpeg',
-          });
-        
-        if (audioUploadError) {
-          console.error('Audio upload error:', audioUploadError);
-          throw audioUploadError;
-        }
-        
-        // Get public URL for audio
-        const { data: audioUrlData } = supabase.storage
-          .from('podcasts')
-          .getPublicUrl(audioFileName);
-        
-        const audioUrl = audioUrlData.publicUrl;
-        console.log('Audio uploaded successfully:', audioUrl);
-        
-        setUploadProgress({
-          phase: 'audio',
-          percentage: 100,
-          message: 'تم تحميل الملف الصوتي بنجاح!'
-        });
-        
-        // Save to database
-        console.log('Saving to database...');
-        setUploadProgress({
-          phase: 'database',
-          percentage: 0,
-          message: 'جاري حفظ البيانات...'
-        });
-        
-        // Simulate database save progress
-        await simulateProgress('database', 'حفظ بيانات البودكاست', 1000);
-        
-        const { data: dbData, error: dbError } = await supabase.from('podcasts').insert({
-          user_id: currentUser!.id, // Ensure user_id is included
+          .upload(audioFileName, base64ToArrayBuffer(audioData), { contentType: audio.mimeType || 'audio/mpeg' });
+
+        if (audioUploadError) throw new Error(`Audio upload failed: ${audioUploadError.message}`);
+
+        tempAudioPath = audioUploadData.path;
+        console.log('Audio uploaded to temp location:', tempAudioPath);
+        setUploadProgress({ phase: 'audio', percentage: 100, message: 'Audio file uploaded!' });
+      }
+
+      // 3. Invoke Edge Function to process and finalize the podcast
+      setUploadProgress({ phase: 'database', percentage: 50, message: 'Finalizing podcast...' });
+      console.log('Invoking create-podcast function...');
+
+      const { data, error: functionError } = await supabase.functions.invoke('create-podcast', {
+        body: {
           title,
-          author,
           description,
+          author,
           category,
-          image_url: imageUrl,
-          audio_url: audioUrl,
-          thumbnail_url: imageUrl, // Using the same for simplicity
-        }).select().single();
-        
-        if (dbError) {
-          console.error('Database error:', dbError);
-          throw dbError;
-        }
-        
-        console.log('Podcast saved to database successfully');
-        
-        setUploadProgress({
-          phase: 'complete',
-          percentage: 100,
-          message: 'تم تحميل البودكاست بنجاح!'
-        });
-        
-        // Show success message after a short delay
-        setTimeout(() => {
-          Alert.alert(
-            'Success!', 
-            'Your podcast has been uploaded successfully and is now available for others to listen to!', 
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  // Reset form and progress
-                  setTitle('');
-                  setAuthor(currentUser?.user_metadata?.full_name || currentUser?.user_metadata?.name || currentUser?.email?.split('@')[0] || '');
-                  setDescription('');
-                  setImage(null);
-                  setAudio(null);
-                  setCategory('');
-                  setUploadProgress(null);
-                }
-              }
-            ]
-          );
-        }, 100);
+          userId: currentUser!.id,
+          tempImagePath,
+          tempAudioPath,
+          audioMimeType: audio?.mimeType,
+        },
+      });
+
+      if (functionError) {
+        throw new Error(`Failed to create podcast: ${functionError.message}`);
       }
+
+      console.log('Podcast created successfully:', data);
+      setUploadProgress({ phase: 'complete', percentage: 100, message: 'Podcast uploaded successfully!' });
+
+      // 4. Success: Show alert and reset form
+      setTimeout(() => {
+        Alert.alert('Success!', 'Your podcast has been uploaded.', [
+          {
+            text: 'OK',
+            onPress: () => {
+              setTitle('');
+              setAuthor(currentUser?.user_metadata?.full_name || '');
+              setDescription('');
+              setImage(null);
+              setAudio(null);
+              setCategory('');
+              setUploadProgress(null);
+            },
+          },
+        ]);
+      }, 500);
+
     } catch (error: any) {
-      console.error('Upload error:', error);
-      setUploadProgress(null);
+      console.error('Upload process failed:', error.message);
+      Alert.alert('Upload Failed', error.message);
 
-      let errorMessage = 'An unknown error occurred. Please try again.';
-      if (error instanceof Error) {
-        if (error.message.includes('Network request failed')) {
-          errorMessage = 'The upload failed due to a network issue. Please check your internet connection and try again.';
-        } else {
-          errorMessage = error.message;
+      // Cleanup: Attempt to remove temporary files if they were created
+      const filesToRemove = [tempImagePath, tempAudioPath].filter(Boolean) as string[];
+      if (filesToRemove.length > 0) {
+        console.log('Cleaning up temporary files:', filesToRemove);
+        const { error: cleanupError } = await supabase.storage.from('podcasts').remove(filesToRemove);
+        if (cleanupError) {
+          console.error('Failed to clean up temporary files:', cleanupError.message);
         }
-      } else if (error && typeof error.message === 'string') {
-        // Handle Supabase and other object-based errors
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
       }
-
-      Alert.alert('Upload Failed', errorMessage);
     } finally {
       setIsUploading(false);
     }
@@ -543,23 +466,21 @@ const UploadScreen = () => {
                 placeholder="أدخل العنوان"
                 value={title}
                 onChangeText={setTitle}
-                maxLength={100}
                 editable={!isUploading}
               />
             </View>
 
             <View>
               <StyledText className="text-gray-700 font-semibold mb-2 text-right">
-                المُنشئ *
+                المبدع *
               </StyledText>
               <TextInput
-                className={`bg-white p-4 rounded-2xl text-right border border-gray-200 shadow-sm ${
+                className={`bg-white p-4 rounded-2xl text-base text-right border border-gray-200 shadow-sm ${
                   isUploading ? 'opacity-50' : ''
                 }`}
-                placeholder="أدخل اسم المُنشئ"
+                placeholder="أدخل اسم المبدع"
                 value={author}
                 onChangeText={setAuthor}
-                maxLength={50}
                 editable={!isUploading}
               />
             </View>
