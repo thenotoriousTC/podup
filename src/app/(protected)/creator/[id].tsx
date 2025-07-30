@@ -62,7 +62,7 @@ const CreatorPage = () => {
         fetchCreatorData();
   }, [id]);
 
-  const handleDelete = async (podcastId: string, imageUrl: string, audioUrl: string) => {
+  const handleDelete = async (podcastId: string) => {
     Alert.alert(
       'يرجى تأكيد الحذف',
       'هل انت متأكد من حذف البودكاست؟ هذه الخطوة لا يمكن التراجع عنها.',
@@ -73,44 +73,18 @@ const CreatorPage = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              // Step 1: Delete references from user-library
-              const { error: libraryError } = await supabase
-                .from('user-library')
-                .delete()
-                .eq('podcast_id', podcastId);
+              const { error } = await supabase.functions.invoke('delete-podcast', {
+                body: { podcast_id: podcastId },
+              });
 
-              if (libraryError) {
-                throw libraryError;
+              if (error) {
+                throw new Error(error.message);
               }
 
-              // Step 2: Delete files from storage
-              const filesToDelete = [];
-              if (imageUrl) {
-                const imageName = imageUrl.split('/').pop();
-                if (imageName) filesToDelete.push(imageName);
-              }
-              if (audioUrl) {
-                const audioName = audioUrl.split('/').pop();
-                if (audioName) filesToDelete.push(audioName);
-              }
-
-              if (filesToDelete.length > 0) {
-                const { error: storageError } = await supabase.storage
-                  .from('podcasts')
-                  .remove(filesToDelete);
-                if (storageError) throw storageError;
-              }
-
-              // Step 3: Delete the podcast record itself
-              const { error: dbError } = await supabase
-                .from('podcasts')
-                .delete()
-                .eq('id', podcastId);
-
-              if (dbError) throw dbError;
-
+              // On success, remove the podcast from the local state to update the UI
               setPodcasts(podcasts.filter((p) => p.id !== podcastId));
               Alert.alert('تم الحذف', 'تم حذف البودكاست بنجاح.');
+
             } catch (error: any) {
               console.error('Error deleting podcast:', error);
               Alert.alert('خطأ', `فشل حذف البودكاست: ${error.message}`);
@@ -171,7 +145,7 @@ const CreatorPage = () => {
           </View>
           {currentUser?.id === creator.id && (
             <TouchableOpacity
-              onPress={() => handleDelete(item.id, item.image_url, item.audio_url)}
+              onPress={() => handleDelete(item.id)}
               className="p-2.5 ml-2.5"
             >
               <Ionicons name="trash-outline" size={24} color="red" />
