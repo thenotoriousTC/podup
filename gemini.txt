@@ -1,0 +1,92 @@
+i get this error when uploading recorded audio from recording page ,it seems like you probably used the edge function create-podcast wrong , review the function code :import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+};
+const BUCKET_NAME = 'podcasts';
+serve(async (req)=>{
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', {
+      headers: corsHeaders
+    });
+  }
+  try {
+    const supabaseUrl = Deno.env.get('PROJECT_SUPABASE_URL') ?? '';
+    const serviceKey = Deno.env.get('PROJECT_SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey, {
+      auth: {
+        persistSession: false
+      }
+    });
+    const { title, description, author, category, userId, tempImagePath, tempAudioPath } = await req.json();
+    const finalImagePath = `public/${userId}/${Date.now()}_${tempImagePath.split('/').pop()}`;
+    const finalAudioPath = `public/${userId}/${Date.now()}_${tempAudioPath.split('/').pop()}`;
+    // First, move the files. We need to do this before inserting to ensure they exist.
+    const { error: moveImageError } = await supabaseAdmin.storage.from(BUCKET_NAME).move(tempImagePath, finalImagePath);
+    if (moveImageError) {
+      // If image move fails, we only need to clean up the temp audio file.
+      await supabaseAdmin.storage.from(BUCKET_NAME).remove([
+        tempAudioPath
+      ]);
+      throw new Error(`Failed to move image: ${moveImageError.message}`);
+    }
+    const { error: moveAudioError } = await supabaseAdmin.storage.from(BUCKET_NAME).move(tempAudioPath, finalAudioPath);
+    if (moveAudioError) {
+      // If audio move fails, we need to roll back by deleting the now-permanent image file.
+      await supabaseAdmin.storage.from(BUCKET_NAME).remove([
+        finalImagePath
+      ]);
+      throw new Error(`Failed to move audio: ${moveAudioError.message}`);
+    }
+    // If both moves are successful, construct the full public URLs.
+    const publicImageUrl = `${supabaseUrl}/storage/v1/object/public/${BUCKET_NAME}/${finalImagePath}`;
+    const publicAudioUrl = `${supabaseUrl}/storage/v1/object/public/${BUCKET_NAME}/${finalAudioPath}`;
+    // Now, insert the record with the full public URLs.
+    const { data: podcastData, error: dbError } = await supabaseAdmin.from('podcasts').insert({
+      title,
+      description,
+      author,
+      category,
+      user_id: userId,
+      image_url: publicImageUrl,
+      audio_url: publicAudioUrl
+    }).select().single();
+    if (dbError) {
+      // This is a critical failure. Rollback storage.
+      console.error('Database insert failed after moving files:', dbError);
+      await supabaseAdmin.storage.from(BUCKET_NAME).remove([
+        finalImagePath,
+        finalAudioPath
+      ]);
+      throw new Error(`Database error after file move: ${dbError.message}`);
+    }
+    // Success!
+    const responseBody = JSON.stringify({
+      message: 'Podcast created successfully!',
+      podcast: podcastData
+    });
+    return new Response(responseBody, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      status: 201
+    });
+  } catch (error) {
+    console.error('An unexpected error occurred:', error);
+    const errorBody = JSON.stringify({
+      error: error.message
+    });
+    return new Response(errorBody, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      status: 500
+    });
+  }
+}); , and review recording.tsx and all files on components/recordingcomponents 
+
+
+
