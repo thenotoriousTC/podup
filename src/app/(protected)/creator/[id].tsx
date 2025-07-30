@@ -62,6 +62,39 @@ const CreatorPage = () => {
         fetchCreatorData();
   }, [id]);
 
+    const handleSeriesDelete = async (seriesId: string) => {
+    Alert.alert(
+      'حذف السلسلة',
+      'هل أنت متأكد أنك تريد حذف هذه السلسلة وجميع حلقاتها؟ لا يمكن التراجع عن هذا الإجراء.',
+      [
+        { text: 'إلغاء', style: 'cancel' },
+        {
+          text: 'حذف',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const { error } = await supabase.functions.invoke('delete-series', {
+                body: { series_id: seriesId },
+              });
+
+              if (error) {
+                throw new Error(error.message);
+              }
+
+              // On success, remove the series from the local state
+              setSeries(series.filter((s) => s.id !== seriesId));
+              Alert.alert('تم الحذف', 'تم حذف السلسلة بنجاح.');
+
+            } catch (error: any) {
+              console.error('Error deleting series:', error);
+              Alert.alert('خطأ', `فشل حذف السلسلة: ${error.message}`);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleDelete = async (podcastId: string) => {
     Alert.alert(
       'يرجى تأكيد الحذف',
@@ -127,7 +160,13 @@ const CreatorPage = () => {
           <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">{isOwnProfile ? 'السلاسل الخاصة بي' : 'السلاسل'}</StyledText>
           <FlatList
             data={series}
-            renderItem={({ item }) => <SeriesCard series={item} />}
+            renderItem={({ item }) => (
+              <SeriesCard 
+                series={item} 
+                isOwner={isOwnProfile}
+                onDelete={() => handleSeriesDelete(item.id)}
+              />
+            )}
             keyExtractor={(item) => item.id.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
