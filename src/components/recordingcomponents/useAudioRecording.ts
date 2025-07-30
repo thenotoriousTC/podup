@@ -21,7 +21,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
     AudioModule.requestRecordingPermissionsAsync().then(status => {
       setHasPermission(status.granted);
       if (!status.granted) {
-        Alert.alert("Permission Required", "We need microphone access to record audio.");
+        Alert.alert("يجب الحصول على إذن", "يجب الحصول على إذن الميكروفون لتسجيل الصوت.");
       }
     });
   }, []);
@@ -72,7 +72,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
 
   const startRecording = async () => {
     if (!currentUser?.id) {
-      Alert.alert("Error", "Please log in to record audio.");
+      Alert.alert("يجب تسجيل الدخول", "يرجى تسجيل الدخول لتسجيل الصوت.");
       return;
     }
     try {
@@ -81,7 +81,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       setIsRecording(true);
     } catch (error) {
       console.error("Failed to start recording:", error);
-      Alert.alert("Error", "Failed to start recording.");
+      Alert.alert("خطأ", "فشل في بدء التسجيل.");
     }
   };
 
@@ -107,7 +107,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       }
     } catch (error) {
       console.error("Failed to stop recording:", error);
-      Alert.alert("Error", "Failed to stop recording.");
+      Alert.alert("خطأ", "فشل في إيقاف التسجيل.");
     }
     return null;
   };
@@ -123,6 +123,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       }
     } catch (error) {
       console.error("Error playing recording:", error);
+      Alert.alert("خطأ", "فشل في تشغيل التسجيل.");
     }
   };
 
@@ -139,7 +140,8 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       }
     } catch (error) {
       console.error("Error deleting recording:", error);
-    }
+      Alert.alert("خطأ", "فشل في حذف التسجيل.");
+        }
   };
 
   return {

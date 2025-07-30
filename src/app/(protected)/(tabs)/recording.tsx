@@ -67,8 +67,8 @@ export default function RecordingScreen() {
     const newRecording = await stopRecording();
     if (newRecording) {
       Alert.alert(
-        "Recording Saved!",
-        "Your recording has been saved. You can now publish it.",
+        "تم الحفظ",
+        "تم حفظ التسجيل. يمكنك الآن نشره.",
         [{ text: "OK" }]
       );
       selectRecordingForPublish(newRecording);
@@ -77,8 +77,8 @@ export default function RecordingScreen() {
 
   const handleDeleteRecording = async (recordingId: string) => {
     Alert.alert(
-      "Delete Recording",
-      "Are you sure you want to delete this recording?",
+      "هل انت متأكد من حذف التسجيل؟",
+      "هل انت متأكد من حذف التسجيل؟",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -89,7 +89,7 @@ export default function RecordingScreen() {
             if (selectedRecording?.id === recordingId) {
               resetForm();
             }
-            Alert.alert("Deleted", "Recording deleted successfully.");
+            Alert.alert("تم الحذف", "تم حذف التسجيل بنجاح.");
           }
         }
       ]
@@ -117,7 +117,7 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="person-circle-outline" size={64} color="#007AFF" />
         <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
-          Please log in to record audio
+          يرجى تسجيل الدخول لتسجيل الصوت
         </StyledText>
       </View>
     );
@@ -128,7 +128,7 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
         <StyledText className="mt-4 text-base text-blue-500">
-          Requesting Permissions...
+          طلب إذن...
         </StyledText>
       </View>
     );
@@ -139,10 +139,10 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="mic-off" size={64} color="#FF3B30" />
         <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
-          Microphone Permission Denied
+          رفضت إذن الميكروفون
         </StyledText>
         <StyledText className="text-base text-gray-600 text-center max-w-[80%]">
-          Please enable microphone access in your device settings.
+          يرجى تفعيل الوصول إلى الميكروفون في إعدادات جهازك.
         </StyledText>
       </View>
     );
@@ -154,7 +154,7 @@ export default function RecordingScreen() {
         <View className="p-4">
           <View className="items-center mb-8 pt-5">
             <StyledText className="text-base text-gray-600 text-center">
-              Record, manage, and publish your content
+              تسجيل، إدارة، ونشر محتوىك
             </StyledText>
           </View>
 

@@ -63,12 +63,12 @@ export const useRecordingUpload = () => {
     onUploadComplete: () => void
   ) => {
     if (!selectedRecording || !currentUser || !podcastTitle || !podcastDescription || !podcastImage || !category) {
-      Alert.alert('Error', 'Please fill all fields and select an image.');
+      Alert.alert('يجب إكمال جميع الحقول', 'يرجى إكمال جميع الحقول وتحديد صورة.');
       return;
     }
 
     setIsUploading(true);
-    setUploadProgress({ phase: 'image', percentage: 0, message: 'Uploading cover image...' });
+    setUploadProgress({ phase: 'image', percentage: 0, message: 'تحميل صورة الغلاف...' });
 
     try {
       const tempImagePath = `temp/${currentUser.id}/${Date.now()}_image.jpg`;
@@ -76,23 +76,23 @@ export const useRecordingUpload = () => {
         setUploadProgress({ 
           phase: 'image', 
           percentage: (bytesUploaded / bytesTotal) * 100, 
-          message: 'Uploading cover image...'
+          message: 'تحميل صورة الغلاف...'
         });
       });
 
-      setUploadProgress({ phase: 'audio', percentage: 0, message: 'Uploading audio file...' });
+      setUploadProgress({ phase: 'audio', percentage: 0, message: 'تحميل ملف الصوت...' });
       const tempAudioPath = `temp/${currentUser.id}/${Date.now()}_audio.m4a`;
       await uploadFile(selectedRecording.uri, 'podcasts', tempAudioPath, (bytesUploaded, bytesTotal) => {
         setUploadProgress({ 
           phase: 'audio', 
           percentage: (bytesUploaded / bytesTotal) * 100, 
-          message: 'Uploading audio file...'
+          message: 'تحميل ملف الصوت...'
         });
       });
 
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      setUploadProgress({ phase: 'database', percentage: 0, message: 'Finalizing podcast...' });
+      setUploadProgress({ phase: 'database', percentage: 0, message: 'تمت نشر البودكاست...' });
 
       const { error: functionError } = await supabase.functions.invoke('create-podcast', {
         body: {
@@ -110,13 +110,13 @@ export const useRecordingUpload = () => {
         throw new Error(`Edge function failed: ${functionError.message}`);
       }
 
-      setUploadProgress({ phase: 'complete', percentage: 100, message: 'Podcast published successfully!' });
-      Alert.alert('Success!', 'Your podcast has been published.');
+      setUploadProgress({ phase: 'complete', percentage: 100, message: 'تم نشر البودكاست بنجاح!' });
+      Alert.alert('نجاح!', 'تم نشر البودكاست بنجاح!');
       onUploadComplete();
 
     } catch (error) {
       console.error('Publish error:', error);
-      Alert.alert('Publish Failed', `An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      Alert.alert('فشل في النشر', `حدث خطأ: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
       // Here you might want to add cleanup logic for temp files if the edge function call fails
     } finally {
       setIsUploading(false);
