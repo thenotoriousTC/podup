@@ -177,7 +177,7 @@ const CreatorPage = () => {
 
       <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">{isOwnProfile ? 'البودكاستات الخاصة بي' : 'البودكاستات'}</StyledText>
       
-      {podcasts.map((item) => (
+      {podcasts.filter(p => !p.series_id).map((item) => (
         <View key={item.id} className="flex-row items-center">
           <View className="flex-1">
             <PodcastListItem podcast={item} />
