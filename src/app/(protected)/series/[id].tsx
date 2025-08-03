@@ -8,6 +8,7 @@ import DiscoveryBookListItem from '@/components/discoveryBookListItem';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';
+import { FollowButton } from '@/components/FollowButton';
 
 type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
@@ -51,13 +52,17 @@ export default function SeriesDetailScreen() {
           <StyledText style={styles.title}>{series.title}</StyledText>
           <StyledText style={styles.episodeCount}>{series.episode_count} حلقات</StyledText>
           <StyledText style={styles.description}>{series.description}</StyledText>
-          {user?.id === series.creator_id && (
+          {user?.id === series.creator_id ? (
             <TouchableOpacity 
               style={styles.addEpisodesButton}
               className='bg-indigo-600'
               onPress={() => router.push(`/creator/manage-series-episodes/${id}`)} >
               <StyledText style={styles.addEpisodesButtonText}>إضافة حلقات</StyledText>
             </TouchableOpacity>
+          ) : (
+            <View style={{ marginTop: 16 }}>
+              <FollowButton podcastId={series.id} />
+            </View>
           )}
         </View>
 

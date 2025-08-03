@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePodcasts, Series } from '@/hooks/usePodcasts';
 import SeriesCard from '@/components/SeriesCard';
 import { StyledText } from '@/components/StyledText';
+import { FollowButton } from '@/components/FollowButton';
 
 const CreatorPage = () => {
     const { id } = useLocalSearchParams();
@@ -153,6 +154,11 @@ const CreatorPage = () => {
       <View className="items-center mb-5">
         <Image source={{ uri: creator.avatar_url || 'https://example.com/default-avatar.png' }} className="w-40 h-40 rounded-full mb-8" />
         <StyledText className="text-2xl font-semibold">{creator.full_name || creator.username}</StyledText>
+        {!isOwnProfile && (
+          <View className="mt-4">
+            <FollowButton creatorId={creator.id} />
+          </View>
+        )}
       </View>
 
       {series.length > 0 && (
