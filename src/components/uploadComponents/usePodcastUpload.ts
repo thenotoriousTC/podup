@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { AudioFile, UploadProgress } from './types';
+import { useRouter } from 'expo-router';
 
 const base64ToArrayBuffer = (base64: string) => {
   const binaryString = atob(base64);
@@ -28,34 +29,35 @@ interface UsePodcastUploadProps {
 export const usePodcastUpload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const router = useRouter();
 
   const validateForm = (props: Omit<UsePodcastUploadProps, 'onUploadComplete'>) => {
     if (!props.currentUser?.id) {
-      Alert.alert('Authentication Error', 'يرجى تسجيل الدخول لتحميل المحتوى.');
+      Alert.alert('خطأ في التحقق من الهوية', 'يرجى تسجيل الدخول لتحميل المحتوى.');
       return false;
     }
     if (!props.title.trim()) {
-      Alert.alert('Validation Error', 'يرجى إدخال عنوان المحتوى.');
+      Alert.alert('خطأ في التحقق من البيانات', 'يرجى إدخال عنوان المحتوى.');
       return false;
     }
     if (!props.author.trim()) {
-      Alert.alert('Validation Error', 'يرجى إدخال اسم مبدع المحتوى.');
+      Alert.alert('خطأ في التحقق من البيانات', 'يرجى إدخال اسم مبدع المحتوى.');
       return false;
     }
     if (!props.description.trim()) {
-      Alert.alert('Validation Error', 'يرجى إدخال وصف المحتوى.');
+      Alert.alert('خطأ في التحقق من البيانات', 'يرجى إدخال وصف المحتوى.');
       return false;
     }
     if (!props.category.trim()) {
-      Alert.alert('Validation Error', 'يرجى إدخال فئة المحتوى.');
+      Alert.alert('خطأ في التحقق من البيانات', 'يرجى إدخال فئة المحتوى.');
       return false;
     }
     if (!props.audio) {
-      Alert.alert('Validation Error', 'يرجى اختيار ملف الصوت.');
+      Alert.alert('خطأ في التحقق من البيانات', 'يرجى اختيار ملف الصوت.');
       return false;
     }
     if (!props.image) {
-      Alert.alert('Validation Error', 'يرجى اختيار صورة الغلاف.');
+      Alert.alert('خطأ في التحقق من البيانات', 'يرجى اختيار صورة الغلاف.');
       return false;
     }
     return true;
@@ -71,7 +73,7 @@ export const usePodcastUpload = () => {
 
     try {
       if (props.image) {
-        setUploadProgress({ phase: 'image', percentage: 0, message: 'Uploading cover image...' });
+        setUploadProgress({ phase: 'image', percentage: 0, message: 'تم تحميل صورة الغلاف!' });
         const imageData = await FileSystem.readAsStringAsync(props.image, { encoding: FileSystem.EncodingType.Base64 });
         const imageFileName = `temp/${props.currentUser!.id}_${Date.now()}.jpg`;
         
@@ -82,11 +84,11 @@ export const usePodcastUpload = () => {
         if (imageUploadError) throw new Error(`Image upload failed: ${imageUploadError.message}`);
         
         tempImagePath = imageUploadData.path;
-        setUploadProgress({ phase: 'image', percentage: 100, message: 'Cover image uploaded!' });
+        setUploadProgress({ phase: 'image', percentage: 100, message: 'تم تحميل صورة الغلاف!' });
       }
 
       if (props.audio) {
-        setUploadProgress({ phase: 'audio', percentage: 0, message: 'Uploading audio file...' });
+        setUploadProgress({ phase: 'audio', percentage: 0, message: 'جاري تحميل ملف الصوت...' });
         const audioData = await FileSystem.readAsStringAsync(props.audio.uri, { encoding: FileSystem.EncodingType.Base64 });
         const audioFileExtension = props.audio.name.split('.').pop() || 'mp3';
         const audioFileName = `temp/${props.currentUser!.id}_${Date.now()}.${audioFileExtension}`;
@@ -98,10 +100,10 @@ export const usePodcastUpload = () => {
         if (audioUploadError) throw new Error(`Audio upload failed: ${audioUploadError.message}`);
 
         tempAudioPath = audioUploadData.path;
-        setUploadProgress({ phase: 'audio', percentage: 100, message: 'Audio file uploaded!' });
+        setUploadProgress({ phase: 'audio', percentage: 100, message: 'تم تحميل ملف الصوت!' });
       }
 
-      setUploadProgress({ phase: 'database', percentage: 50, message: 'Finalizing podcast...' });
+      setUploadProgress({ phase: 'database', percentage: 50, message: 'جاري نشر البودكاست...' });
 
       const { data, error: functionError } = await supabase.functions.invoke('create-podcast', {
         body: {
@@ -120,22 +122,26 @@ export const usePodcastUpload = () => {
         throw new Error(`Failed to create podcast: ${functionError.message}`);
       }
 
-      setUploadProgress({ phase: 'complete', percentage: 100, message: 'Podcast uploaded successfully!' });
+      setUploadProgress({ phase: 'complete', percentage: 100, message: 'يرجى عدم غلق التطبيق' });
 
       setTimeout(() => {
-        Alert.alert('Success!', 'Your podcast has been uploaded.', [
+        Alert.alert('نجاح!', 'تم نشر البودكاست بنجاح.', [
           {
             text: 'OK',
             onPress: () => {
-              props.onUploadComplete();
+              setIsUploading(false);
               setUploadProgress(null);
+              if (props.onUploadComplete) {
+                props.onUploadComplete();
+              }
+              router.push('/(tabs)/discover');
             },
           },
         ]);
       }, 500);
 
     } catch (error: any) {
-      Alert.alert('Upload Failed', error.message);
+      Alert.alert('فشل في التحميل', error.message);
       const filesToRemove = [tempImagePath, tempAudioPath].filter(Boolean) as string[];
       if (filesToRemove.length > 0) {
         await supabase.storage.from('podcasts').remove(filesToRemove);

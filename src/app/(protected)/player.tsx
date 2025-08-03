@@ -68,7 +68,7 @@ export default function Player() {
     // or a loading indicator
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <StyledText>جار التحميل...</StyledText>
+        <StyledText>يجار التحميل...</StyledText>
       </SafeAreaView>
     );
   }

@@ -59,7 +59,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
         loadedRecordings.push({
           id: file.replace('.m4a', ''),
           uri: RECORDINGS_DIR + file,
-          title: `Recording ${loadedRecordings.length + 1}`,
+          title: `تسجيل ${loadedRecordings.length + 1}`,
           duration: 0, // This would require reading metadata, simplifying for now
           createdAt: new Date(timestamp)
         });
@@ -98,7 +98,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
         const newRecording: Recording = {
           id: fileName.replace('.m4a', ''),
           uri: permanentUri,
-          title: `Recording ${recordings.length + 1}`,
+          title: `تسجيل ${recordings.length + 1}`,
           duration: recordingDuration,
           createdAt: new Date(timestamp)
         };

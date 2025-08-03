@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
 import { UploadProgress, Recording } from './types';
 import { useAuth } from '@/providers/AuthProvider';
+import { useRouter } from 'expo-router';
 
 const base64ToArrayBuffer = (base64: string) => {
   const binaryString = atob(base64);
@@ -45,6 +46,7 @@ export const useRecordingUpload = () => {
   const { user: currentUser } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const router = useRouter();
 
   const publishRecording = async (
     {
@@ -92,7 +94,7 @@ export const useRecordingUpload = () => {
 
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      setUploadProgress({ phase: 'database', percentage: 0, message: 'تمت نشر البودكاست...' });
+      setUploadProgress({ phase: 'database', percentage: 0, message: 'جاري نشر البودكاست...' });
 
       const { error: functionError } = await supabase.functions.invoke('create-podcast', {
         body: {
@@ -111,12 +113,23 @@ export const useRecordingUpload = () => {
       }
 
       setUploadProgress({ phase: 'complete', percentage: 100, message: 'تم نشر البودكاست بنجاح!' });
-      Alert.alert('نجاح!', 'تم نشر البودكاست بنجاح!');
-      onUploadComplete();
+      setTimeout(() => {
+        Alert.alert('نجاح!', 'تم نشر البودكاست بنجاح!', [
+          {
+            text: 'OK',
+            onPress: () => {
+              setIsUploading(false);
+              setUploadProgress(null);
+              onUploadComplete();
+              router.push('/(tabs)/discover');
+            },
+          },
+        ]);
+      }, 500);
 
     } catch (error) {
       console.error('Publish error:', error);
-      Alert.alert('فشل في النشر', `حدث خطأ: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
+      Alert.alert('فشل في النشر', `حدث خطأ: ${error instanceof Error ? error.message : 'يرجى المحاولة مرة أخرى'}`);
       // Here you might want to add cleanup logic for temp files if the edge function call fails
     } finally {
       setIsUploading(false);

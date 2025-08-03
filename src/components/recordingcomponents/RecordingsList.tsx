@@ -40,7 +40,7 @@ const RecordingsList: React.FC<RecordingsListProps> = ({
   return (
     <View className="bg-white rounded-2xl p-5 mb-8 shadow-lg">
       <StyledText className="text-xl font-semibold text-gray-800 mb-4 text-center">
-        Your Recordings ({recordings.length})
+        تسجيلاتك ({recordings.length})
       </StyledText>
       
       {recordings.map((recording) => (

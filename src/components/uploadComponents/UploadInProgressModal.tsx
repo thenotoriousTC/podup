@@ -24,7 +24,7 @@ const UploadInProgressModal: React.FC<UploadInProgressModalProps> = ({ visible, 
       <View className="flex-1 justify-center items-center bg-black/60">
         <View className="bg-white rounded-2xl p-8 w-4/5 items-center shadow-2xl">
           <StyledText className="text-2xl font-bold text-indigo-600 mb-4">
-            {progress?.phase === 'complete' ? 'Upload Complete!' : 'Uploading...'}
+            {progress?.phase === 'complete' ? 'اكتمل التحميل!' : 'جاري التحميل...'}
           </StyledText>
 
           <LottieView
@@ -42,7 +42,7 @@ const UploadInProgressModal: React.FC<UploadInProgressModalProps> = ({ visible, 
           </View>
 
           <StyledText className="text-base text-gray-700 mb-6">
-            {progress?.message || 'Please wait...'}
+            {progress?.message || 'يرجى الانتظار... وعدم غلق التطبيق'}
           </StyledText>
 
           {progress?.phase !== 'complete' && (
