@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { usePodcasts, SeriesWithEpisodes } from '@/hooks/usePodcasts';
@@ -9,17 +9,43 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';
 import { FollowButton } from '@/components/FollowButton';
+import { useFollow } from '@/hooks/useFollow';
+import { useLibraryStatus, useLibraryMutation } from '@/hooks/useLibraryStatus';
 
 type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
 export default function SeriesDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getSeriesById } = usePodcasts('');
-  const { user } = useAuth();
-  const router = useRouter();
 
+  // Use the follow hook for both data fetching and mutations
+  const { user } = useAuth();
+  const { 
+    isFollowing, 
+    followersCount, 
+    toggleFollow, 
+    isToggling,
+    isLoading: isFollowLoading 
+  } = useFollow({
+    userId: user?.id,
+    podcastId: id,
+  });
+      const { getSeriesById } = usePodcasts('');
   const [series, setSeries] = useState<SeriesWithEpisodes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const episodeIds = useMemo(() => {
+    return series?.episodes.map((episode) => episode.id) || [];
+  }, [series]);
+
+  const { libraryStatus, isLoading: isLibraryStatusLoading } = useLibraryStatus(
+    user?.id,
+    episodeIds
+  );
+
+  const libraryMutation = useLibraryMutation();
+  const router = useRouter();
+
+  
 
   useEffect(() => {
     const fetchSeries = async () => {
@@ -32,7 +58,7 @@ export default function SeriesDetailScreen() {
     fetchSeries();
   }, [id]);
 
-  if (isLoading || !series) {
+        if (isLoading || isFollowLoading || isLibraryStatusLoading || !series) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
@@ -61,16 +87,38 @@ export default function SeriesDetailScreen() {
             </TouchableOpacity>
           ) : (
             <View style={{ marginTop: 16 }}>
-              <FollowButton podcastId={series.id} />
+              <FollowButton
+                isFollowing={isFollowing || false}
+                followersCount={followersCount || 0}
+                onPress={toggleFollow}
+                isToggling={isToggling}
+              />
             </View>
           )}
         </View>
 
         <View style={styles.episodesContainer}>
           <StyledText style={styles.episodesTitle}>الحلقات</StyledText>
-          {series.episodes.map((episode) => (
-            <DiscoveryBookListItem key={episode.id} podcast={episode} />
-          ))}
+                    {series.episodes.map((episode) => {
+            const isInLibrary = libraryStatus ? libraryStatus[episode.id] : false;
+            const onToggleLibrary = () => {
+              if (!user) return;
+              libraryMutation.mutate({
+                podcastId: episode.id,
+                userId: user.id,
+                isInLibrary,
+              });
+            };
+            return (
+              <DiscoveryBookListItem
+                key={episode.id}
+                podcast={episode}
+                isInLibrary={isInLibrary}
+                onToggleLibrary={onToggleLibrary}
+                isTogglingLibrary={libraryMutation.isPending}
+              />
+            );
+          })}
         </View>
       </ScrollView>
     </SafeAreaView>

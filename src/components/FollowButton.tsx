@@ -1,33 +1,30 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useFollow } from '../hooks/useFollow';
-import { useAuth } from '../providers/AuthProvider'; // Assuming an AuthProvider provides the user session
+
+
 
 type FollowButtonProps = {
-  creatorId?: string;
-  podcastId?: string;
+  isFollowing: boolean;
+  followersCount: number;
+  onPress: () => void;
+  isToggling: boolean;
 };
 
-export const FollowButton = ({ creatorId, podcastId }: FollowButtonProps) => {
-  const { user } = useAuth();
-  const { isFollowing, followersCount, toggleFollow, isLoading, isToggling } = useFollow({
-    userId: user?.id,
-    creatorId,
-    podcastId,
-  });
-
-  if (isLoading) {
-    return <ActivityIndicator />;
-  }
-
+export const FollowButton = ({ isFollowing, followersCount, onPress, isToggling }: FollowButtonProps) => {
   return (
     <Pressable
-      onPress={toggleFollow}
+      onPress={onPress}
       disabled={isToggling}
       style={[styles.button, isFollowing ? styles.followingButton : styles.followButton]}
     >
-      <Text style={styles.text}>{isFollowing ? 'Following' : 'Follow'}</Text>
-      <Text style={styles.count}>{followersCount}</Text>
+      {isToggling ? (
+        <ActivityIndicator color="#4F46E5" />
+      ) : (
+        <>
+          <Text style={styles.text}>{isFollowing ? 'Following' : 'Follow'}</Text>
+          <Text style={styles.count}>{followersCount}</Text>
+        </>
+      )}
     </Pressable>
   );
 };

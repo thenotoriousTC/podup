@@ -1,16 +1,33 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { DiscoverContent as DiscoverContentType } from '@/hooks/usePodcasts';
 import SeriesCard from './SeriesCard';
 import DiscoveryPodcastListItem from './discoveryBookListItem';
 import { StyledText } from './StyledText';
+import { useAuth } from '@/providers/AuthProvider';
+import { useLibraryStatus, useLibraryMutation } from '@/hooks/useLibraryStatus';
 
 interface DiscoverContentProps {
   content: DiscoverContentType[];
 }
 
 const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
+  const { user: currentUser } = useAuth();
+
+  const podcastIds = useMemo(() => {
+    return content
+      .filter((item) => item.type === 'podcasts')
+      .flatMap((item) => (item.data as any[]).map((podcast) => podcast.id));
+  }, [content]);
+
+  const { libraryStatus, isLoading: isLibraryStatusLoading } = useLibraryStatus(
+    currentUser?.id,
+    podcastIds
+  );
+
+  const libraryMutation = useLibraryMutation();
+
   const renderItem = ({ item }: { item: DiscoverContentType }) => {
     if (item.type === 'series') {
       return (
@@ -41,7 +58,26 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
           </View>
           <FlatList
             data={item.data}
-            renderItem={({ item: podcast }) => <DiscoveryPodcastListItem podcast={podcast} />}
+            renderItem={({ item: podcast }) => {
+              const isInLibrary = libraryStatus ? libraryStatus[podcast.id] : false;
+              const onToggleLibrary = () => {
+                if (!currentUser) return;
+                libraryMutation.mutate({
+                  podcastId: podcast.id,
+                  userId: currentUser.id,
+                  isInLibrary,
+                });
+              };
+
+              return (
+                <DiscoveryPodcastListItem
+                  podcast={podcast}
+                  isInLibrary={isInLibrary}
+                  onToggleLibrary={onToggleLibrary}
+                  isTogglingLibrary={libraryMutation.isPending}
+                />
+              );
+            }}
             keyExtractor={(podcast) => podcast.id.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}

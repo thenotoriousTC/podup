@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
@@ -23,63 +23,19 @@ interface Podcast {
 
 interface DiscoveryPodcastListItemProps {
   podcast: Podcast;
+  isInLibrary: boolean;
+  onToggleLibrary: () => void;
+  isTogglingLibrary: boolean;
 }
 
-export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastListItemProps) {
+export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggleLibrary, isTogglingLibrary }: DiscoveryPodcastListItemProps) {
   const { playTrack, player, podcast: currentPodcast } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
   const isCurrentTrack = currentPodcast?.id === podcast.id;
   const isPlaying = isCurrentTrack && playerStatus.playing;
   const { user: currentUser } = useAuth();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
-  const { data: libraryItem, isLoading } = useQuery({
-    queryKey: ['library-item', podcast.id, currentUser?.id],
-    queryFn: async () => {
-      if (!currentUser?.id) return null;
-      const { data, error } = await supabase
-        .from('user-library')
-        .select('id')
-        .eq('podcast_id', podcast.id)
-        .eq('user_id', currentUser.id)
-        .single();
-      if (error && error.code !== 'PGRST116') throw error; // Ignore no rows found
-      return data;
-    },
-    enabled: !!currentUser?.id,
-  });
-
-  const isInLibrary = !!libraryItem;
-
-  const libraryMutation = useMutation({
-    mutationFn: async () => {
-      if (!currentUser?.id) throw new Error('User not logged in');
-      if (isInLibrary) {
-        // Remove from library
-        const { error } = await supabase
-          .from('user-library')
-          .delete()
-          .eq('id', libraryItem.id);
-        if (error) throw error;
-      } else {
-        // Add to library
-        const { error } = await supabase
-          .from('user-library')
-          .insert({ podcast_id: podcast.id, user_id: currentUser.id });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['library-item', podcast.id, currentUser?.id] });
-      queryClient.invalidateQueries({ queryKey: ['my-library'] });
-      Alert.alert(isInLibrary ? 'تمت الإزالة من المكتبة' : 'تمت الإضافة إلى المكتبة');
-    },
-    onError: (error) => {
-      Alert.alert('خطأ', error.message);
-    },
-  });
-  
   const getImageUrl = (podcast: Podcast) => {
     // Check both possible image columns
     return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
@@ -99,7 +55,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
       Alert.alert('الرجاء تسجيل الدخول لحفظ المحتوى.');
       return;
     }
-    libraryMutation.mutate();
+    onToggleLibrary();
   };
 
   const onCardPress = () => {
@@ -130,7 +86,7 @@ export default function DiscoveryPodcastListItem({ podcast }: DiscoveryPodcastLi
               name={isInLibrary ? 'heart' : 'heart-outline'}
               size={28}
               color={isInLibrary ? '#FF453A' : '#8E8E93'}
-              disabled={isLoading}
+              disabled={isTogglingLibrary}
             />
           </TouchableOpacity>
 

@@ -11,11 +11,27 @@ import { usePodcasts, Series } from '@/hooks/usePodcasts';
 import SeriesCard from '@/components/SeriesCard';
 import { StyledText } from '@/components/StyledText';
 import { FollowButton } from '@/components/FollowButton';
+import { useCreatorFollows } from '@/hooks/useCreatorFollows';
+import { useFollow } from '@/hooks/useFollow';
 
 const CreatorPage = () => {
     const { id } = useLocalSearchParams();
+  const creatorId = Array.isArray(id) ? id[0] : id;
   const { user: currentUser } = useAuth();
-  const { getSeriesByCreatorId } = usePodcasts('');
+
+  // Use the new hook for fetching follow status efficiently
+  const { followStatus, isLoading: isFollowStatusLoading } = useCreatorFollows(
+    currentUser?.id,
+    creatorId ? [creatorId] : []
+  );
+
+  // Use the original hook for mutation logic and follower count
+  const { toggleFollow, isToggling, followersCount } = useFollow({
+    userId: currentUser?.id,
+    creatorId: creatorId,
+  });
+    
+  const { getSeriesByCreatorId, getStandalonePodcastsByCreator } = usePodcasts('');
   const [creator, setCreator] = useState<any>(null);
   const [podcasts, setPodcasts] = useState<any[]>([]);
   const [series, setSeries] = useState<(Series & { episode_count: number })[]>([]);
@@ -41,17 +57,9 @@ const CreatorPage = () => {
         setCreator(creatorData);
       }
 
-      // Fetch creator's podcasts
-      const { data: podcastData, error: podcastError } = await supabase
-        .from('podcasts')
-        .select('*')
-        .eq('user_id', creatorId);
-
-      if (podcastError) {
-        console.error("Error fetching creator's podcasts:", podcastError);
-      } else {
-        setPodcasts(podcastData);
-      }
+      // Fetch standalone podcasts
+      const standalonePodcasts = await getStandalonePodcastsByCreator(creatorId);
+      setPodcasts(standalonePodcasts);
 
       // Fetch creator's series
       const seriesData = await getSeriesByCreatorId(creatorId);
@@ -129,7 +137,9 @@ const CreatorPage = () => {
     );
   };
 
-  if (loading) {
+    const isFollowing = creator && followStatus ? followStatus[creator.id] : false;
+
+  if (loading || isFollowStatusLoading) {
     return <ActivityIndicator size="large" color="#0000ff" className="flex-1 justify-center" />;
   }
 
@@ -156,7 +166,12 @@ const CreatorPage = () => {
         <StyledText className="text-2xl font-semibold">{creator.full_name || creator.username}</StyledText>
         {!isOwnProfile && (
           <View className="mt-4">
-            <FollowButton creatorId={creator.id} />
+            <FollowButton 
+              isFollowing={isFollowing}
+              followersCount={followersCount || 0}
+              onPress={toggleFollow}
+              isToggling={isToggling}
+            />
           </View>
         )}
       </View>
