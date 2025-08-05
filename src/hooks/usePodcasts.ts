@@ -62,7 +62,7 @@ export const usePodcasts = (searchQuery: string) => {
 
       return { series: seriesWithCount, podcasts: standalonePodcasts };
     },
-    staleTime: 0,
+    staleTime: 300000, // 5 minutes
   });
 
   const discoverContent = useMemo((): DiscoverContent[] => {

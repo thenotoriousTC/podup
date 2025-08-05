@@ -13,6 +13,7 @@ import { StyledText } from '@/components/StyledText';
 import { FollowButton } from '@/components/FollowButton';
 import { useCreatorFollows } from '@/hooks/useCreatorFollows';
 import { useFollow } from '@/hooks/useFollow';
+import { useLibraryStatus } from '@/hooks/useLibraryStatus';
 
 const CreatorPage = () => {
     const { id } = useLocalSearchParams();
@@ -36,6 +37,12 @@ const CreatorPage = () => {
   const [podcasts, setPodcasts] = useState<any[]>([]);
   const [series, setSeries] = useState<(Series & { episode_count: number })[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const podcastIds = podcasts.map((p) => p.id);
+  const { libraryStatus, isLoading: isLibraryStatusLoading } = useLibraryStatus(
+    currentUser?.id,
+    podcastIds
+  );
 
   useEffect(() => {
     const fetchCreatorData = async () => {
@@ -139,7 +146,7 @@ const CreatorPage = () => {
 
     const isFollowing = creator && followStatus ? followStatus[creator.id] : false;
 
-  if (loading || isFollowStatusLoading) {
+  if (loading || isFollowStatusLoading || isLibraryStatusLoading) {
     return <ActivityIndicator size="large" color="#0000ff" className="flex-1 justify-center" />;
   }
 
@@ -201,7 +208,10 @@ const CreatorPage = () => {
       {podcasts.filter(p => !p.series_id).map((item) => (
         <View key={item.id} className="flex-row items-center">
           <View className="flex-1">
-            <PodcastListItem podcast={item} />
+            <PodcastListItem 
+              podcast={item} 
+              isInLibrary={libraryStatus ? !!libraryStatus[item.id] : false} 
+            />
           </View>
           {currentUser?.id === creator.id && (
             <TouchableOpacity

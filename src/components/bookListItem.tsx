@@ -27,9 +27,10 @@ interface Podcast {
 
 interface PodcastListItemProps {
     podcast: Podcast;
+    isInLibrary?: boolean;
 }
 
-export default function PodcastListItem({ podcast }: PodcastListItemProps) {
+export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp }: PodcastListItemProps) {
     const { setPodcast, player, podcast: currentPodcast } = usePlayer();
     const playerStatus = useAudioPlayerStatus(player);
     const isCurrentTrack = currentPodcast?.id === podcast.id;
@@ -73,10 +74,10 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
             if (error && error.code !== 'PGRST116') throw error;
             return data;
         },
-        enabled: !!currentUser?.id, // Only run query if user is logged in
+        enabled: !!currentUser?.id && isInLibraryProp === undefined, // Only run if prop not provided
     });
 
-    const isInLibrary = !!libraryItem;
+    const isInLibrary = isInLibraryProp ?? !!libraryItem;
 
     // Mutation to add or remove the item from the library
     const libraryMutation = useMutation({
@@ -88,7 +89,8 @@ export default function PodcastListItem({ podcast }: PodcastListItemProps) {
                 const { error } = await supabase
                     .from('user-library')
                     .delete()
-                    .eq('id', libraryItem.id);
+                    .eq('user_id', currentUser.id)
+                    .eq('podcast_id', podcast.id);
                 if (error) throw error;
             } else {
                 // Add to library

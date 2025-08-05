@@ -41,7 +41,7 @@ export default function App() {
     <FlatList
     data={data}
     contentContainerClassName='gap-4'
-    renderItem={({item}) => <PodcastListItem podcast={item.podcast} />}
+    renderItem={({item}) => <PodcastListItem podcast={item.podcast} isInLibrary={true} />}
     keyExtractor={(item) => item.id}
     className='w-full'
     contentContainerStyle={{gap: 16}}
