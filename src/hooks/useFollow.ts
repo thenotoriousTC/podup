@@ -6,15 +6,28 @@ type UseFollowProps = {
   userId?: string;
   creatorId?: string;
   podcastId?: string;
+  seriesId?: string; 
 };
 
-export const useFollow = ({ userId, creatorId, podcastId }: UseFollowProps) => {
+export const useFollow = ({ userId, creatorId, podcastId, seriesId }: UseFollowProps) => {
   const queryClient = useQueryClient();
 
-  const followType = creatorId ? 'creator' : 'podcast';
-  const targetId = creatorId || podcastId;
-  const tableName = creatorId ? 'creator_followers' : 'podcast_followers';
-  const columnName = creatorId ? 'followed_id' : 'podcast_id';
+  const followType = creatorId ? 'creator' : seriesId ? 'series' : 'podcast';
+  const targetId = creatorId || seriesId || podcastId;
+
+  const getTableDetails = () => {
+    switch (followType) {
+      case 'creator':
+        return { tableName: 'creator_followers', columnName: 'followed_id' };
+      case 'series':
+        return { tableName: 'series_followers', columnName: 'series_id' };
+      case 'podcast':
+      default:
+        return { tableName: 'podcast_followers', columnName: 'podcast_id' };
+    }
+  };
+
+  const { tableName, columnName } = getTableDetails();
 
   const queryKey = ['followStatus', followType, targetId, userId];
 

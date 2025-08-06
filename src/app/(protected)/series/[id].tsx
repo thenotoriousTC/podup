@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';
 import { FollowButton } from '@/components/FollowButton';
+import { useSeriesFollows } from '@/hooks/useSeriesFollows';
 import { useFollow } from '@/hooks/useFollow';
 import { useLibraryStatus, useLibraryMutation } from '@/hooks/useLibraryStatus';
 
@@ -19,15 +20,19 @@ export default function SeriesDetailScreen() {
 
   // Use the follow hook for both data fetching and mutations
   const { user } = useAuth();
+  const { followStatus, isLoading: isFollowStatusLoading } = useSeriesFollows(
+    user?.id,
+    id ? [id] : []
+  );
+
   const { 
-    isFollowing, 
-    followersCount, 
     toggleFollow, 
-    isToggling,
-    isLoading: isFollowLoading 
+    isToggling, 
+    followersCount, 
+    isLoading: isFollowMutationLoading 
   } = useFollow({
     userId: user?.id,
-    podcastId: id,
+    seriesId: id,
   });
       const { getSeriesById } = usePodcasts('');
   const [series, setSeries] = useState<SeriesWithEpisodes | null>(null);
@@ -58,7 +63,9 @@ export default function SeriesDetailScreen() {
     fetchSeries();
   }, [id]);
 
-        if (isLoading || isFollowLoading || isLibraryStatusLoading || !series) {
+  const isFollowing = followStatus ? followStatus[id] : false;
+
+        if (isLoading || isFollowStatusLoading || isLibraryStatusLoading || !series) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
@@ -88,7 +95,7 @@ export default function SeriesDetailScreen() {
           ) : (
             <View style={{ marginTop: 16 }}>
               <FollowButton
-                isFollowing={isFollowing || false}
+                isFollowing={isFollowing}
                 followersCount={followersCount || 0}
                 onPress={toggleFollow}
                 isToggling={isToggling}
