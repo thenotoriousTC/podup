@@ -1,17 +1,17 @@
-import { View, Pressable, Image, Animated } from "react-native";
+import { View, Pressable, Image, Animated, Alert, AlertButton } from "react-native";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import PlaybackBar from "@/components/PlaybackBar";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from "@/providers/playerprovider";
 import { useEffect, useRef } from 'react';
 import { StyledText } from "@/components/StyledText";
 
 export default function Player() {
-  const { player, podcast, seekTo } = usePlayer(); // Use seekTo from context
+  const { player, podcast, seekTo, playbackRate, setPlaybackRate, sleepTimerRemaining, setSleepTimer, cancelSleepTimer } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
   
   // Animation reference for loading spinner
@@ -122,6 +122,32 @@ export default function Player() {
     }
   };
 
+  const changePlaybackRate = () => {
+    const rates = [1.0, 1.5, 2.0, 0.75];
+    const currentIndex = rates.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % rates.length;
+    setPlaybackRate(rates[nextIndex]);
+  };
+
+  const showSleepTimerOptions = () => {
+    const options: AlertButton[] = [
+      { text: 'Cancel Timer', onPress: () => cancelSleepTimer(), style: 'destructive' },
+      { text: '15 minutes', onPress: () => setSleepTimer(15) },
+      { text: '30 minutes', onPress: () => setSleepTimer(30) },
+      { text: '60 minutes', onPress: () => setSleepTimer(60) },
+      { text: 'Cancel', style: 'cancel' },
+    ];
+
+    // If no timer is active, don't show the 'Cancel Timer' option
+    const alertOptions = sleepTimerRemaining ? options : options.slice(1);
+
+    Alert.alert(
+      'Sleep Timer',
+      'Stop playback after:',
+      alertOptions
+    );
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white ">
       {/* Header with subtle blur background */}
@@ -166,6 +192,15 @@ export default function Player() {
           </Pressable>
           </View>
         </View>
+
+        {/* Sleep Timer Display */}
+        {sleepTimerRemaining !== null && (
+          <View className="items-center mb-4">
+            <StyledText className="text-gray-500">
+              Pausing in {Math.floor(sleepTimerRemaining / 60)}:{(sleepTimerRemaining % 60).toString().padStart(2, '0')}
+            </StyledText>
+          </View>
+        )}
 
         {/* Progress Bar - now uses debounced seekTo */}
         <View className="px-4 mb-8">
@@ -222,16 +257,33 @@ export default function Player() {
         </View>
 
         {/* Additional Controls Row */}
-        <View className="flex-row justify-center items-center px-8 mt-8 space-x-16">
+        <View className="flex-row-reverse justify-around items-center px-8 mt-8">
           <Pressable
-            className="p-3 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
-            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+            className="p-3 items-center justify-center"
             onPress={toggleRepeat}
           >
             <Ionicons 
               name="repeat" 
-              size={40} 
+              size={30} 
               color={player?.loop ? "#007AFF" : "#8E8E93"} 
+            />
+          </Pressable>
+
+          <Pressable
+            className="p-3 items-center justify-center"
+            onPress={changePlaybackRate}
+          >
+            <StyledText className="text-lg font-bold text-black">{playbackRate.toFixed(2)}x</StyledText>
+          </Pressable>
+
+          <Pressable
+            className="p-3 items-center justify-center"
+            onPress={showSleepTimerOptions}
+          >
+            <MaterialCommunityIcons 
+              name="timer-outline" 
+              size={30} 
+              color={sleepTimerRemaining ? "#007AFF" : "#8E8E93"} 
             />
           </Pressable>
         </View>

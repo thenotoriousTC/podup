@@ -12,6 +12,12 @@ type PlayerContextType = {
     getViewCount: (podcastId: string) => Promise<number>;
     incrementViewCount: (podcastId: string) => Promise<void>;
     getAllViewCounts: () => Promise<Record<string, number>>;
+    // New additions for playback control
+    playbackRate: number;
+    setPlaybackRate: (rate: number) => void;
+    sleepTimerRemaining: number | null; // in seconds
+    setSleepTimer: (duration: number | null) => void; // in minutes
+    cancelSleepTimer: () => void;
 };
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -19,6 +25,11 @@ const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 export default function PlayerProvider({ children }: PropsWithChildren) {
     const [podcast, setPodcast] = useState<any | null>(null);
     const [autoplay, setAutoplay] = useState(false);
+
+    // State for playback speed and sleep timer
+    const [playbackRate, setPlaybackRateState] = useState(1.0);
+    const [sleepTimerIntervalId, setSleepTimerIntervalId] = useState<NodeJS.Timeout | null>(null);
+    const [sleepTimerRemaining, setSleepTimerRemaining] = useState<number | null>(null);
         
     // Refs for managing seek operations
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -150,14 +161,66 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
         }
     }, []);
 
-    // Cleanup timeout on unmount
+    // Function to set playback rate
+    const setPlaybackRate = (rate: number) => {
+        try {
+            player.setPlaybackRate(rate);
+            setPlaybackRateState(rate);
+        } catch (error) {
+            console.error('Failed to set playback rate:', error);
+        }
+    };
+
+    // Function to set a sleep timer
+    const setSleepTimer = (duration: number | null) => {
+        // Cancel any existing timer first
+        if (sleepTimerIntervalId) {
+            clearInterval(sleepTimerIntervalId);
+        }
+
+        if (duration === null) {
+            setSleepTimerIntervalId(null);
+            setSleepTimerRemaining(null);
+            return;
+        }
+
+        const initialSeconds = duration * 60;
+        setSleepTimerRemaining(initialSeconds);
+
+        const intervalId = setInterval(() => {
+            setSleepTimerRemaining(prevSeconds => {
+                if (prevSeconds === null || prevSeconds <= 1) {
+                    clearInterval(intervalId);
+                    player.pause();
+                    return null; // End of timer
+                }
+                return prevSeconds - 1;
+            });
+        }, 1000);
+
+        setSleepTimerIntervalId(intervalId);
+    };
+
+    // Function to cancel the sleep timer
+    const cancelSleepTimer = () => {
+        if (sleepTimerIntervalId) {
+            clearInterval(sleepTimerIntervalId);
+            setSleepTimerIntervalId(null);
+            setSleepTimerRemaining(null);
+        }
+    };
+
+    // Cleanup timeouts on unmount
     useEffect(() => {
         return () => {
             if (seekTimeoutRef.current) {
                 clearTimeout(seekTimeoutRef.current);
             }
+            if (sleepTimerIntervalId) {
+                clearInterval(sleepTimerIntervalId);
+            }
         };
-    }, []);
+    }, [sleepTimerIntervalId]);
 
     return (
         <PlayerContext.Provider value={{ 
@@ -168,7 +231,13 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
             seekTo,
             getViewCount,
             incrementViewCount,
-            getAllViewCounts
+            getAllViewCounts,
+            // New additions
+            playbackRate,
+            setPlaybackRate,
+            sleepTimerRemaining,
+            setSleepTimer,
+            cancelSleepTimer
         }}>
             {children}
         </PlayerContext.Provider>
