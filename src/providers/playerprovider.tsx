@@ -28,9 +28,8 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
 
     // State for playback speed and sleep timer
     const [playbackRate, setPlaybackRateState] = useState(1.0);
-    const [sleepTimerIntervalId, setSleepTimerIntervalId] = useState<NodeJS.Timeout | null>(null);
+    const sleepTimerIntervalId = useRef<ReturnType<typeof setInterval> | null>(null);
     const [sleepTimerRemaining, setSleepTimerRemaining] = useState<number | null>(null);
-        
     // Refs for managing seek operations
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const lastSeekTimeRef = useRef<number>(0);
@@ -174,12 +173,12 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     // Function to set a sleep timer
     const setSleepTimer = (duration: number | null) => {
         // Cancel any existing timer first
-        if (sleepTimerIntervalId) {
-            clearInterval(sleepTimerIntervalId);
+        if (sleepTimerIntervalId.current) {
+            clearInterval(sleepTimerIntervalId.current);
         }
 
         if (duration === null) {
-            setSleepTimerIntervalId(null);
+            sleepTimerIntervalId.current = null;
             setSleepTimerRemaining(null);
             return;
         }
@@ -198,14 +197,14 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
             });
         }, 1000);
 
-        setSleepTimerIntervalId(intervalId);
+        sleepTimerIntervalId.current = intervalId;
     };
 
     // Function to cancel the sleep timer
     const cancelSleepTimer = () => {
-        if (sleepTimerIntervalId) {
-            clearInterval(sleepTimerIntervalId);
-            setSleepTimerIntervalId(null);
+        if (sleepTimerIntervalId.current) {
+            clearInterval(sleepTimerIntervalId.current);
+            sleepTimerIntervalId.current = null;
             setSleepTimerRemaining(null);
         }
     };
@@ -216,11 +215,11 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
             if (seekTimeoutRef.current) {
                 clearTimeout(seekTimeoutRef.current);
             }
-            if (sleepTimerIntervalId) {
-                clearInterval(sleepTimerIntervalId);
+            if (sleepTimerIntervalId.current) {
+                clearInterval(sleepTimerIntervalId.current);
             }
         };
-    }, [sleepTimerIntervalId]);
+    }, []);
 
     return (
         <PlayerContext.Provider value={{ 

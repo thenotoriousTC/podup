@@ -10,6 +10,8 @@ import { usePlayer } from "@/providers/playerprovider";
 import { useEffect, useRef } from 'react';
 import { StyledText } from "@/components/StyledText";
 
+const PLAYBACK_RATES = [1.0, 1.5, 2.0, 0.75];
+
 export default function Player() {
   const { player, podcast, seekTo, playbackRate, setPlaybackRate, sleepTimerRemaining, setSleepTimer, cancelSleepTimer } = usePlayer();
   const playerStatus = useAudioPlayerStatus(player);
@@ -123,23 +125,29 @@ export default function Player() {
   };
 
   const changePlaybackRate = () => {
-    const rates = [1.0, 1.5, 2.0, 0.75];
-    const currentIndex = rates.indexOf(playbackRate);
-    const nextIndex = (currentIndex + 1) % rates.length;
-    setPlaybackRate(rates[nextIndex]);
+    const currentIndex = PLAYBACK_RATES.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % PLAYBACK_RATES.length;
+    setPlaybackRate(PLAYBACK_RATES[nextIndex]);
   };
 
   const showSleepTimerOptions = () => {
+    const isTimerActive = sleepTimerRemaining !== null;
+
     const options: AlertButton[] = [
-      { text: 'Cancel Timer', onPress: () => cancelSleepTimer(), style: 'destructive' },
+      // This option is only shown when a timer is active
+      { text: 'Stop Timer', onPress: () => cancelSleepTimer(), style: 'destructive' },
+
+      // Standard timer durations
       { text: '15 minutes', onPress: () => setSleepTimer(15) },
       { text: '30 minutes', onPress: () => setSleepTimer(30) },
       { text: '60 minutes', onPress: () => setSleepTimer(60) },
-      { text: 'Cancel', style: 'cancel' },
+
+      // The dismiss button's text changes based on whether a timer is active
+      { text: isTimerActive ? 'Dismiss' : 'Cancel', style: 'cancel' },
     ];
 
-    // If no timer is active, don't show the 'Cancel Timer' option
-    const alertOptions = sleepTimerRemaining ? options : options.slice(1);
+    // If no timer is active, remove the 'Stop Timer' option
+    const alertOptions = isTimerActive ? options : options.slice(1);
 
     Alert.alert(
       'Sleep Timer',
@@ -273,7 +281,7 @@ export default function Player() {
             className="p-3 items-center justify-center"
             onPress={changePlaybackRate}
           >
-            <StyledText className="text-lg font-bold text-black">{playbackRate.toFixed(2)}x</StyledText>
+            <StyledText className="text-lg font-bold text-black">{parseFloat(playbackRate.toFixed(1))}x</StyledText>
           </Pressable>
 
           <Pressable
