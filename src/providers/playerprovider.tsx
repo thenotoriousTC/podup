@@ -31,7 +31,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     const sleepTimerIntervalId = useRef<ReturnType<typeof setInterval> | null>(null);
     const [sleepTimerRemaining, setSleepTimerRemaining] = useState<number | null>(null);
     // Refs for managing seek operations
-    const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const seekTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastSeekTimeRef = useRef<number>(0);
     const isSeekingRef = useRef<boolean>(false);
 

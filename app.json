@@ -2,7 +2,7 @@
   "expo": {
     "name": "podupYT",
     "slug": "podupYT",
-    "scheme": "your-app-scheme",
+    "scheme": "podupYT",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/adaptive-icon.png",
