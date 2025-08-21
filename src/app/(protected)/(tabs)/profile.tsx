@@ -40,21 +40,32 @@ export default function Profile() {
     }, [currentUser]);
 
     const handleSignOut = async () => {
+        let signOutSucceeded = false;
         try {
             await player.pause();
             await player.seekTo(0);
             setPodcast(null);
-            
-            queryClient.clear();
+            // Ensure no in-flight queries keep running with the old session
+            await queryClient.cancelQueries();
             const { error } = await supabase.auth.signOut();
+            signOutSucceeded = !error;
             if (error) {
                 Alert.alert('Error signing out', error.message);
             }
-        } catch (error) {
-            console.error('Error during sign out:', error);
+        } catch (err) {
+            console.error('Error during sign out:', err);
+            // Attempt to sign out even if pre-logout steps failed
             const { error: signOutError } = await supabase.auth.signOut();
+            signOutSucceeded = !signOutError;
             if (signOutError) {
                 Alert.alert('Error signing out', signOutError.message);
+            }
+        } finally {
+            // Only clear query cache if the user actually signed out
+            if (signOutSucceeded) {
+                queryClient.clear();
+                // If you persist the cache, also clear persisted storage:
+                // await persister.removeClient?.();
             }
         }
     };

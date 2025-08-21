@@ -2,7 +2,7 @@
   "expo": {
     "name": "podupYT",
     "slug": "podupYT",
-    "scheme": "podupYT",
+    "scheme": "app.podhub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/adaptive-icon.png",
@@ -26,13 +26,19 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
-      "package": "com.anonymous.podupYT"
+      "package": "com.anonymous.podhub"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
     "plugins": [
+      [
+        "expo-web-browser",
+        {
+          "experimentalLauncherActivity": true
+        }
+      ],
       "expo-router",
       [
         "expo-audio",
