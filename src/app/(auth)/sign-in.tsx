@@ -34,21 +34,9 @@ export default function Page() {
         }
         console.error('Supabase Sign In Error:', error.message);
       } else if (data.session) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', data.session.user.id)
-          .single();
-
-        if (profileError && profileError.code !== 'PGRST116') {
-          throw profileError;
-        }
-
-        if (!profile || !profile.full_name) {
-          router.replace('/(protected)/onboarding');
-        } else {
-          router.replace('/(protected)');
-        }
+        // The redirection logic is now handled in the root layout (_layout.tsx)
+        // based on the auth state change.
+        router.replace('/(protected)');
       } else {
         Alert.alert('خطأ في تسجيل الدخول', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }

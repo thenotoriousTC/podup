@@ -1,7 +1,7 @@
 import "../../global.css";
 import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Slot } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import PlayerProvider from "@/providers/playerprovider";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { useEffect } from 'react';
@@ -27,6 +27,7 @@ const theme = {
 
 function RootLayoutNav() {
   const { loading, session } = useAuth();
+  const router = useRouter();
   const [fontsLoaded] = useFonts({
     'Pacifico-Regular': Pacifico_400Regular,
     'Cairo-Black': require('../../assets/fonts/Cairo-Black.ttf'),
@@ -68,6 +69,31 @@ function RootLayoutNav() {
       subscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    const checkProfileAndRedirect = async () => {
+      if (session?.user) {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', session.user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching profile for redirect:', error);
+          return;
+        }
+
+        if (!profile || !profile.full_name) {
+          router.replace('/(protected)/onboarding');
+        }
+      }
+    };
+
+    if (!loading && session) {
+      checkProfileAndRedirect();
+    }
+  }, [session, loading, router]);
 
   if (loading || !fontsLoaded) {
     return (
