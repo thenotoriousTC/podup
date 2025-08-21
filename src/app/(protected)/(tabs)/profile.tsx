@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Pressable, View, Alert, Image } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -15,6 +16,7 @@ export default function Profile() {
     const [modalVisible, setModalVisible] = useState(false);
     const { player, setPodcast } = usePlayer();
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         if (currentUser) {
@@ -43,6 +45,7 @@ export default function Profile() {
             await player.seekTo(0);
             setPodcast(null);
             
+            queryClient.clear();
             const { error } = await supabase.auth.signOut();
             if (error) {
                 Alert.alert('Error signing out', error.message);
