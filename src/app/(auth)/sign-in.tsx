@@ -34,9 +34,8 @@ export default function Page() {
         }
         console.error('Supabase Sign In Error:', error.message);
       } else if (data.session) {
-        // The redirection logic is now handled in the root layout (_layout.tsx)
-        // based on the auth state change.
-        router.replace('/(protected)');
+        // Redirection is handled by the root layout (_layout.tsx) via auth state changes.
+        // No local navigation here to avoid double redirects and invalid group paths.
       } else {
         Alert.alert('خطأ في تسجيل الدخول', 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.');
       }
