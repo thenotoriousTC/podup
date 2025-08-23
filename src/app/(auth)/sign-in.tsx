@@ -139,6 +139,13 @@ export default function Page() {
                   returnKeyType="done"
                   onSubmitEditing={onSignInPress}
                 />
+                <Link href='/forgot-password' asChild>
+                  <TouchableOpacity>
+                    <StyledText className='text-indigo-600 font-semibold text-center mt-2'>
+                      هل نسيت كلمة المرور؟
+                    </StyledText>
+                  </TouchableOpacity>
+                </Link>
               </View>
 
               <TouchableOpacity

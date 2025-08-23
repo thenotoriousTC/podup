@@ -2,7 +2,7 @@ import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function AuthLayout() {
-  const { session, loading } = useAuth();
+  const { session, loading, isPasswordRecovery } = useAuth();
   
 
 
@@ -10,7 +10,7 @@ export default function AuthLayout() {
     return null; // Or a loading indicator
   }
 
-  if (session) {
+  if (session && !isPasswordRecovery) {
     return <Redirect href="/(protected)" />;
   }
 
