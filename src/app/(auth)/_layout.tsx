@@ -2,7 +2,7 @@ import { Redirect, Stack } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';
 
 export default function AuthLayout() {
-  const { session, loading, isPasswordRecovery } = useAuth();
+  const { session, loading, isPasswordRecovery=false } = useAuth();
   
 
 

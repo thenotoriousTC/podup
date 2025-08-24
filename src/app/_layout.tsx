@@ -43,7 +43,7 @@ function RootLayoutNav() {
   });
 
   useEffect(() => {
-    const handleDeepLink = (event: { url: string }) => {
+    const handleDeepLink = async (event: { url: string }) => {
       const { url } = event;
       console.log('🔗 Deep link received:', url);
       
@@ -75,8 +75,14 @@ function RootLayoutNav() {
           if (type === 'recovery') {
             console.log('🔐 Password recovery detected, redirecting to update-password');
             // Set a flag to indicate password recovery mode
-            AsyncStorage.setItem('isPasswordRecovery', 'true');
-            router.replace('/(auth)/update-password');
+            try {
+              await AsyncStorage.setItem('isPasswordRecovery', 'true');
+              // Ensure the auth state is updated before navigating
+              router.replace('/(auth)/update-password');
+            } catch (error) {
+              console.error('Failed to set password recovery flag:', error);
+              router.replace('/(auth)/update-password');
+            }
           } else {
             console.log('ℹ️ Not a recovery type, type is:', type);
           }

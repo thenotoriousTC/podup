@@ -8,7 +8,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   isPasswordRecovery: boolean;
-  clearPasswordRecovery: () => void;
+  clearPasswordRecovery: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isPasswordRecovery: false,
-  clearPasswordRecovery: () => {},
+  clearPasswordRecovery: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -32,10 +32,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       // Check if we're in password recovery mode
-      const recoveryFlag = await AsyncStorage.getItem('isPasswordRecovery');
-      if (recoveryFlag === 'true') {
-        console.log('🔐 Found password recovery flag in storage');
-        setIsPasswordRecovery(true);
+      try {
+        const recoveryFlag = await AsyncStorage.getItem('isPasswordRecovery');
+        if (recoveryFlag === 'true') {
+          console.log(' Found password recovery flag in storage');
+          setIsPasswordRecovery(true);
+        }
+      } catch (error) {
+        console.error('Error reading recovery flag from storage:', error);
       }
       
       setSession(data.session);
@@ -52,6 +56,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (event === 'PASSWORD_RECOVERY' || recoveryFlag === 'true') {
         console.log('🔐 Password recovery session detected');
         setIsPasswordRecovery(true);
+        if (event === 'PASSWORD_RECOVERY') {
+          try {
+            await AsyncStorage.setItem('isPasswordRecovery', 'true');
+          } catch (error) {
+            console.error('Error saving recovery flag:', error);
+          }
+        }
       } else if (event === 'SIGNED_OUT') {
         console.log('🔐 Signed out, clearing recovery flag');
         setIsPasswordRecovery(false);

@@ -62,6 +62,12 @@ export default function UpdatePasswordPage() {
   }, []);
 
   const onUpdatePassword = async () => {
+    // Validate password strength
+    if (password.length < 8) {
+      Alert.alert('خطأ', 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.');
+      return;
+    }
+    
     if (password !== confirmPassword) {
       Alert.alert('خطأ', 'كلمتا المرور غير متطابقتين.');
       return;

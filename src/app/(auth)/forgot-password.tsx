@@ -14,23 +14,32 @@ const redirectTo = makeRedirectUri({
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 
   const onSendResetLink = async () => {
     if (loading) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      Alert.alert('تنبيه', 'يرجى إدخال بريد إلكتروني صالح.');
+      return;
+    }
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
         redirectTo,
       });
 
-      if (error) {
-        Alert.alert('خطأ', error.message);
-      } else {
-        Alert.alert('تحقق من بريدك الإلكتروني', 'تم إرسال رابط إعادة تعيين كلمة المرور إلى عنوان بريدك الإلكتروني.');
+      // Avoid user enumeration: always show a generic success message.
+      if (error?.status === 429) {
+        Alert.alert('يرجى المحاولة لاحقًا', 'لقد قمت بعدة محاولات. انتظر قليلاً ثم حاول مجددًا.');
       }
+      Alert.alert('تحقق من بريدك الإلكتروني', 'إذا كان البريد مسجلاً، فستصلك رسالة برابط لإعادة تعيين كلمة المرور.');
     } catch (err: any) {
-      Alert.alert('خطأ', err.message || 'فشل إرسال رابط إعادة التعيين.');
+      // Network or unexpected error: still avoid leaking details.
+      console.error('resetPasswordForEmail failed', err);
+      Alert.alert('حدث خطأ', 'تعذر إرسال الرابط حاليًا. يرجى المحاولة لاحقًا.');
     } finally {
       setLoading(false);
     }
@@ -77,14 +86,22 @@ export default function ForgotPasswordPage() {
                   keyboardType="email-address"
                   autoComplete="email"
                   returnKeyType="done"
-                  onSubmitEditing={onSendResetLink}
+                  autoCorrect={false}
+                  textContentType='emailAddress'
+                  enablesReturnKeyAutomatically
+                  onSubmitEditing={()=>isValidEmail&&onSendResetLink()}
                 />
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading || !isValidEmail ? 'bg-gray-400 opacity-60' : 'bg-indigo-600'}`}
                 onPress={onSendResetLink}
-                disabled={loading}
+                disabled={loading || !isValidEmail}
+                accessibilityRole='button'
+                accessibilityState={{
+                  disabled: loading || !isValidEmail , busy: loading
+                }}
+                accessibilityLabel='إرسال رابط إعادة التعيين'
               >
                 <StyledText className='text-white text-center font-semibold'>
                   {loading ? 'جار الإرسال...' : 'إرسال رابط إعادة التعيين'}
