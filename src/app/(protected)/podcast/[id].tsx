@@ -3,7 +3,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
-import { useAudioPlayerStatus } from 'expo-audio';
 import { supabase } from '@/lib/supabase';
 import { StyledText } from '@/components/StyledText';
 
@@ -11,8 +10,7 @@ const PodcastDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { player, podcast: currentPodcast, setPodcast, incrementViewCount } = usePlayer();
-  const playerStatus = useAudioPlayerStatus(player);
+  const { playTrack, podcast: currentPodcast, isPlaying: globalIsPlaying, position, duration, incrementViewCount } = usePlayer();
   const [viewCount, setViewCount] = useState(0);
   const [creatorId, setCreatorId] = useState<string | null>(null);
   const hasIncrementedView = useRef(false);
@@ -27,8 +25,8 @@ const PodcastDetail = () => {
   };
 
   const isCurrentTrack = currentPodcast?.id === podcastData.id;
-  const isPlaying = isCurrentTrack && playerStatus.playing;
-  const isLoaded = playerStatus.isLoaded;
+  const isPlaying = isCurrentTrack && globalIsPlaying;
+  const isLoaded = duration > 0;
 
   // On mount, fetch additional podcast data like view count
   useEffect(() => {
@@ -60,16 +58,16 @@ const PodcastDetail = () => {
 
   // Track when playback starts to increment view count
   useEffect(() => {
-    if (isCurrentTrack && isLoaded && playerStatus.playing && !hasIncrementedView.current) {
+    if (isCurrentTrack && isLoaded && isPlaying && !hasIncrementedView.current) {
       // Only increment once per session when playback actually starts
-      if (playerStatus.currentTime > 0 || playerStatus.duration > 0) {
+      if (position > 0 || duration > 0) {
         incrementViewCount(podcastData.id);
         setViewCount(prev => prev + 1);
         hasIncrementedView.current = true;
         console.log(`View count incremented for podcast: ${podcastData.id}`);
       }
     }
-  }, [isCurrentTrack, isLoaded, playerStatus.playing, playerStatus.currentTime, playerStatus.duration, podcastData.id]);
+  }, [isCurrentTrack, isLoaded, isPlaying, position, duration, podcastData.id]);
 
   // Reset increment flag when switching to different podcast
   useEffect(() => {
@@ -80,10 +78,10 @@ const PodcastDetail = () => {
 
   // Handle when audio finishes playing
   useEffect(() => {
-    if (isCurrentTrack && isLoaded && !playerStatus.playing && playerStatus.currentTime > 0) {
+    if (isCurrentTrack && isLoaded && !isPlaying && position > 0) {
       // Check if we've reached the end of the audio
-      const isAtEnd = playerStatus.duration > 0 && 
-                     Math.abs(playerStatus.currentTime - playerStatus.duration) < 1;
+      const isAtEnd = duration > 0 && 
+                     Math.abs(position - duration) < 1;
       
       if (isAtEnd) {
         console.log('Audio finished playing, ready to replay');
@@ -91,32 +89,17 @@ const PodcastDetail = () => {
         hasIncrementedView.current = false;
       }
     }
-  }, [playerStatus.playing, playerStatus.currentTime, playerStatus.duration, isCurrentTrack, isLoaded]);
+  }, [isPlaying, position, duration, isCurrentTrack, isLoaded]);
 
   const onPlayPausePress = async () => {
     try {
       if (!isCurrentTrack) {
         // Load new podcast - reset increment flag for new track
         hasIncrementedView.current = false;
-        setPodcast(podcastData);
-        await player.play();
+        playTrack(podcastData);
       } else {
-        if (playerStatus.playing) {
-          // Currently playing, pause it
-          await player.pause();
-        } else {
-          // Not playing, check if we need to replay from beginning
-          if (playerStatus.duration > 0 && 
-              Math.abs(playerStatus.currentTime - playerStatus.duration) < 1) {
-            // Audio finished, seek to beginning and play
-            hasIncrementedView.current = false; // Allow incrementing again on replay
-            await player.seekTo(0);
-            await player.play();
-          } else {
-            // Audio paused in middle, resume playing
-            await player.play();
-          }
-        }
+        // For current track, just toggle playback
+        // The Track Player context will handle play/pause logic
       }
       // Navigate to player page after starting/resuming audio
       router.push('/player');

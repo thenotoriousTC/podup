@@ -1,7 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Image, TouchableOpacity, Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
 
@@ -29,10 +28,9 @@ interface DiscoveryPodcastListItemProps {
 }
 
 export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggleLibrary, isTogglingLibrary }: DiscoveryPodcastListItemProps) {
-  const { playTrack, player, podcast: currentPodcast } = usePlayer();
-  const playerStatus = useAudioPlayerStatus(player);
+  const { playTrack, podcast: currentPodcast, isPlaying: globalIsPlaying, togglePlayback } = usePlayer();
   const isCurrentTrack = currentPodcast?.id === podcast.id;
-  const isPlaying = isCurrentTrack && playerStatus.playing;
+  const isPlaying = isCurrentTrack && globalIsPlaying;
   const { user: currentUser } = useAuth();
   const router = useRouter();
 
@@ -46,7 +44,7 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
     if (!isCurrentTrack) {
       playTrack(podcast);
     } else {
-      playerStatus.playing ? player.pause() : player.play();
+      togglePlayback();
     }
   };
 

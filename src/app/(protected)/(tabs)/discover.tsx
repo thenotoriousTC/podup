@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { usePlayer } from '@/providers/playerprovider';
 import { usePodcasts } from '@/hooks/usePodcasts';
 import { SearchBar } from '@/components/SearchBar';
 import DiscoverContent from '@/components/DiscoverContent';

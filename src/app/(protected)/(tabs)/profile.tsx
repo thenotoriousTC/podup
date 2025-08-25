@@ -14,7 +14,7 @@ export default function Profile() {
     const [profile, setProfile] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
-    const { player, setPodcast } = usePlayer();
+    const { setPodcast } = usePlayer();
     const router = useRouter();
     const queryClient = useQueryClient();
 
@@ -42,8 +42,7 @@ export default function Profile() {
     const handleSignOut = async () => {
         let signOutSucceeded = false;
         try {
-            await player.pause();
-            await player.seekTo(0);
+            // Stop any current playback and clear podcast state
             setPodcast(null);
             // Ensure no in-flight queries keep running with the old session
             await queryClient.cancelQueries();

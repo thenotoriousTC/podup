@@ -2,21 +2,20 @@ import { StatusBar } from 'expo-status-bar';
 import { Image, Pressable, View, Animated, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { useAudioPlayerStatus } from 'expo-audio';
 import { usePlayer } from '@/providers/playerprovider';
 import { useEffect, useRef } from 'react';
 import { StyledText } from './StyledText';
+import TrackPlayer from 'react-native-track-player';
 
 export default function FloatingPlayer() {
-  const { player, podcast, setPodcast } = usePlayer();
-  const playerStatus = useAudioPlayerStatus(player);
+  const { podcast, setPodcast, isPlaying, isLoading, position, duration, togglePlayback } = usePlayer();
   
   const spinValue = useRef(new Animated.Value(0)).current;
   
   useEffect(() => {
     let spinAnimation: Animated.CompositeAnimation;
     
-    if (playerStatus.isBuffering) {
+    if (isLoading) {
       spinAnimation = Animated.loop(
         Animated.timing(spinValue, {
           toValue: 1,
@@ -35,21 +34,20 @@ export default function FloatingPlayer() {
         spinAnimation.stop();
       }
     };
-  }, [playerStatus.isBuffering, spinValue]);
+  }, [isLoading, spinValue]);
 
   // Handle when audio finishes playing
   useEffect(() => {
-    if (podcast && playerStatus.isLoaded && !playerStatus.playing && playerStatus.currentTime > 0) {
+    if (podcast && duration > 0 && !isPlaying && position > 0) {
       // Check if we've reached the end of the audio
-      const isAtEnd = playerStatus.duration > 0 && 
-                     Math.abs(playerStatus.currentTime - playerStatus.duration) < 1;
+      const isAtEnd = Math.abs(position - duration) < 1;
       
       if (isAtEnd) {
         console.log('Audio finished playing in floating player, ready to replay');
         // Audio has finished, we can now replay from the beginning
       }
     }
-  }, [playerStatus.playing, playerStatus.currentTime, playerStatus.duration, podcast, playerStatus.isLoaded]);
+  }, [isPlaying, position, duration, podcast]);
   
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -64,9 +62,8 @@ export default function FloatingPlayer() {
   
   const handleRemove = async () => {
     try {
-      // Pause the audio player and seek to beginning
-      await player.pause();
-      await player.seekTo(0);
+      // Stop the audio player
+      await TrackPlayer.stop();
       // Clear the podcast from state
       setPodcast(null);
     } catch (error) {
@@ -76,21 +73,7 @@ export default function FloatingPlayer() {
 
   const handlePlayPause = async () => {
     try {
-      if (playerStatus.playing) {
-        // Currently playing, pause it
-        await player.pause();
-      } else {
-        // Not playing, check if we need to replay from beginning
-        if (playerStatus.duration > 0 && 
-            Math.abs(playerStatus.currentTime - playerStatus.duration) < 1) {
-          // Audio finished, seek to beginning and play
-          await player.seekTo(0);
-          await player.play();
-        } else {
-          // Audio paused in middle, resume playing
-          await player.play();
-        }
-      }
+      await togglePlayback();
     } catch (error) {
       console.error('Error during play/pause:', error);
     }
@@ -117,15 +100,15 @@ export default function FloatingPlayer() {
         onPress={handlePlayPause}
         style={styles.playPauseButton}
       >
-        {playerStatus.isBuffering ? (
+        {isLoading ? (
           <Animated.View style={{ transform: [{ rotate: spin }] }}>
             <AntDesign name="loading1" size={28} color="#0A84FF" />
           </Animated.View>
         ) : (
           <AntDesign
-            name={playerStatus.playing ? 'pausecircle' : 'playcircleo'}
+            name={isPlaying ? 'pausecircle' : 'playcircleo'}
             size={28}
-            color={playerStatus.playing ? '#0A84FF' : '#8E8E93'}
+            color={isPlaying ? '#0A84FF' : '#8E8E93'}
           />
         )}
       </Pressable>

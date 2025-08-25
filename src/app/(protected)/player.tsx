@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import PlaybackBar from "@/components/PlaybackBar";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { useAudioPlayerStatus } from 'expo-audio';
+import TrackPlayer from 'react-native-track-player';
 import { usePlayer } from "@/providers/playerprovider";
 import { useEffect, useRef } from 'react';
 import { StyledText } from "@/components/StyledText";
@@ -13,8 +13,7 @@ import { StyledText } from "@/components/StyledText";
 const PLAYBACK_RATES = [1.0, 1.5, 2.0, 0.75];
 
 export default function Player() {
-  const { player, podcast, seekTo, playbackRate, setPlaybackRate, sleepTimerRemaining, setSleepTimer, cancelSleepTimer } = usePlayer();
-  const playerStatus = useAudioPlayerStatus(player);
+  const { podcast, seekTo, playbackRate, setPlaybackRate, sleepTimerRemaining, setSleepTimer, cancelSleepTimer, isPlaying, isLoading, position, duration, togglePlayback } = usePlayer();
   
   // Animation reference for loading spinner
   const spinValue = useRef(new Animated.Value(0)).current;
@@ -23,7 +22,7 @@ export default function Player() {
   useEffect(() => {
     let spinAnimation: Animated.CompositeAnimation;
     
-    if (playerStatus.isBuffering) {
+    if (isLoading) {
       // Start continuous spinning animation
       spinAnimation = Animated.loop(
         Animated.timing(spinValue, {
@@ -44,21 +43,21 @@ export default function Player() {
         spinAnimation.stop();
       }
     };
-  }, [playerStatus.isBuffering, spinValue]);
+  }, [isLoading, spinValue]);
 
   // Handle when audio finishes playing - same logic as floatingPlayer
   useEffect(() => {
-    if (podcast && playerStatus.isLoaded && !playerStatus.playing && playerStatus.currentTime > 0) {
+    if (podcast && duration > 0 && !isPlaying && position > 0) {
       // Check if we've reached the end of the audio
-      const isAtEnd = playerStatus.duration > 0 && 
-                     Math.abs(playerStatus.currentTime - playerStatus.duration) < 1;
+      const isAtEnd = duration > 0 && 
+                     Math.abs(position - duration) < 1;
       
       if (isAtEnd) {
         console.log('Audio finished playing in main player, ready to replay');
         // Audio has finished, we can now replay from the beginning
       }
     }
-  }, [playerStatus.playing, playerStatus.currentTime, playerStatus.duration, podcast, playerStatus.isLoaded]);
+  }, [isPlaying, position, duration, podcast]);
 
   // Convert animated value to rotation
   const spin = spinValue.interpolate({
@@ -82,45 +81,35 @@ export default function Player() {
 
   // Function to skip backward by 10 seconds - now uses debounced seekTo
   const skipBackward = () => {
-    if (playerStatus.currentTime !== null) {
-      const newTime = Math.max(0, playerStatus.currentTime - 10);
+    if (position !== null) {
+      const newTime = Math.max(0, position - 10);
       seekTo(newTime); // Use debounced seekTo
     }
   };
 
   // Function to skip forward by 10 seconds - now uses debounced seekTo
   const skipForward = () => {
-    if (playerStatus.currentTime !== null && playerStatus.duration !== null) {
-      const newTime = Math.min(playerStatus.duration, playerStatus.currentTime + 10);
+    if (position !== null && duration !== null) {
+      const newTime = Math.min(duration, position + 10);
       seekTo(newTime); // Use debounced seekTo
     }
   };
 
   const onPlayPause = async () => {
     try {
-      if (playerStatus.playing) {
-        // Currently playing, pause it
-        await player.pause();
-      } else {
-        // Not playing, check if we need to replay from beginning
-        if (playerStatus.duration > 0 && 
-            Math.abs(playerStatus.currentTime - playerStatus.duration) < 1) {
-          // Audio finished, seek to beginning and play
-          await player.seekTo(0);
-          await player.play();
-        } else {
-          // Audio paused in middle, resume playing
-          await player.play();
-        }
-      }
+      await togglePlayback();
     } catch (error) {
       console.error('Error during play/pause:', error);
     }
   };
 
-  const toggleRepeat = () => {
-    if (player) {
-      player.loop = !player.loop;
+  const toggleRepeat = async () => {
+    try {
+      // Track Player doesn't have a simple loop property like expo-audio
+      // We'll need to implement repeat functionality differently
+      console.log('Repeat toggle - Track Player implementation needed');
+    } catch (error) {
+      console.error('Error toggling repeat:', error);
     }
   };
 
@@ -213,8 +202,8 @@ export default function Player() {
         {/* Progress Bar - now uses debounced seekTo */}
         <View className="px-4 mb-8">
           <PlaybackBar
-            duration={playerStatus.duration}
-            currentTime={playerStatus.currentTime}
+            duration={duration}
+            currentTime={position}
             onSeek={seekTo} // Use debounced seekTo instead of direct player.seekTo
           />
         </View>
@@ -236,7 +225,7 @@ export default function Player() {
             style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.95 : 1 }] })}
             onPress={onPlayPause}
           >
-            {playerStatus.isBuffering ? (
+            {isLoading ? (
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
                 <AntDesign
                   name="loading1"
@@ -246,10 +235,10 @@ export default function Player() {
               </Animated.View>
             ) : (
               <AntDesign
-                name={playerStatus.playing ? 'pause' : 'play'}
+                name={isPlaying ? 'pause' : 'play'}
                 size={32}
                 color="#1C1C1E"
-                style={{ marginLeft: playerStatus.playing ? 0 : 2 }}
+                style={{ marginLeft: isPlaying ? 0 : 2 }}
               />
             )}
           </Pressable>
@@ -273,7 +262,7 @@ export default function Player() {
             <Ionicons 
               name="repeat" 
               size={30} 
-              color={player?.loop ? "#007AFF" : "#8E8E93"} 
+              color="#8E8E93"
             />
           </Pressable>
 

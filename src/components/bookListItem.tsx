@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { Image, TouchableOpacity, View, Text, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
-import { useAudioPlayerStatus } from 'expo-audio';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/providers/AuthProvider';
@@ -31,10 +30,9 @@ interface PodcastListItemProps {
 }
 
 export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp }: PodcastListItemProps) {
-    const { setPodcast, player, podcast: currentPodcast } = usePlayer();
-    const playerStatus = useAudioPlayerStatus(player);
+    const { playTrack, podcast: currentPodcast, isPlaying: globalIsPlaying, togglePlayback } = usePlayer();
     const isCurrentTrack = currentPodcast?.id === podcast.id;
-    const isPlaying = isCurrentTrack && playerStatus.playing;
+    const isPlaying = isCurrentTrack && globalIsPlaying;
     const router = useRouter();
     const { user: currentUser } = useAuth();
     const queryClient = useQueryClient();
@@ -194,10 +192,9 @@ export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp 
     const onPlayPausePress = async () => {
         try {
             if (!isCurrentTrack) {
-                setPodcast(podcast);
-                await player.play();
+                playTrack(podcast);
             } else {
-                playerStatus.playing ? await player.pause() : await player.play();
+                await togglePlayback();
             }
         } catch (error) {
             console.error('Error playing audio:', error);

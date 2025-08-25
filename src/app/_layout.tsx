@@ -10,6 +10,9 @@ import { useFonts, Pacifico_400Regular } from '@expo-google-fonts/pacifico';
 import * as Linking from 'expo-linking';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '@/lib/supabase';
+import TrackPlayer from 'react-native-track-player';
+import { setupTrackPlayer } from '@/services/trackPlayerService';
+import { PlaybackService } from '@/services/index';
 
 const queryClient = new QueryClient();
 
@@ -160,6 +163,23 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  // Initialize Track Player service
+  useEffect(() => {
+    const initializeTrackPlayer = async () => {
+      try {
+        // Register the playback service
+        TrackPlayer.registerPlaybackService(() => PlaybackService);
+        
+        await setupTrackPlayer();
+        console.log('Track Player initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize Track Player:', error);
+      }
+    };
+
+    initializeTrackPlayer();
+  }, []);
+
   return (
     <ThemeProvider value={theme}>
       <QueryClientProvider client={queryClient}>

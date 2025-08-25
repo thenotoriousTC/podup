@@ -1,10 +1,11 @@
-import { AudioPlayer, useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from "expo-audio";
+import { setAudioModeAsync } from "expo-audio";
 import { createContext, PropsWithChildren, useContext, useState, useEffect, useRef, useCallback } from "react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from "../lib/supabase";
+import TrackPlayer, { State, usePlaybackState, useProgress, useActiveTrack } from 'react-native-track-player';
+import { playTrack as playTrackService, pause, play, seekTo as seekToService, setRate } from '@/services/trackPlayerService';
 
 type PlayerContextType = {
-    player: AudioPlayer;
     podcast: any;
     setPodcast: (podcast: any) => void; // For loading without playing
     playTrack: (podcast: any) => void; // For loading and playing
@@ -18,13 +19,23 @@ type PlayerContextType = {
     sleepTimerRemaining: number | null; // in seconds
     setSleepTimer: (duration: number | null) => void; // in minutes
     cancelSleepTimer: () => void;
+    // Track Player specific
+    isPlaying: boolean;
+    isLoading: boolean;
+    position: number;
+    duration: number;
+    togglePlayback: () => void;
 };
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export default function PlayerProvider({ children }: PropsWithChildren) {
     const [podcast, setPodcast] = useState<any | null>(null);
-    const [autoplay, setAutoplay] = useState(false);
+    
+    // Track Player hooks
+    const playbackState = usePlaybackState();
+    const progress = useProgress();
+    const activeTrack = useActiveTrack();
 
     // State for playback speed and sleep timer
     const [playbackRate, setPlaybackRateState] = useState(1.0);
@@ -34,17 +45,23 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     const seekTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const lastSeekTimeRef = useRef<number>(0);
     const isSeekingRef = useRef<boolean>(false);
+    
+    // Derived state from Track Player
+    const isPlaying = playbackState.state === State.Playing;
+    const isLoading = playbackState.state === State.Loading || playbackState.state === State.Buffering;
+    const position = progress.position;
+    const duration = progress.duration;
 
     // Constants for view count storage
     const VIEW_COUNT_KEY = 'podcast_view_counts';
 
-    // Configure audio session for background playback using expo-audio
+    // Configure audio session for background playback using expo-audio (for recording compatibility)
     useEffect(() => {
         const configureAudio = async () => {
             try {
-                // Set audio mode to allow background playback using expo-audio
+                // Set audio mode to allow background playback - this helps with recording compatibility
                 await setAudioModeAsync({
-                    allowsRecording: false,
+                    allowsRecording: true, // Keep this true for recording functionality
                     playsInSilentMode: true, // Allow playback when device is in silent mode
                     shouldPlayInBackground: true, // This is the key setting for background playback
                     shouldRouteThroughEarpiece: false,
@@ -60,25 +77,45 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
         configureAudio();
     }, []);
 
-    // Determine the correct URI: use local file if available, otherwise stream.
-    const audioUri = podcast?.local_audio_url || podcast?.audio_url;
-
-    const player = useAudioPlayer({
-        uri: audioUri,
-    });
-    const playerStatus = useAudioPlayerStatus(player);
-
-    useEffect(() => {
-        if (autoplay && playerStatus.isLoaded && !playerStatus.playing) {
-            player.play();
-            setAutoplay(false); // Reset autoplay flag
+    // Toggle playback function
+    const togglePlayback = useCallback(async () => {
+        try {
+            if (isPlaying) {
+                await pause();
+            } else {
+                await play();
+            }
+        } catch (error) {
+            console.error('Failed to toggle playback:', error);
         }
-    }, [playerStatus, autoplay, player]);
+    }, [isPlaying]);
 
-    // Debounced seek function to prevent rapid seeking issues
-    const playTrack = useCallback((newPodcast: any) => {
-        setPodcast(newPodcast);
-        setAutoplay(true);
+    // Play track function using Track Player
+    const playTrack = useCallback(async (newPodcast: any) => {
+        try {
+            setPodcast(newPodcast);
+            
+            // Determine the correct URI: use local file if available, otherwise stream
+            const audioUri = newPodcast?.local_audio_url || newPodcast?.audio_url;
+            
+            if (!audioUri) {
+                console.error('No audio URL found for podcast');
+                return;
+            }
+            
+            const track = {
+                id: newPodcast.id || 'current-track',
+                url: audioUri,
+                title: newPodcast.title || 'Unknown Title',
+                artist: newPodcast.creator_name || 'Unknown Artist',
+                artwork: newPodcast.image_url,
+                duration: newPodcast.duration,
+            };
+            
+            await playTrackService(track);
+        } catch (error) {
+            console.error('Failed to play track:', error);
+        }
     }, []);
 
     const seekTo = useCallback((position: number) => {
@@ -99,8 +136,8 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
                 const seekPosition = lastSeekTimeRef.current;
                 console.log(`Seeking to position: ${seekPosition}s`);
                                 
-                // Perform the seek operation
-                await player.seekTo(seekPosition);
+                // Perform the seek operation using Track Player
+                await seekToService(seekPosition);
                                 
                 // Reset seeking flag after a small delay to allow audio to stabilize
                 setTimeout(() => {
@@ -112,7 +149,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
                 isSeekingRef.current = false;
             }
         }, 200); // 200ms debounce delay
-    }, [player]);
+    }, []);
 
     // View count management functions
     const getViewCount = useCallback(async (podcastId: string): Promise<number> => {
@@ -160,18 +197,18 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
         }
     }, []);
 
-    // Function to set playback rate
-    const setPlaybackRate = (rate: number) => {
+    // Function to set playback rate using Track Player
+    const setPlaybackRate = useCallback(async (rate: number) => {
         try {
-            player.setPlaybackRate(rate);
+            await setRate(rate);
             setPlaybackRateState(rate);
         } catch (error) {
             console.error('Failed to set playback rate:', error);
         }
-    };
+    }, []);
 
     // Function to set a sleep timer
-    const setSleepTimer = (duration: number | null) => {
+    const setSleepTimer = useCallback((duration: number | null) => {
         // Cancel any existing timer first
         if (sleepTimerIntervalId.current) {
             clearInterval(sleepTimerIntervalId.current);
@@ -190,7 +227,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
             setSleepTimerRemaining(prevSeconds => {
                 if (prevSeconds === null || prevSeconds <= 1) {
                     clearInterval(intervalId);
-                    player.pause();
+                    pause(); // Use Track Player pause
                     return null; // End of timer
                 }
                 return prevSeconds - 1;
@@ -198,7 +235,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
         }, 1000);
 
         sleepTimerIntervalId.current = intervalId;
-    };
+    }, []);
 
     // Function to cancel the sleep timer
     const cancelSleepTimer = () => {
@@ -223,7 +260,6 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
 
     return (
         <PlayerContext.Provider value={{ 
-            player, 
             podcast, 
             setPodcast,
             playTrack, 
@@ -231,12 +267,18 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
             getViewCount,
             incrementViewCount,
             getAllViewCounts,
-            // New additions
+            // Playback control
             playbackRate,
             setPlaybackRate,
             sleepTimerRemaining,
             setSleepTimer,
-            cancelSleepTimer
+            cancelSleepTimer,
+            // Track Player specific
+            isPlaying,
+            isLoading,
+            position,
+            duration,
+            togglePlayback
         }}>
             {children}
         </PlayerContext.Provider>
