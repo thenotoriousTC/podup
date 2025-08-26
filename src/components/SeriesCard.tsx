@@ -27,7 +27,7 @@ const SeriesCard: React.FC<SeriesCardProps> = ({ series, isOwner, onDelete }) =>
             className="w-20 h-20 rounded-lg" 
           />
           <View className="flex-1 ml-3 justify-center">
-            <StyledText className="text-base font-semibold mb-1 text-right" numberOfLines={2}>
+            <StyledText className="text-base font-semibold mb-1 text-right dark:text-black" numberOfLines={2}>
               {series.title}
             </StyledText>
             <StyledText className="text-sm text-gray-600 text-right">

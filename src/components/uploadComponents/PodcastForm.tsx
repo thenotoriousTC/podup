@@ -28,7 +28,7 @@ const PodcastFormComponent: React.FC<PodcastFormProps> = ({
           العنوان *
         </StyledText>
         <TextInput
-          className={`bg-white p-4 rounded-2xl text-base text-right border border-gray-200 shadow-sm ${
+          className={`bg-white p-4 rounded-2xl text-base text-right dark:text-black border border-gray-200 shadow-sm ${
             disabled ? 'opacity-50' : ''
           }`}
           placeholder="أدخل العنوان"
@@ -43,7 +43,7 @@ const PodcastFormComponent: React.FC<PodcastFormProps> = ({
           المبدع *
         </StyledText>
         <TextInput
-          className={`bg-white p-4 rounded-2xl text-base text-right border border-gray-200 shadow-sm ${
+          className={`bg-white p-4 rounded-2xl text-base text-right dark:text-black border border-gray-200 shadow-sm ${
             disabled ? 'opacity-50' : ''
           }`}
           placeholder="أدخل اسم المبدع"
@@ -64,7 +64,7 @@ const PodcastFormComponent: React.FC<PodcastFormProps> = ({
             disabled ? 'opacity-50' : ''
           }`}
         >
-          <StyledText className="text-base text-right">{category || 'اختر الفئة'}</StyledText>
+          <StyledText className="text-base dark:text-black text-right">{category || 'اختر الفئة'}</StyledText>
         </Pressable>
       </View>
 
@@ -73,7 +73,7 @@ const PodcastFormComponent: React.FC<PodcastFormProps> = ({
           الوصف *
         </StyledText>
         <TextInput
-          className={`bg-white p-4 rounded-2xl text-base text-right border border-gray-200 shadow-sm ${
+          className={`bg-white p-4 rounded-2xl text-base text-right dark:text-black border border-gray-200 shadow-sm ${
             disabled ? 'opacity-50' : ''
           }`}
           placeholder="أدخل وصف البودكاست"

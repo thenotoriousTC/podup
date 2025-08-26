@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
+    color:'black',
     fontSize: 22,
     fontWeight: 'semibold',
     textAlign: 'right',

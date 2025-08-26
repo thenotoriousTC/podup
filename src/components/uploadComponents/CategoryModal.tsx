@@ -31,7 +31,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({ visible, onClose, onSelec
                 }}
                 className="p-4 border-b border-gray-200"
               >
-                <StyledText className="text-base">{item}</StyledText>
+                <StyledText className="text-base dark:text-black">{item}</StyledText>
               </TouchableOpacity>
             )}
           />
