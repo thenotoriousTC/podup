@@ -69,11 +69,11 @@ export default function SignUpScreen() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
-            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
-            <StyledText fontWeight="Bold" className='text-3xl font-semibold text-center mb-8 '>
+            <StyledText fontWeight="SemiBold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <StyledText fontWeight="SemiBold" className='text-3xl font-semibold dark:text-black text-center mb-8 '>
               إنشاء حساب
             </StyledText>
-            <StyledText className='text-center mb-8'>
+            <StyledText className='text-center mb-8 dark:text-black'>
            قم بإنشاء حساب جديد  و ابدأ بالاستماع للبودكاست مجانا  
             </StyledText>
             <View className='gap-4'>

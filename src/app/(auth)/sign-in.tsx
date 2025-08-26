@@ -89,11 +89,11 @@ export default function Page() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <StyledText fontWeight="Bold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
-            <StyledText fontWeight="Bold" className='text-3xl font-semibold text-center mb-8 dark:text-black'>
+            <StyledText fontWeight="SemiBold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <StyledText fontWeight="SemiBold" className='text-3xl font-semibold text-center mb-8 dark:text-black'>
               مرحبًا بك
             </StyledText>
-            <StyledText className='text-center mb-8'>
+            <StyledText className='text-center mb-8 dark:text-black semiBold'>
               قم بتسجيل الدخول أو إنشاء حساب جديد
             </StyledText>
 
