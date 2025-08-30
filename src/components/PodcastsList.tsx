@@ -18,7 +18,11 @@ export const PodcastsList = ({
   const showEmptyState = groupedPodcasts.length === 0 && searchQuery.length > 0;
 
   return (
-    <ScrollView className={`flex-1 px-4 ${hasPlayerActive ? 'mb-24' : 'mb-2'}`}>
+    <ScrollView
+      className="flex-1 px-4"
+      contentContainerStyle={{ paddingBottom: hasPlayerActive ? 96 : 8 }}
+      keyboardShouldPersistTaps="handled"
+    >
       {showEmptyState ? (
         <EmptySearchResults onClearSearch={onClearSearch} />
       ) : (

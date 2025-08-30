@@ -25,9 +25,10 @@ const CreateSeriesScreen = () => {
 
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
-      // Check file size (basic check, more robust check needed)
-      const fileSize = result.assets[0].fileSize;
-      if (fileSize && fileSize > 2 * 1024 * 1024) {
+      // Validate file size
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      if (blob.size > 2 * 1024 * 1024) {
         Alert.alert('خطأ', 'حجم الصورة يتجاوز 2 ميجابايت.');
         return;
       }
@@ -37,7 +38,18 @@ const CreateSeriesScreen = () => {
 
   const uploadImage = async (uri: string) => {
     if (!user) throw new Error('User not authenticated');
-    const arraybuffer = await fetch(uri).then(res => res.arrayBuffer());
+    
+    let arraybuffer: ArrayBuffer;
+    try {
+      const response = await fetch(uri);
+      if (!response.ok) {
+        throw new Error('Failed to fetch image');
+      }
+      arraybuffer = await response.arrayBuffer();
+    } catch (error) {
+      throw new Error('Failed to process image: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+    
     const fileExt = uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
     const path = `${user.id}/${new Date().getTime()}.${fileExt}`;
     const { data, error } = await supabase.storage
@@ -104,7 +116,7 @@ const CreateSeriesScreen = () => {
       />
       <ScrollView className="flex-1 p-4 pt-6">
         <StyledText className="text-base font-semibold mb-2 text-right">صورة الغلاف</StyledText>
-      <TouchableOpacity className="w-full h-50 bg-gray-100 justify-center items-center rounded-lg mb-4 overflow-hidden" onPress={pickImage}>
+      <TouchableOpacity className="w-full h-48 bg-gray-100 justify-center items-center rounded-lg mb-4 overflow-hidden" onPress={pickImage}>
         {image ? (
           <Image source={{ uri: image }} className=" relative w-full h-full" />
         ) : (
@@ -118,16 +130,16 @@ const CreateSeriesScreen = () => {
 
       <StyledText className="text-base font-semibold mb-2 text-right">عنوان السلسلة</StyledText>
       <TextInput
-        className="bg-gray-100 p-3 rounded-lg mb-4 text-base text-right"
+        className="bg-gray-100 p-3 rounded-lg mb-4 text-base text-right text-black"
         value={title}
         onChangeText={setTitle}
-        placeholder="مثال: سوالف بزنس"
+        placeholder="عنوان"
         placeholderTextColor="#999"
       />
 
       <StyledText className="text-base font-semibold mb-2 text-right">الوصف</StyledText>
       <TextInput
-        className="bg-gray-100 p-3 rounded-lg mb-4 text-base text-right h-30"
+        className="bg-gray-100 p-3 rounded-lg mb-4 text-base text-right h-32 text-black"
         style={{ textAlignVertical: 'top' }}
         value={description}
         onChangeText={setDescription}

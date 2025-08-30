@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '@/lib/supabase';
@@ -7,6 +7,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
 
 const base64ToArrayBuffer = (base64: string) => {
+  // Convert base64 to Uint8Array without using Buffer
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -72,8 +73,11 @@ export const useRecordingUpload = () => {
     setIsUploading(true);
     setUploadProgress({ phase: 'image', percentage: 0, message: 'تحميل صورة الغلاف...' });
 
+    // Declare paths outside try block for cleanup access
+    const tempImagePath = `temp/${currentUser.id}/${Date.now()}_image.jpg`;
+    const tempAudioPath = `temp/${currentUser.id}/${Date.now()}_audio.m4a`;
+
     try {
-      const tempImagePath = `temp/${currentUser.id}/${Date.now()}_image.jpg`;
       await uploadFile(podcastImage, 'podcasts', tempImagePath, (bytesUploaded, bytesTotal) => {
         setUploadProgress({ 
           phase: 'image', 
@@ -83,7 +87,6 @@ export const useRecordingUpload = () => {
       });
 
       setUploadProgress({ phase: 'audio', percentage: 0, message: 'تحميل ملف الصوت...' });
-      const tempAudioPath = `temp/${currentUser.id}/${Date.now()}_audio.m4a`;
       await uploadFile(selectedRecording.uri, 'podcasts', tempAudioPath, (bytesUploaded, bytesTotal) => {
         setUploadProgress({ 
           phase: 'audio', 
@@ -113,27 +116,32 @@ export const useRecordingUpload = () => {
       }
 
       setUploadProgress({ phase: 'complete', percentage: 100, message: 'تم نشر البودكاست بنجاح!' });
+      const finish = () => {
+        setIsUploading(false);
+        setUploadProgress(null);
+        onUploadComplete();
+        router.push('/(tabs)/discover');
+      };
       setTimeout(() => {
-        Alert.alert('نجاح!', 'تم نشر البودكاست بنجاح!', [
-          {
-            text: 'OK',
-            onPress: () => {
-              setIsUploading(false);
-              setUploadProgress(null);
-              onUploadComplete();
-              router.push('/(tabs)/discover');
-            },
-          },
-        ]);
-      }, 500);
+        Alert.alert('نجاح!', 'تم نشر البودكاست بنجاح!', [{ text: 'OK', onPress: finish }]);
+      }, 300);
 
     } catch (error) {
       console.error('Publish error:', error);
       Alert.alert('فشل في النشر', `حدث خطأ: ${error instanceof Error ? error.message : 'يرجى المحاولة مرة أخرى'}`);
-      // Here you might want to add cleanup logic for temp files if the edge function call fails
+      // Cleanup temp files on error
+      try {
+        await supabase.storage.from('podcasts').remove([tempImagePath, tempAudioPath]);
+      } catch (cleanupError) {
+        console.error('Failed to cleanup temp files:', cleanupError);
+      }
     } finally {
-      setIsUploading(false);
-      setUploadProgress(null);
+      // Do not clear success state here; only clear on error path
+      // If we got here due to an error, isUploading is still true — clear it.
+      // If success path executed, finish() will handle cleanup.
+      // Heuristic: only clear if we are not in 'complete' phase.
+      setIsUploading(prev => (uploadProgress?.phase === 'complete' ? prev : false));
+      if (uploadProgress?.phase !== 'complete') setUploadProgress(null);
     }
   };
 

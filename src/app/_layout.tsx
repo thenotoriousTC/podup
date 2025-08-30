@@ -5,7 +5,7 @@ import { Slot, useRouter, useSegments } from "expo-router";
 import PlayerProvider from "@/providers/playerprovider";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, I18nManager } from "react-native";
 import { useFonts, Pacifico_400Regular } from '@expo-google-fonts/pacifico';
 import * as Linking from 'expo-linking';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,6 +13,12 @@ import { supabase } from '@/lib/supabase';
 import TrackPlayer from 'react-native-track-player';
 import { setupTrackPlayer } from '@/services/trackPlayerService';
 import { PlaybackService } from '@/services/index';
+
+// Configure RTL settings at app entry point
+if (I18nManager.isRTL) {
+  I18nManager.allowRTL(false);
+  I18nManager.forceRTL(false);
+}
 
 const queryClient = new QueryClient();
 

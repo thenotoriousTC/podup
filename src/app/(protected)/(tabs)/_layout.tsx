@@ -1,15 +1,11 @@
 import { Redirect, Slot, Tabs } from "expo-router";
 import "../../../../global.css";
-import { ActivityIndicator, Pressable, StyleSheet, View as RNView, I18nManager } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View as RNView } from "react-native";
 import React from "react";
 import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";
 import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons";
 import { StyledText } from "@/components/StyledText";
-
-// Force LTR layout
-I18nManager.allowRTL(false);
-I18nManager.forceRTL(false);
 
 const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps): React.ReactNode => (
   <Pressable onPress={onPress} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>

@@ -77,7 +77,12 @@ export default function AddEpisodesScreen() {
       return (
         <TouchableOpacity onPress={() => toggleSelection(item.id)} style={[styles.itemContainer, isSelected && styles.itemContainerSelected]}>
           <View style={{ flex: 1 }}>
-            <DiscoveryPodcastListItem podcast={item} />
+            <DiscoveryPodcastListItem 
+              podcast={item} 
+              isInLibrary={false}
+              onToggleLibrary={() => {}}
+              isTogglingLibrary={false}
+            />
           </View>
           <View style={styles.checkboxContainer}>
             <Ionicons 

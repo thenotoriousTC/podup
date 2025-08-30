@@ -1,11 +1,9 @@
-import { View, Pressable, Image, Animated, Alert, AlertButton } from "react-native";
+import { View, Pressable, Image, Animated, Alert, AlertButton, SafeAreaView } from "react-native";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import PlaybackBar from "@/components/PlaybackBar";
 import { Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
-import TrackPlayer from 'react-native-track-player';
 import { usePlayer } from "@/providers/playerprovider";
 import { useEffect, useRef } from 'react';
 import { StyledText } from "@/components/StyledText";
@@ -69,7 +67,7 @@ export default function Player() {
     // or a loading indicator
     return (
       <SafeAreaView className="flex-1 bg-white justify-center items-center">
-        <StyledText>يجار التحميل...</StyledText>
+        <StyledText>جاري التحميل...</StyledText>
       </SafeAreaView>
     );
   }
@@ -104,13 +102,8 @@ export default function Player() {
   };
 
   const toggleRepeat = async () => {
-    try {
-      // Track Player doesn't have a simple loop property like expo-audio
-      // We'll need to implement repeat functionality differently
-      console.log('Repeat toggle - Track Player implementation needed');
-    } catch (error) {
-      console.error('Error toggling repeat:', error);
-    }
+    // TODO: Implement repeat functionality
+    Alert.alert('قريباً', 'ميزة التكرار ستكون متاحة قريباً');
   };
 
   const changePlaybackRate = () => {

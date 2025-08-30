@@ -6,19 +6,11 @@ import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';
+import { Database } from '@/lib/database.types';
+
+type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
 const DOWNLOADED_PODCASTS_KEY = 'downloaded-podcasts';
-
-interface Podcast {
-    id: string;
-    title: string;
-    author: string;
-    audio_url: string;
-    thumbnail_url?: string;
-    image_url?: string;
-    description?: string;
-    local_audio_url?: string;
-}
 
 export default function DownloadsScreen() {
     const [downloadedPodcasts, setDownloadedPodcasts] = useState<Podcast[]>([]);
@@ -26,19 +18,41 @@ export default function DownloadsScreen() {
     const isFocused = useIsFocused();
     const router = useRouter();
 
-    const fetchDownloadedPodcasts = async () => {
-        setIsLoading(true);
+    const fetchDownloadedPodcasts = async (useScreenSpinner = true): Promise<void> => {
+        if (useScreenSpinner) setIsLoading(true);
         try {
-            const downloadedPodcastsRaw = await AsyncStorage.getItem(DOWNLOADED_PODCASTS_KEY);
-            if (downloadedPodcastsRaw) {
-                const podcastsObject = JSON.parse(downloadedPodcastsRaw);
-                const podcastsArray = Object.values(podcastsObject);
-                setDownloadedPodcasts(podcastsArray as Podcast[]);
+            const raw = await AsyncStorage.getItem(DOWNLOADED_PODCASTS_KEY);
+            if (!raw) {
+                setDownloadedPodcasts([]);
+                return;
             }
+            let parsed: unknown;
+            try {
+                parsed = JSON.parse(raw);
+            } catch (err) {
+                console.error('Failed to parse downloaded podcasts. Resetting list.', err);
+                setDownloadedPodcasts([]);
+                return;
+            }
+            const podcastsArray = Array.isArray(parsed)
+                ? parsed
+                : parsed && typeof parsed === 'object'
+                    ? Object.values(parsed as Record<string, Podcast>)
+                    : [];
+            // Ensure each podcast has required fields
+            const validPodcasts = podcastsArray.filter((item: any) => 
+                item && typeof item === 'object' && item.id && item.title
+            ).map((item: any) => ({
+                ...item,
+                creator_name: item.creator_name || item.author || 'Unknown Creator',
+                author: item.author || item.creator_name || 'Unknown Author'
+            }));
+            setDownloadedPodcasts(validPodcasts as Podcast[]);
         } catch (e) {
             console.error('Failed to load downloaded podcasts.', e);
+            setDownloadedPodcasts([]);
         } finally {
-            setIsLoading(false);
+            if (useScreenSpinner) setIsLoading(false);
         }
     };
 
@@ -130,7 +144,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 18,
-        fontWeight: 'semibold',
+        fontWeight: '600',
         color: '#4F46E5',
     },
     placeholder: {
@@ -144,7 +158,7 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 18,
-        fontWeight: 'semibold',
+        fontWeight: '600',
         color: '#555',
     },
     emptySubText: {

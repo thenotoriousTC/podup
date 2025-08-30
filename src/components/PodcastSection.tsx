@@ -16,7 +16,14 @@ export const PodcastSection = ({ title, data }: PodcastSectionProps) => {
       </View>
       <FlatList
         data={data}
-        renderItem={({ item }) => <DiscoveryPodcastListItem podcast={item} />}
+        renderItem={({ item }) => (
+          <DiscoveryPodcastListItem 
+            podcast={item} 
+            isInLibrary={false}
+            onToggleLibrary={() => {}}
+            isTogglingLibrary={false}
+          />
+        )}
         keyExtractor={(item) => item.id}
         horizontal
         inverted

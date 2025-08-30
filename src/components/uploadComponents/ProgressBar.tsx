@@ -11,7 +11,8 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
-  const progressWidth = (progress.percentage / 100) * (screenWidth - 48); // 48px for padding
+  const clampedPercentage = Math.max(0, Math.min(100, progress.percentage || 0));
+  const progressWidth = (clampedPercentage / 100) * (screenWidth - 48); // 48px for padding
 
   return (
     <View className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
@@ -24,7 +25,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
               progress.phase === 'database' ? 'storage' : 'check-circle'
             } 
             size={24} 
-            color={progress.percentage === 100 ? '#10B981' : '#3B82F6'} 
+            color={clampedPercentage === 100 ? '#10B981' : '#3B82F6'} 
           />
           <StyledText className="text-lg font-semibold text-gray-800 ml-2">
             {progress.message}
@@ -34,14 +35,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
         <View className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
           <View 
             className={`h-full rounded-full transition-all duration-300 ${
-              progress.percentage === 100 ? 'bg-green-500' : 'bg-blue-500'
+              clampedPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'
             }`}
             style={{ width: progressWidth }}
           />
         </View>
         
         <StyledText className="text-sm text-gray-600 mt-2">
-          {Math.round(progress.percentage)}% مكتمل
+          {Math.round(clampedPercentage)}% مكتمل
         </StyledText>
       </View>
       

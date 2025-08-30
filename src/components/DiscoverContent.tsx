@@ -22,7 +22,7 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
   }, [content]);
 
   const { libraryStatus, isLoading: isLibraryStatusLoading } = useLibraryStatus(
-    currentUser?.id,
+    currentUser?.id || '',
     podcastIds
   );
 
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color:'black',
     fontSize: 22,
-    fontWeight: 'semibold',
+    fontWeight: '600',
     textAlign: 'right',
   },
   scrollIndicator: {

@@ -8,17 +8,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
 import { StyledText } from './StyledText';
+import { Database } from '@/lib/database.types';
 
-interface Podcast {
-  image_url: string | null | undefined;
-  id: string;
-  user_id?: string | null;
-  title: string;
-  author: string;
-  audio_url: string;
-  thumbnail_url?: string | null;
-  description?: string | null;
-}
+type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
 interface DiscoveryPodcastListItemProps {
   podcast: Podcast;

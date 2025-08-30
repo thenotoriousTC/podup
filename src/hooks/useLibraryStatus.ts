@@ -63,10 +63,13 @@ export const useLibraryMutation = () => {
           .eq('podcast_id', podcastId);
         if (error) throw error;
       } else {
-        // Add to library
+        // Add to library (idempotent)
         const { error } = await supabase
           .from('user-library')
-          .insert({ podcast_id: podcastId, user_id: userId });
+          .upsert(
+            { podcast_id: podcastId, user_id: userId },
+            { onConflict: 'user_id,podcast_id', ignoreDuplicates: true }
+          );
         if (error) throw error;
       }
     },

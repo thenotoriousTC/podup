@@ -47,7 +47,7 @@ const CreatorPage = () => {
   useEffect(() => {
     const fetchCreatorData = async () => {
       const creatorId = Array.isArray(id) ? id[0] : id;
-      if (!creatorId || creatorId === 'undefined') return;
+      if (!creatorId || creatorId === 'undefined' || creatorId === 'create-series') return;
 
       setLoading(true);
 

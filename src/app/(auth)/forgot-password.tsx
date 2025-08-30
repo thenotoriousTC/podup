@@ -34,8 +34,9 @@ export default function ForgotPasswordPage() {
       // Avoid user enumeration: always show a generic success message.
       if (error?.status === 429) {
         Alert.alert('يرجى المحاولة لاحقًا', 'لقد قمت بعدة محاولات. انتظر قليلاً ثم حاول مجددًا.');
+      } else {
+        Alert.alert('تحقق من بريدك الإلكتروني', 'إذا كان البريد مسجلاً، فستصلك رسالة برابط لإعادة تعيين كلمة المرور.');
       }
-      Alert.alert('تحقق من بريدك الإلكتروني', 'إذا كان البريد مسجلاً، فستصلك رسالة برابط لإعادة تعيين كلمة المرور.');
     } catch (err: any) {
       // Network or unexpected error: still avoid leaking details.
       console.error('resetPasswordForEmail failed', err);

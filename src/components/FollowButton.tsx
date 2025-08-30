@@ -42,12 +42,10 @@ const styles = StyleSheet.create({
   followButton: {
     backgroundColor: 'white',
     borderColor: '#4F46E5',
-    color: '#4F46E5',
   },
   followingButton: {
     backgroundColor: 'transparent',
     borderColor: '#4F46E5',
-    color: '#4F46E5',
   },
   text: {
     color: '#4F46E5',

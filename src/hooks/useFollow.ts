@@ -12,8 +12,12 @@ type UseFollowProps = {
 export const useFollow = ({ userId, creatorId, podcastId, seriesId }: UseFollowProps) => {
   const queryClient = useQueryClient();
 
+  const supplied = [creatorId, seriesId, podcastId].filter(Boolean);
+  if (supplied.length !== 1) {
+    throw new Error('useFollow requires exactly one of creatorId, seriesId, or podcastId');
+  }
   const followType = creatorId ? 'creator' : seriesId ? 'series' : 'podcast';
-  const targetId = creatorId || seriesId || podcastId;
+  const targetId = (creatorId ?? seriesId ?? podcastId)!;
 
   const getTableDetails = () => {
     switch (followType) {
@@ -39,16 +43,13 @@ export const useFollow = ({ userId, creatorId, podcastId, seriesId }: UseFollowP
 
       const { data, error } = await supabase
         .from(tableName)
-        .select('*')
+        .select('follower_id')
         .eq('follower_id', userId)
         .eq(columnName, targetId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116: 'exact one row not found'
-        throw new Error(error.message);
-      }
-
-      return !!data;
+      if (error) throw error;
+      return Boolean(data);
     },
     enabled: !!userId && !!targetId,
   });
@@ -78,10 +79,15 @@ export const useFollow = ({ userId, creatorId, podcastId, seriesId }: UseFollowP
     mutationFn: async () => {
       if (!userId || !targetId) throw new Error('User or target ID is missing');
 
-      const { error } = await supabase.from(tableName).insert({
-        follower_id: userId,
-        [columnName]: targetId,
-      } as any);
+      const { error } = await supabase
+        .from(tableName)
+        .upsert(
+          {
+            follower_id: userId,
+            [columnName]: targetId,
+          } as any,
+          { onConflict: `follower_id,${columnName}` }
+        );
 
       if (error) throw error;
     },

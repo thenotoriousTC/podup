@@ -1,29 +1,36 @@
-import { View ,Pressable, GestureResponderEvent} from 'react-native';
+import { View, Pressable, GestureResponderEvent } from 'react-native';
+import React, { useState } from 'react';
+import { StyledText } from './StyledText';
+
 type PlaybackBarProps = {
     currentTime: number;
     duration: number;
     onSeek?: (seconds: number) => void;
 }
-import React, { useRef, useState } from 'react';
-import { StyledText } from './StyledText';
-export default function PlaybackBar({ currentTime,duration,onSeek  }:PlaybackBarProps)  {
 
-    
-
+export default function PlaybackBar({ currentTime, duration, onSeek }: PlaybackBarProps) {
     const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
         const seconds = Math.floor(time % 60);
         return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
-    const value = currentTime   / duration;
+    
+    const dur = Number.isFinite(duration) && duration > 0 ? duration : 0;
+    const clampedCurrent = Math.min(
+        Math.max(Number.isFinite(currentTime) ? currentTime : 0, 0),
+        dur
+    );
+    const progress = dur > 0 ? clampedCurrent / dur : 0;
 
     const [barWidth, setBarWidth] = useState(0);
 
     function onHandleSeek(event: GestureResponderEvent) {
-        const locationX = event.nativeEvent.locationX;
-        if (barWidth > 0) {
-            onSeek?.((locationX / barWidth) * duration);
-        }
+        if (!onSeek || barWidth <= 0 || duration <= 0) return;
+        const { locationX } = event.nativeEvent;
+        const clampedX = Math.min(Math.max(locationX, 0), barWidth);
+        const t = (clampedX / barWidth) * duration;
+        const clampedT = Math.min(Math.max(t, 0), duration);
+        onSeek(clampedT);
     }
 
     return (
@@ -36,11 +43,11 @@ export default function PlaybackBar({ currentTime,duration,onSeek  }:PlaybackBar
             >
                 <View
                     className='bg-blue-400 h-full rounded-full'
-                    style={{ width: `${value * 100}%` }}
+                    style={{ width: `${progress * 100}%` }}
                 />
                 <View
                     className='absolute w-4 h-4 -translate-x-1/2 rounded-full bg-indigo-400'
-                    style={{ left: `${value * 100}%` }}
+                    style={{ left: `${progress * 100}%` }}
                 />
             </Pressable>
             <View className='flex-row justify-between mt-2'>

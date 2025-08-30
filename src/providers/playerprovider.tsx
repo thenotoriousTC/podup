@@ -4,11 +4,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from "../lib/supabase";
 import TrackPlayer, { State, usePlaybackState, useProgress, useActiveTrack } from 'react-native-track-player';
 import { playTrack as playTrackService, pause, play, seekTo as seekToService, setRate } from '@/services/trackPlayerService';
+import { Database } from '@/lib/database.types';
+import { Track } from '@/types/podcast';
+
+type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
 type PlayerContextType = {
-    podcast: any;
-    setPodcast: (podcast: any) => void; // For loading without playing
-    playTrack: (podcast: any) => void; // For loading and playing
+    podcast: Podcast | null;
+    setPodcast: (podcast: Podcast | null) => void; // For loading without playing
+    playTrack: (podcast: Podcast) => void; // For loading and playing
     seekTo: (position: number) => void;
     getViewCount: (podcastId: string) => Promise<number>;
     incrementViewCount: (podcastId: string) => Promise<void>;
@@ -30,7 +34,7 @@ type PlayerContextType = {
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 
 export default function PlayerProvider({ children }: PropsWithChildren) {
-    const [podcast, setPodcast] = useState<any | null>(null);
+    const [podcast, setPodcast] = useState<Podcast | null>(null);
     
     // Track Player hooks
     const playbackState = usePlaybackState();
@@ -91,7 +95,7 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
     }, [isPlaying]);
 
     // Play track function using Track Player
-    const playTrack = useCallback(async (newPodcast: any) => {
+    const playTrack = useCallback(async (newPodcast: Podcast) => {
         try {
             setPodcast(newPodcast);
             
@@ -103,13 +107,13 @@ export default function PlayerProvider({ children }: PropsWithChildren) {
                 return;
             }
             
-            const track = {
+            const track: Track = {
                 id: newPodcast.id || 'current-track',
                 url: audioUri,
                 title: newPodcast.title || 'Unknown Title',
-                artist: newPodcast.creator_name || 'Unknown Artist',
-                artwork: newPodcast.image_url,
-                duration: newPodcast.duration,
+                artist: newPodcast.author || 'Unknown Artist',
+                artwork: newPodcast.image_url || undefined,
+                duration: newPodcast.duration || undefined,
             };
             
             await playTrackService(track);

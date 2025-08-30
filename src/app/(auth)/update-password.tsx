@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, ScrollView, Dimensions } from 'react-native';
 import { StyledText } from '@/components/StyledText';
 import { Session } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/providers/AuthProvider';
 
 const { height: screenHeight } = Dimensions.get('window');

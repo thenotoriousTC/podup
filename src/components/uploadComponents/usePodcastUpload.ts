@@ -6,7 +6,9 @@ import { User } from '@supabase/supabase-js';
 import { AudioFile, UploadProgress } from './types';
 import { useRouter } from 'expo-router';
 
+// React Native compatible base64 decoder
 const base64ToArrayBuffer = (base64: string) => {
+  // Convert base64 to Uint8Array without using Buffer
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -74,6 +76,11 @@ export const usePodcastUpload = () => {
     try {
       if (props.image) {
         setUploadProgress({ phase: 'image', percentage: 0, message: 'تم تحميل صورة الغلاف!' });
+        const imageInfo = await FileSystem.getInfoAsync(props.image);
+        const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
+        if (imageInfo.exists && 'size' in imageInfo && imageInfo.size > MAX_IMAGE_SIZE) {
+          throw new Error('حجم الصورة كبير جداً. الحد الأقصى 10 ميجابايت');
+        }
         const imageData = await FileSystem.readAsStringAsync(props.image, { encoding: FileSystem.EncodingType.Base64 });
         const imageFileName = `temp/${props.currentUser!.id}_${Date.now()}.jpg`;
         
@@ -89,6 +96,11 @@ export const usePodcastUpload = () => {
 
       if (props.audio) {
         setUploadProgress({ phase: 'audio', percentage: 0, message: 'جاري تحميل ملف الصوت...' });
+        const audioInfo = await FileSystem.getInfoAsync(props.audio.uri);
+        const MAX_AUDIO_SIZE = 100 * 1024 * 1024; // 100MB
+        if (audioInfo.exists && 'size' in audioInfo && audioInfo.size > MAX_AUDIO_SIZE) {
+          throw new Error('حجم ملف الصوت كبير جداً. الحد الأقصى 100 ميجابايت');
+        }
         const audioData = await FileSystem.readAsStringAsync(props.audio.uri, { encoding: FileSystem.EncodingType.Base64 });
         const audioFileExtension = props.audio.name.split('.').pop() || 'mp3';
         const audioFileName = `temp/${props.currentUser!.id}_${Date.now()}.${audioFileExtension}`;

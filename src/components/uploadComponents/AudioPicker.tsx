@@ -14,9 +14,10 @@ interface AudioPickerProps {
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+  const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
+  const value = bytes / Math.pow(k, i);
+  return `${value.toFixed(value >= 100 ? 0 : 2)} ${sizes[i]}`;
 };
 
 const AudioPickerComponent: React.FC<AudioPickerProps> = ({ audio, onSetAudio, disabled }) => {

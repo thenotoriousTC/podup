@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
+import { Database } from '@/lib/database.types';
 import { StyledText } from '@/components/StyledText';
 
 const PodcastDetail = () => {
@@ -13,12 +14,14 @@ const PodcastDetail = () => {
   const { playTrack, podcast: currentPodcast, isPlaying: globalIsPlaying, position, duration, incrementViewCount } = usePlayer();
   const [viewCount, setViewCount] = useState(0);
   const [creatorId, setCreatorId] = useState<string | null>(null);
+  const [fullPodcastData, setFullPodcastData] = useState<Database['public']['Tables']['podcasts']['Row'] | null>(null);
   const hasIncrementedView = useRef(false);
 
   const podcastData = {
     id: params.id?.toString() || '',
     title: params.title?.toString() || '',
     author: params.author?.toString() || '',
+    creator_name: params.creator_name?.toString() || params.author?.toString() || '',
     description: params.description?.toString() || '',
     image_url: params.image_url?.toString() || '',
     audio_url: params.audio_url?.toString() || '',
@@ -39,7 +42,7 @@ const PodcastDetail = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('podcasts')
-        .select('view_count, user_id')
+        .select('*')
         .eq('id', podcastData.id)
         .single();
 
@@ -48,6 +51,7 @@ const PodcastDetail = () => {
       } else if (data) {
         setViewCount(data.view_count || 0);
         setCreatorId(data.user_id || null);
+        setFullPodcastData(data);
       }
       
       setIsLoading(false);
@@ -96,7 +100,14 @@ const PodcastDetail = () => {
       if (!isCurrentTrack) {
         // Load new podcast - reset increment flag for new track
         hasIncrementedView.current = false;
-        playTrack(podcastData);
+        
+        // Use full podcast data if available, otherwise fallback to URL params
+        if (fullPodcastData) {
+          playTrack(fullPodcastData);
+        } else {
+          console.warn('Full podcast data not loaded yet, cannot play track');
+          return;
+        }
       } else {
         // For current track, just toggle playback
         // The Track Player context will handle play/pause logic

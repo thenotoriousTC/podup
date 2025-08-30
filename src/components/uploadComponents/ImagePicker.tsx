@@ -27,7 +27,7 @@ const ImagePickerComponent: React.FC<ImagePickerProps> = ({ image, onSetImage, d
         quality: 0.8,
       });
 
-      if (!result.canceled) {
+      if (!result.canceled && result.assets?.length) {
         onSetImage(result.assets[0].uri);
       }
     } catch (error) {
@@ -58,9 +58,12 @@ const ImagePickerComponent: React.FC<ImagePickerProps> = ({ image, onSetImage, d
               resizeMode="cover"
             />
             <Pressable 
-              onPress={removeImage}
+              onPress={(e) => { (e as any)?.stopPropagation?.(); removeImage(); }}
               disabled={disabled}
-              className="absolute -top-2 -right-2 bg-red-500 rounded-full w-8 h-8 items-center justify-center"
+              accessibilityRole="button"
+              accessibilityLabel="إزالة صورة الغلاف"
+              testID="remove-image-button"
+              className={`absolute top-2 right-2 rounded-full w-8 h-8 items-center justify-center ${disabled ? 'bg-red-300' : 'bg-red-500'}`}
             >
               <AntDesign name="close" size={16} color="white" />
             </Pressable>

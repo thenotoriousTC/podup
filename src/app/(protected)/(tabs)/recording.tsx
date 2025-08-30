@@ -77,19 +77,23 @@ export default function RecordingScreen() {
 
   const handleDeleteRecording = async (recordingId: string) => {
     Alert.alert(
-      "هل انت متأكد من حذف التسجيل؟",
-      "هل انت متأكد من حذف التسجيل؟",
+      "حذف التسجيل",
+      "هل أنت متأكد من حذف هذا التسجيل؟ لا يمكن التراجع.",
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteRecording(recordingId);
-            if (selectedRecording?.id === recordingId) {
-              resetForm();
+            try {
+              await deleteRecording(recordingId);
+              if (selectedRecording?.id === recordingId) {
+                resetForm();
+              }
+              Alert.alert("تم الحذف", "تم حذف التسجيل بنجاح.");
+            } catch (e) {
+              Alert.alert("فشل الحذف", "حدث خطأ أثناء حذف التسجيل. حاول مجدداً.");
             }
-            Alert.alert("تم الحذف", "تم حذف التسجيل بنجاح.");
           }
         }
       ]
@@ -128,7 +132,7 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
         <StyledText className="mt-4 text-base text-blue-500">
-          طلب إذن...
+          طلب الإذن...
         </StyledText>
       </View>
     );
@@ -139,7 +143,7 @@ export default function RecordingScreen() {
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <Ionicons name="mic-off" size={64} color="#FF3B30" />
         <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
-          رفضت إذن الميكروفون
+          تم رفض إذن الميكروفون
         </StyledText>
         <StyledText className="text-base text-gray-600 text-center max-w-[80%]">
           يرجى تفعيل الوصول إلى الميكروفون في إعدادات جهازك.
@@ -154,7 +158,7 @@ export default function RecordingScreen() {
         <View className="p-4">
           <View className="items-center mb-8 pt-5">
             <StyledText className="text-base text-gray-600 text-center">
-              تسجيل، إدارة، ونشر محتوىك
+              تسجيل وإدارة ونشر محتواك
             </StyledText>
           </View>
 
@@ -169,7 +173,7 @@ export default function RecordingScreen() {
           <RecordingsList
             recordings={recordings}
             currentPlayingId={currentPlayingId}
-            isPlayerPlaying={playerStatus.playing}
+            isPlayerPlaying={!!playerStatus?.playing}
             isUploading={isUploading}
             onPlay={playRecording}
             onDelete={handleDeleteRecording}

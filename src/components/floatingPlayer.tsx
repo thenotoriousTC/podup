@@ -86,7 +86,6 @@ export default function FloatingPlayer() {
           <Image
             source={{ uri: getImageUrl(podcast) }}
             style={styles.image}
-            defaultSource={{ uri: 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast' }}
           />
           <View style={styles.textContainer}>
             <StyledText style={styles.authorText}>{podcast.author}</StyledText>

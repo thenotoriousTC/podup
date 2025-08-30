@@ -30,9 +30,8 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
     let interval: ReturnType<typeof setInterval> | null = null;
     if (isRecording) {
       interval = setInterval(() => setRecordingDuration(prev => prev + 1), 1000);
-    } else if (!isRecording && recordingDuration !== 0) {
+    } else {
       setRecordingDuration(0);
-      if (interval) clearInterval(interval);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -45,6 +44,15 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
     }
   }, [playerStatus.playing]);
 
+  // Cleanup audio player on unmount
+  useEffect(() => {
+    return () => {
+      if (audioPlayer) {
+        audioPlayer.pause();
+      }
+    };
+  }, [audioPlayer]);
+
   const loadSavedRecordings = async () => {
     try {
       const dirExists = await FileSystem.getInfoAsync(RECORDINGS_DIR);
@@ -55,7 +63,15 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       const files = await FileSystem.readDirectoryAsync(RECORDINGS_DIR);
       const loadedRecordings: Recording[] = [];
       for (const file of files.filter(f => f.endsWith('.m4a'))) {
-        const timestamp = parseInt(file.split('_').pop()?.replace('.m4a', '') || '0');
+        const parts = file.split('_');
+        const timestampStr = parts[parts.length - 1]?.replace('.m4a', '');
+        const timestamp = timestampStr ? parseInt(timestampStr) : Date.now();
+        
+        if (isNaN(timestamp) || timestamp <= 0) {
+          console.warn(`Invalid timestamp in filename: ${file}`);
+          continue;
+        }
+        
         loadedRecordings.push({
           id: file.replace('.m4a', ''),
           uri: RECORDINGS_DIR + file,
@@ -77,7 +93,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
     }
     try {
       await audioRecorder.prepareToRecordAsync();
-      audioRecorder.record();
+      await audioRecorder.record();
       setIsRecording(true);
     } catch (error) {
       console.error("Failed to start recording:", error);
@@ -91,6 +107,12 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       setIsRecording(false);
       const uri = audioRecorder.uri;
       if (uri) {
+        // Ensure directory exists
+        const dirInfo = await FileSystem.getInfoAsync(RECORDINGS_DIR);
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(RECORDINGS_DIR, { intermediates: true });
+        }
+        
         const timestamp = Date.now();
         const fileName = `${currentUser?.id}_recording_${timestamp}.m4a`;
         const permanentUri = RECORDINGS_DIR + fileName;
@@ -117,8 +139,8 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
       if (currentPlayingId === recording.id && playerStatus.playing) {
         audioPlayer.pause();
       } else {
-        audioPlayer.replace({ uri: recording.uri });
-        audioPlayer.play();
+        await audioPlayer.replace({ uri: recording.uri });
+        await audioPlayer.play();
         setCurrentPlayingId(recording.id);
       }
     } catch (error) {

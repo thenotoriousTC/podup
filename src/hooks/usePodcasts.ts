@@ -54,10 +54,18 @@ export const usePodcasts = (searchQuery: string) => {
       // Separate standalone podcasts from episodes
       const standalonePodcasts = allPodcasts.filter(p => !p.series_id);
       
+      // Build a map of episode counts
+      const episodeCounts = allPodcasts.reduce((acc, podcast) => {
+        if (podcast.series_id) {
+          acc[podcast.series_id] = (acc[podcast.series_id] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+      
       // Add episode count to each series
       const seriesWithCount = allSeries.map(s => ({
           ...s,
-          episode_count: allPodcasts.filter(p => p.series_id === s.id).length
+          episode_count: episodeCounts[s.id] || 0
       }));
 
       return { series: seriesWithCount, podcasts: standalonePodcasts };
@@ -152,7 +160,7 @@ export const usePodcasts = (searchQuery: string) => {
   };
 
   const getSeriesByCreatorId = async (creatorId: string): Promise<(Series & { episode_count: number })[]> => {
-    if (!creatorId) return [];
+    if (!creatorId || creatorId === 'create-series') return [];
 
     const { data: seriesData, error: seriesError } = await supabase
       .from('series')
@@ -189,7 +197,7 @@ export const usePodcasts = (searchQuery: string) => {
   };
 
   const getStandalonePodcastsByCreator = async (creatorId: string): Promise<Podcast[]> => {
-    if (!creatorId) return [];
+    if (!creatorId || creatorId === 'create-series') return [];
 
     const { data, error } = await supabase
       .from('podcasts')

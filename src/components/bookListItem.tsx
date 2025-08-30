@@ -10,19 +10,11 @@ import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { StyledText } from './StyledText';
+import { Database } from '@/lib/database.types';
+
+type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
 const DOWNLOADED_PODCASTS_KEY = 'downloaded-podcasts';
-
-interface Podcast {
-    id: string;
-    user_id?: string;
-    title: string;
-    author: string;
-    audio_url: string;
-    thumbnail_url?: string;
-    image_url?: string;
-    description?: string;
-}
 
 interface PodcastListItemProps {
     podcast: Podcast;
@@ -203,7 +195,7 @@ export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp 
     };
 
     const getImageUrl = (podcast: Podcast) => {
-        return podcast.image_url || podcast.thumbnail_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
+        return podcast.image_url || 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast';
     };
 
     const imageSource = { uri: getImageUrl(podcast) };
