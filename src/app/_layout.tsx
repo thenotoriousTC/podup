@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import TrackPlayer from 'react-native-track-player';
 import { setupTrackPlayer } from '@/services/trackPlayerService';
 import { PlaybackService } from '@/services/index';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Configure RTL settings at app entry point
 if (I18nManager.isRTL) {
@@ -187,12 +188,14 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <ThemeProvider value={theme}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <RootLayoutNav />
-        </AuthProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={theme}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <RootLayoutNav />
+          </AuthProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

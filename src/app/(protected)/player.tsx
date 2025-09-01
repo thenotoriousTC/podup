@@ -1,4 +1,4 @@
-import { View, Pressable, Image, Animated, Alert, AlertButton, SafeAreaView } from "react-native";
+import { View, Pressable, Image, Animated as RNAnimated, Alert, AlertButton, SafeAreaView, Dimensions } from "react-native";
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from "expo-router";
@@ -7,23 +7,75 @@ import { Ionicons, MaterialIcons, MaterialCommunityIcons } from "@expo/vector-ic
 import { usePlayer } from "@/providers/playerprovider";
 import { useEffect, useRef } from 'react';
 import { StyledText } from "@/components/StyledText";
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 const PLAYBACK_RATES = [1.0, 1.5, 2.0, 0.75];
+
+const { height: screenHeight } = Dimensions.get('window');
 
 export default function Player() {
   const { podcast, seekTo, playbackRate, setPlaybackRate, sleepTimerRemaining, setSleepTimer, cancelSleepTimer, isPlaying, isLoading, position, duration, togglePlayback } = usePlayer();
   
   // Animation reference for loading spinner
-  const spinValue = useRef(new Animated.Value(0)).current;
+  const spinValue = useRef(new RNAnimated.Value(0)).current;
+
+  // Gesture handling for slide down to close
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(1);
+  const context = useSharedValue({ y: 0 });
+
+  const closePlayer = () => {
+    router.back();
+  };
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      context.value = { y: translateY.value };
+    })
+    .onUpdate((event) => {
+      // Only allow downward movement
+      if (event.translationY > 0) {
+        translateY.value = context.value.y + event.translationY;
+        // Add opacity fade as user drags down
+        const progress = Math.min(event.translationY / (screenHeight * 0.5), 1);
+        opacity.value = 1 - progress * 0.3;
+      }
+    })
+    .onEnd((event) => {
+      const shouldClose = event.translationY > screenHeight * 0.25 || event.velocityY > 500;
+      
+      if (shouldClose) {
+        // Close immediately to prevent white screen flash
+        runOnJS(closePlayer)();
+      } else {
+        // Snap back to original position
+        translateY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 90,
+        });
+        opacity.value = withSpring(1, {
+          damping: 20,
+          stiffness: 90,
+        });
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+      opacity: opacity.value,
+    };
+  });
 
   // Create spinning animation
   useEffect(() => {
-    let spinAnimation: Animated.CompositeAnimation;
+    let spinAnimation: RNAnimated.CompositeAnimation;
     
     if (isLoading) {
       // Start continuous spinning animation
-      spinAnimation = Animated.loop(
-        Animated.timing(spinValue, {
+      spinAnimation = RNAnimated.loop(
+        RNAnimated.timing(spinValue, {
           toValue: 1,
           duration: 1000, // 1 second per rotation
           useNativeDriver: true,
@@ -139,16 +191,18 @@ export default function Player() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white ">
-      {/* Header with subtle blur background */}
-      <View className="relative">
-        <Pressable
-          onPress={() => router.back()}
-          className="absolute top-12 right-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
-        >
-          <EvilIcons name="chevron-down" size={34} color="#4F46E5" />
-        </Pressable>
-      </View>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+        <SafeAreaView className="flex-1 bg-white ">
+          {/* Header with subtle blur background */}
+          <View className="relative">
+            <Pressable
+              onPress={() => router.back()}
+              className="absolute top-12 right-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
+            >
+              <EvilIcons name="chevron-down" size={34} color="#4F46E5" />
+            </Pressable>
+          </View>
 
       <View className="flex-1 justify-between px-6 pb-8">
         {/* Album Art Section */}
@@ -219,13 +273,13 @@ export default function Player() {
             onPress={onPlayPause}
           >
             {isLoading ? (
-              <Animated.View style={{ transform: [{ rotate: spin }] }}>
+              <RNAnimated.View style={{ transform: [{ rotate: spin }] }}>
                 <AntDesign
                   name="loading1"
                   size={32}
                   color="#1C1C1E"
                 />
-              </Animated.View>
+              </RNAnimated.View>
             ) : (
               <AntDesign
                 name={isPlaying ? 'pause' : 'play'}
@@ -277,7 +331,9 @@ export default function Player() {
             />
           </Pressable>
         </View>
-      </View>
-    </SafeAreaView>
+          </View>
+        </SafeAreaView>
+      </Animated.View>
+    </GestureDetector>
   );
 }
