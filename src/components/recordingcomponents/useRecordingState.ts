@@ -11,30 +11,47 @@ export const useRecordingState = () => {
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [selectedRecording, setSelectedRecording] = useState<Recording | null>(null);
 
-  const scrollViewRef = useRef<ScrollView>(null);
-  const metadataFormRef = useRef<View>(null);
+  const scrollViewRef = useRef<ScrollView | null>(null);
+  const metadataFormRef = useRef<View | null>(null);
 
   const resetForm = () => {
+    console.log('🔄 [PERF] resetForm: START');
+    const startTime = Date.now();
     setPodcastTitle('');
     setPodcastDescription('');
     setPodcastImage(null);
     setCategory('');
     setSelectedRecording(null);
     setShowMetadataForm(false);
+    console.log(' [PERF] resetForm: COMPLETE in', Date.now() - startTime, 'ms');
   };
 
   const selectRecordingForPublish = (recording: Recording) => {
+    console.log(' [PERF] selectRecordingForPublish: START');
+    const startTime = Date.now();
+    console.log(' [PERF] Setting selected recording:', recording.id);
     setSelectedRecording(recording);
+    console.log(' [PERF] Setting show metadata form to true');
     setShowMetadataForm(true);
-    setPodcastTitle(recording.title);
     
+    // Scroll to metadata form after a brief delay
+    console.log(' [PERF] Setting up scroll timeout...');
     setTimeout(() => {
-      metadataFormRef.current?.measureInWindow((x, y) => {
-        scrollViewRef.current?.scrollTo({
-          y: y - 100, 
-          animated: true
-        });
-      });
+      console.log(' [PERF] Scroll timeout triggered');
+      if (metadataFormRef.current && scrollViewRef.current) {
+        console.log(' [PERF] Measuring layout for scroll...');
+        metadataFormRef.current.measureLayout(
+          scrollViewRef.current as any,
+          (x, y) => {
+            console.log(' [PERF] Scrolling to position:', y - 50);
+            scrollViewRef.current?.scrollTo({ y: y - 50, animated: true });
+          },
+          () => console.warn(' [PERF] Failed to measure layout')
+        );
+      } else {
+        console.log(' [PERF] Refs not available for scrolling');
+      }
+      console.log(' [PERF] selectRecordingForPublish: COMPLETE in', Date.now() - startTime, 'ms');
     }, 100);
   };
 

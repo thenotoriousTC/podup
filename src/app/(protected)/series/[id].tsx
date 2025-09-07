@@ -34,7 +34,7 @@ export default function SeriesDetailScreen() {
     userId: user?.id,
     seriesId: id,
   });
-      const { getSeriesById } = usePodcasts('');
+  const { getSeriesById } = usePodcasts('');
   const [series, setSeries] = useState<SeriesWithEpisodes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,12 +56,18 @@ export default function SeriesDetailScreen() {
     const fetchSeries = async () => {
       if (!id) return;
       setIsLoading(true);
-      const seriesData = await getSeriesById(id);
-      setSeries(seriesData);
-      setIsLoading(false);
+      try {
+        const seriesData = await getSeriesById(id);
+        setSeries(seriesData);
+      } catch (error) {
+        console.error('Failed to fetch series:', error);
+        // Consider showing an error state to the user
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchSeries();
-  }, [id]);
+  }, [id,getSeriesById]);
 
   const isFollowing = followStatus ? followStatus[id] : false;
 
@@ -88,7 +94,6 @@ export default function SeriesDetailScreen() {
           {user?.id === series.creator_id ? (
             <TouchableOpacity 
               style={styles.addEpisodesButton}
-              className='bg-indigo-600'
               onPress={() => router.push(`/creator/manage-series-episodes/${id}`)} >
               <StyledText style={styles.addEpisodesButtonText}>إضافة حلقات</StyledText>
             </TouchableOpacity>
@@ -195,6 +200,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
+    backgroundColor: '#4F46E5', // indigo-600
   },
   addEpisodesButtonText: {
     color: '#fff',

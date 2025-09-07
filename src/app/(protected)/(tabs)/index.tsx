@@ -1,11 +1,32 @@
-import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PodcastListItem from '../../../components/bookListItem';
 import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
+import { useAuth } from '@/providers/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { User } from '@supabase/supabase-js';
 
+interface LibraryItem {
+  id: string;
+  user_id: string;
+  podcast: {
+    id: string;
+    title: string;
+    author: string;
+    description: string | null;
+    image_url: string | null;
+    audio_url: string;
+    category: string | null;
+    user_id: string;
+    created_at: string | null;
+    updated_at: string | null;
+    series_id: string | null;
+    duration: number | null;
+    local_audio_url: string | null;
+    thumbnail_url: string | null;
+    view_count: number | null;
+  };
+}
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -21,7 +42,7 @@ export default function App() {
     };
     fetchUser();
   }, []);
-  const {data,isLoading,error}=useQuery({
+  const {data,isLoading,error}=useQuery<LibraryItem[] | null>({
     queryKey :['my-library', currentUser?.id],
     queryFn:async()=> {
       if (!currentUser?.id) return null; // Or throw an error, or return empty array
@@ -45,6 +66,13 @@ export default function App() {
     keyExtractor={(item) => item.id}
     className='w-full'
     contentContainerStyle={{gap: 16}}
+    ListEmptyComponent={
+      <View className='flex-1 items-center justify-center p-8 mt-36'>
+        <Text className='text-gray-500 text-center text-2xl'>مكتبتك فارغة</Text>
+        <Text className='text-indigo-600 text-center mt-2 text-lg'>ابدأ بإضافة بعض البودكاست المفضلة لديك</Text>
+      
+      </View>
+    }
     />
     </View>
   );

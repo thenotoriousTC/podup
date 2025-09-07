@@ -1,15 +1,18 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 
 type Podcast = Database['public']['Tables']['podcasts']['Row'];
 export type Series = Database['public']['Tables']['series']['Row'];
 
+// Series with episode count for discovery
+export type SeriesWithCount = Series & { episode_count: number };
+
 // A new type for the Discover page content
 export type DiscoverContent =
   | { type: 'podcasts'; title: string; data: Podcast[] }
-  | { type: 'series'; title: string; data: (Series & { episode_count: number })[] };
+  | { type: 'series'; title: string; data: SeriesWithCount[] };
 
 // A new type for a series with its episodes
 export type SeriesWithEpisodes = Series & {
@@ -37,12 +40,36 @@ export const usePodcasts = (searchQuery: string) => {
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['discover_content'], // New query key
+    queryKey: ['discover_content', searchQuery.trim()], // Include search query in cache key
     queryFn: async () => {
-      // Fetch series and podcasts in parallel
+      const trimmedQuery = searchQuery.trim();
+      
+      // Define column selections to avoid select('*')
+      const seriesColumns = 'id, title, description, cover_art_url, created_at, creator_id';
+      const podcastColumns = 'id, title, description, author, category, audio_url, image_url, thumbnail_url, duration, view_count, series_id, created_at, user_id, local_audio_url, updated_at';
+      
+      let seriesQuery = supabase
+        .from('series')
+        .select(seriesColumns)
+        .order('created_at', { ascending: false })
+        .limit(50); // Add pagination limit
+        
+      let podcastQuery = supabase
+        .from('podcasts')
+        .select(podcastColumns)
+        .order('created_at', { ascending: false })
+        .limit(100); // Add pagination limit
+      
+      // Apply server-side filtering if search query exists
+      if (trimmedQuery) {
+        seriesQuery = seriesQuery.or(`title.ilike.%${trimmedQuery}%,description.ilike.%${trimmedQuery}%`);
+        podcastQuery = podcastQuery.or(`title.ilike.%${trimmedQuery}%,description.ilike.%${trimmedQuery}%,author.ilike.%${trimmedQuery}%`);
+      }
+      
+      // Execute queries in parallel
       const [seriesRes, podcastsRes] = await Promise.all([
-        supabase.from('series').select('*').order('created_at', { ascending: false }),
-        supabase.from('podcasts').select('*').order('created_at', { ascending: false }),
+        seriesQuery,
+        podcastQuery,
       ]);
 
       if (seriesRes.error) throw seriesRes.error;
@@ -68,7 +95,10 @@ export const usePodcasts = (searchQuery: string) => {
           episode_count: episodeCounts[s.id] || 0
       }));
 
-      return { series: seriesWithCount, podcasts: standalonePodcasts };
+      return { 
+        series: seriesWithCount as SeriesWithCount[], 
+        podcasts: standalonePodcasts as Podcast[] 
+      };
     },
     staleTime: 300000, // 5 minutes
   });
@@ -76,21 +106,9 @@ export const usePodcasts = (searchQuery: string) => {
   const discoverContent = useMemo((): DiscoverContent[] => {
     if (!data) return [];
 
-    let { series, podcasts } = data;
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-        const lowercasedQuery = searchQuery.toLowerCase();
-        series = series.filter(s => 
-            s.title?.toLowerCase().includes(lowercasedQuery) ||
-            s.description?.toLowerCase().includes(lowercasedQuery)
-        );
-        podcasts = podcasts.filter(p => 
-            p.title?.toLowerCase().includes(lowercasedQuery) ||
-            p.description?.toLowerCase().includes(lowercasedQuery) ||
-            p.author?.toLowerCase().includes(lowercasedQuery)
-        );
-    }
+    const { series, podcasts } = data;
+    
+    // No client-side filtering needed since server-side filtering is now applied
 
     const content: DiscoverContent[] = [];
 
@@ -123,7 +141,7 @@ export const usePodcasts = (searchQuery: string) => {
   }, [data, searchQuery]);
 
   // Function to get a single series by ID with its episodes
-  const getSeriesById = async (id: string): Promise<SeriesWithEpisodes | null> => {
+  const getSeriesById = useCallback(async (id: string): Promise<SeriesWithEpisodes | null> => {
     if (!id) return null;
 
     const { data: seriesData, error: seriesError } = await supabase
@@ -153,13 +171,13 @@ export const usePodcasts = (searchQuery: string) => {
         episodes: episodesData || [],
         episode_count: episodesData?.length || 0,
     };
-  };
+  }, []);
 
   const refreshDiscoverContent = () => {
     queryClient.invalidateQueries({ queryKey: ['discover_content'] });
   };
 
-  const getSeriesByCreatorId = async (creatorId: string): Promise<(Series & { episode_count: number })[]> => {
+  const getSeriesByCreatorId = useCallback(async (creatorId: string): Promise<(Series & { episode_count: number })[]> => {
     if (!creatorId || creatorId === 'create-series') return [];
 
     const { data: seriesData, error: seriesError } = await supabase
@@ -194,9 +212,9 @@ export const usePodcasts = (searchQuery: string) => {
     );
 
     return seriesWithCount;
-  };
+  }, []);
 
-  const getStandalonePodcastsByCreator = async (creatorId: string): Promise<Podcast[]> => {
+  const getStandalonePodcastsByCreator = useCallback(async (creatorId: string): Promise<Podcast[]> => {
     if (!creatorId || creatorId === 'create-series') return [];
 
     const { data, error } = await supabase
@@ -212,7 +230,7 @@ export const usePodcasts = (searchQuery: string) => {
     }
 
     return data || [];
-  };
+  }, []);
 
   return {
     discoverContent,

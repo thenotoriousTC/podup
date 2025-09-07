@@ -18,7 +18,7 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
   const podcastIds = useMemo(() => {
     return content
       .filter((item) => item.type === 'podcasts')
-      .flatMap((item) => (item.data as any[]).map((podcast) => podcast.id));
+      .flatMap((item) => item.data.map((podcast: { id: string }) => podcast.id));
   }, [content]);
 
   const { libraryStatus, isLoading: isLibraryStatusLoading } = useLibraryStatus(
@@ -27,8 +27,18 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
   );
 
   const libraryMutation = useLibraryMutation();
+  
+  console.log('🏗️ DiscoverContent render:', {
+    contentLength: content.length,
+    podcastIds: podcastIds.length,
+    currentUserId: currentUser?.id,
+    isLibraryStatusLoading,
+    libraryStatusKeys: libraryStatus ? Object.keys(libraryStatus) : 'null',
+    mutationPending: libraryMutation.isPending
+  });
 
   const renderItem = ({ item }: { item: DiscoverContentType }) => {
+    console.log('🔍 DiscoverContent renderItem:', { type: item.type, title: item.title, dataLength: item.data?.length });
     if (item.type === 'series') {
       return (
         <View style={styles.sectionContainer}>
@@ -60,12 +70,32 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
             data={item.data}
             renderItem={({ item: podcast }) => {
               const isInLibrary = libraryStatus ? libraryStatus[podcast.id] : false;
+              console.log('📱 Podcast render:', { 
+                podcastId: podcast.id, 
+                podcastTitle: podcast.title,
+                isInLibrary, 
+                libraryStatus: libraryStatus ? Object.keys(libraryStatus).length : 'null',
+                currentUserId: currentUser?.id 
+              });
+              
               const onToggleLibrary = () => {
-                if (!currentUser) return;
+                console.log('❤️ Heart pressed:', { 
+                  podcastId: podcast.id, 
+                  userId: currentUser?.id, 
+                  currentIsInLibrary: isInLibrary,
+                  willBeInLibrary: !isInLibrary,
+                  mutationPending: libraryMutation.isPending
+                });
+                
+                if (!currentUser) {
+                  console.log('❌ No current user for heart press');
+                  return;
+                }
+                
                 libraryMutation.mutate({
                   podcastId: podcast.id,
                   userId: currentUser.id,
-                  isInLibrary,
+                  isInLibrary: isInLibrary, // Pass current state, mutation will handle the logic
                 });
               };
 

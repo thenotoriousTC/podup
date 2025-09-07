@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
-import { View, ScrollView, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Alert, ActivityIndicator, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/providers/AuthProvider';
 import { StyledText } from '@/components/StyledText';
-import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Import new hooks
 import { useRecordingState } from '@/components/recordingcomponents/useRecordingState';
@@ -47,6 +48,7 @@ export default function RecordingScreen() {
     stopRecording,
     playRecording,
     deleteRecording,
+    requestPermission,
   } = useAudioRecording(currentUser);
 
   // Upload management hook
@@ -58,20 +60,44 @@ export default function RecordingScreen() {
 
   // Initial data loading
   useEffect(() => {
+    console.log('🚀 [PERF] Initial useEffect triggered, currentUser:', !!currentUser?.id);
     if (currentUser?.id) {
+      console.log('🚀 [PERF] Loading initial recordings...');
       loadSavedRecordings();
     }
   }, [currentUser]);
 
+  // Refresh recordings when tab becomes focused
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🎯 [PERF] useFocusEffect triggered for recording tab');
+      if (currentUser?.id) {
+        console.log('🎯 [PERF] Loading recordings on focus...');
+        loadSavedRecordings();
+      } else {
+        console.log('🎯 [PERF] No user, skipping recordings load');
+      }
+    }, [currentUser?.id])
+  );
+
   const handleStopRecording = async () => {
-    const newRecording = await stopRecording();
-    if (newRecording) {
-      Alert.alert(
-        "تم الحفظ",
-        "تم حفظ التسجيل. يمكنك الآن نشره.",
-        [{ text: "OK" }]
-      );
-      selectRecordingForPublish(newRecording);
+    console.log('🛑 [PERF] handleStopRecording: START');
+    const startTime = Date.now();
+    try {
+      console.log('🛑 [PERF] Calling stopRecording...');
+      const newRecording = await stopRecording();
+      console.log('🛑 [PERF] stopRecording returned:', !!newRecording);
+      if (newRecording) {
+        console.log('🛑 [PERF] Selecting recording for publish...');
+        selectRecordingForPublish(newRecording);
+        console.log('🛑 [PERF] Showing success alert...');
+        Alert.alert("تم الحفظ", "تم حفظ التسجيل. يمكنك الآن نشره.", [{ text: "حسنًا" }]);
+      }
+      console.log('✅ [PERF] handleStopRecording: COMPLETE in', Date.now() - startTime, 'ms');
+    } catch (error) {
+      console.error('❌ [PERF] handleStopRecording error:', error);
+      console.log('❌ [PERF] handleStopRecording: FAILED in', Date.now() - startTime, 'ms');
+      Alert.alert("فشل الإيقاف", "تعذّر إيقاف التسجيل. حاول مجددًا.");
     }
   };
 
@@ -101,18 +127,25 @@ export default function RecordingScreen() {
   };
 
   const handlePublish = () => {
+    if (!selectedRecording) {
+      Alert.alert("لا يوجد تسجيل", "يرجى اختيار تسجيل للنشر.", [{ text: "حسنًا" }]);
+      return;
+    }
     publishRecording({
       podcastTitle,
       podcastDescription,
       podcastImage,
       category,
       selectedRecording,
-    }, () => {
+    }, async () => {
       // On successful upload, delete the local file and reset the form
-      if (selectedRecording) {
-        deleteRecording(selectedRecording.id);
+      try {
+        await deleteRecording(selectedRecording.id);
+      } catch {
+        Alert.alert("تعذّر الحذف محليًا", "تم النشر بنجاح لكن تعذّر حذف الملف من جهازك.");
+      } finally {
+        resetForm();
       }
-      resetForm();
     });
   };
 
@@ -123,6 +156,37 @@ export default function RecordingScreen() {
         <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
           يرجى تسجيل الدخول لتسجيل الصوت
         </StyledText>
+      </View>
+    );
+  }
+
+  if (hasPermission === false) {
+    return (
+      <View className="flex-1 bg-slate-50 justify-center items-center p-6">
+        <Ionicons name="mic-off" size={64} color="#EF4444" />
+        <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
+          نحتاج إلى الوصول للميكروفون
+        </StyledText>
+        <StyledText className="text-base text-gray-600 mb-6 text-center">
+          يرجى السماح بالوصول إلى الميكروفون لتتمكن من تسجيل الصوت
+        </StyledText>
+        <TouchableOpacity 
+          className="bg-indigo-600 px-6 py-3 rounded-lg"
+          onPress={async () => {
+            const granted = await requestPermission();
+            if (!granted) {
+              Alert.alert(
+                "الإذن مرفوض", 
+                "يرجى الذهاب إلى الإعدادات والسماح بالوصول للميكروفون.",
+                [{ text: "حسنًا" }]
+              );
+            }
+          }}
+        >
+          <StyledText className="text-white text-base font-semibold">
+            السماح بالوصول
+          </StyledText>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -138,19 +202,6 @@ export default function RecordingScreen() {
     );
   }
 
-  if (hasPermission === false) {
-    return (
-      <View className="flex-1 bg-slate-50 justify-center items-center">
-        <Ionicons name="mic-off" size={64} color="#FF3B30" />
-        <StyledText className="text-xl font-semibold text-red-500 mt-4 mb-2 text-center">
-          تم رفض إذن الميكروفون
-        </StyledText>
-        <StyledText className="text-base text-gray-600 text-center max-w-[80%]">
-          يرجى تفعيل الوصول إلى الميكروفون في إعدادات جهازك.
-        </StyledText>
-      </View>
-    );
-  }
 
   return (
     <KeyboardAvoidingView behavior={'height'} className="flex-1">

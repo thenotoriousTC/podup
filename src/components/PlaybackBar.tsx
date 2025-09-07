@@ -25,11 +25,11 @@ export default function PlaybackBar({ currentTime, duration, onSeek }: PlaybackB
     const [barWidth, setBarWidth] = useState(0);
 
     function onHandleSeek(event: GestureResponderEvent) {
-        if (!onSeek || barWidth <= 0 || duration <= 0) return;
+        if (!onSeek || barWidth <= 0 || dur <= 0) return;
         const { locationX } = event.nativeEvent;
         const clampedX = Math.min(Math.max(locationX, 0), barWidth);
-        const t = (clampedX / barWidth) * duration;
-        const clampedT = Math.min(Math.max(t, 0), duration);
+        const t = (clampedX / barWidth) * dur;
+        const clampedT = Math.min(Math.max(t, 0), dur);
         onSeek(clampedT);
     }
 
@@ -46,16 +46,17 @@ export default function PlaybackBar({ currentTime, duration, onSeek }: PlaybackB
                     style={{ width: `${progress * 100}%` }}
                 />
                 <View
-                    className='absolute w-4 h-4 -translate-x-1/2 rounded-full bg-indigo-400'
+                    pointerEvents='none'
+                    className='absolute w-4 h-4 -translate-x-1/2 top-1/2 -translate-y-1/2 rounded-full bg-indigo-400'
                     style={{ left: `${progress * 100}%` }}
                 />
             </Pressable>
             <View className='flex-row justify-between mt-2'>
                 <StyledText className='text-xs text-gray-500 mt-1'>
-                    {formatTime(currentTime)} 
+                    {formatTime(clampedCurrent)} 
                 </StyledText>
                 <StyledText className='text-xs text-gray-500'>
-                    {formatTime(duration)}
+                    {formatTime(dur)}
                 </StyledText>
             </View>
         </View>

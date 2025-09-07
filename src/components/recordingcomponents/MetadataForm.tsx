@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, Image, Pressable, ActivityIndicator } from 'react-native';
+import { View, TextInput, TouchableOpacity, Image, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { StyledText } from '@/components/StyledText';
@@ -27,15 +27,20 @@ const MetadataForm: React.FC<MetadataFormProps> = ({
 }) => {
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
 
-    if (!result.canceled && result.assets[0].uri) {
-      setPodcastImage(result.assets[0].uri);
+      if (!result.canceled && result.assets?.[0]?.uri) {
+        setPodcastImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Image picker error:', error);
+      Alert.alert('خطأ في اختيار الصورة', 'تعذر اختيار الصورة. يرجى المحاولة مرة أخرى.');
     }
   };
 

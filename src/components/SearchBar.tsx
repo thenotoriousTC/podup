@@ -33,7 +33,7 @@ export const SearchBar = ({ searchQuery, onSearchChange, resultsCount, onClear }
             color="#4F46E5" 
             className="ml-3"
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 && onClear && (
             <TouchableOpacity 
               onPress={onClear}
               className="ml-2 p-1"

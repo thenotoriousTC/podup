@@ -75,7 +75,7 @@ export const usePodcastUpload = () => {
 
     try {
       if (props.image) {
-        setUploadProgress({ phase: 'image', percentage: 0, message: 'تم تحميل صورة الغلاف!' });
+        setUploadProgress({ phase: 'image', percentage: 0, message: 'جاري تحميل صورة الغلاف...' });
         const imageInfo = await FileSystem.getInfoAsync(props.image);
         const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
         if (imageInfo.exists && 'size' in imageInfo && imageInfo.size > MAX_IMAGE_SIZE) {
@@ -156,7 +156,11 @@ export const usePodcastUpload = () => {
       Alert.alert('فشل في التحميل', error.message);
       const filesToRemove = [tempImagePath, tempAudioPath].filter(Boolean) as string[];
       if (filesToRemove.length > 0) {
-        await supabase.storage.from('podcasts').remove(filesToRemove);
+        try {
+          await supabase.storage.from('podcasts').remove(filesToRemove);
+        } catch (cleanupError) {
+          console.error('Failed to cleanup temporary files:', cleanupError);
+        }
       }
     } finally {
       setIsUploading(false);

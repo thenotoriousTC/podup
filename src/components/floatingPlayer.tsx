@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { Image, Pressable, View, Animated, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
@@ -91,7 +90,6 @@ export default function FloatingPlayer() {
             <StyledText style={styles.authorText}>{podcast.author}</StyledText>
             <StyledText style={styles.titleText} numberOfLines={1}>{podcast.title}</StyledText>
           </View>
-          <StatusBar style="auto" />
         </Pressable>
       </Link>
       

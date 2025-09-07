@@ -27,13 +27,10 @@ const SuggestionModal = ({ visible, onClose }: SuggestionModalProps) => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('suggestions').insert([
-        { content: suggestion, user_id: session.user.id },
-      ]);
-
-      if (error) {
-        throw error;
-      }
+      await supabase
+        .from('suggestions')
+        .insert({ content: suggestion })
+        .throwOnError();
 
       Alert.alert('شكراً لك!', 'تم إرسال اقتراحك بنجاح.');
       setSuggestion('');
@@ -51,7 +48,7 @@ const SuggestionModal = ({ visible, onClose }: SuggestionModalProps) => {
       animationType="slide"
       transparent={true}
       visible={visible}
-      onRequestClose={onClose}
+      onRequestClose={() => { if (!loading) onClose(); }}
     >
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
         <View style={{ width: '80%', backgroundColor: 'white', borderRadius: 10, padding: 20, alignItems: 'center' }}>
@@ -84,7 +81,7 @@ const SuggestionModal = ({ visible, onClose }: SuggestionModalProps) => {
                 <StyledText style={{ color: 'white' }}>إرسال</StyledText>
             )}
           </TouchableOpacity>
-          <TouchableOpacity onPress={onClose} style={{ marginTop: 10 }}>
+          <TouchableOpacity onPress={!loading ? onClose : undefined} disabled={loading} style={{ marginTop: 10 }}>
             <StyledText style={{ color: 'gray' }}>إغلاق</StyledText>
           </TouchableOpacity>
         </View>

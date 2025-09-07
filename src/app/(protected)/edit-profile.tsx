@@ -11,7 +11,8 @@ import { StyledText } from '@/components/StyledText';
 import { useAuth } from '@/providers/AuthProvider';
 
 const EditProfileScreen = () => {
-  const { user: currentUser } = useAuth();
+  const auth = useAuth();
+  const currentUser = auth?.user;
   const [profile, setProfile] = useState<any>(null);
   const [fullName, setFullName] = useState('');
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
@@ -89,6 +90,9 @@ const EditProfileScreen = () => {
       
       if (isNewImage) {
         // Call edge function to handle old image deletion and new upload
+        if (!avatarImage) {
+         throw new Error('No avatar image provided');
+        }
         const imageData = await FileSystem.readAsStringAsync(avatarImage!, {
           encoding: FileSystem.EncodingType.Base64,
         });
@@ -125,9 +129,10 @@ const EditProfileScreen = () => {
         { text: 'موافق', onPress: () => router.back() }
       ]);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating profile:', error);
-      Alert.alert('فشل التحديث', error.message || 'حدث خطأ غير متوقع.');
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
+      Alert.alert('فشل التحديث', errorMessage);
     } finally {
       setIsSaving(false);
     }

@@ -1,8 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import { Image, TouchableOpacity, Alert, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
-import { supabase } from '@/lib/supabase';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/providers/AuthProvider';
@@ -34,6 +32,10 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
 
   const onPlayPausePress = () => {
     if (!isCurrentTrack) {
+      if (!podcast.audio_url) {
+        Alert.alert('لا يمكن التشغيل', 'لا يتوفر رابط صوت لهذا المحتوى.');
+        return;
+      }
       playTrack(podcast);
     } else {
       togglePlayback();
@@ -41,10 +43,27 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
   };
 
   const onHeartPress = () => {
+    console.log('💖 DiscoveryPodcastListItem onHeartPress:', {
+      podcastId: podcast.id,
+      podcastTitle: podcast.title,
+      isInLibrary,
+      isTogglingLibrary,
+      currentUserId: currentUser?.id,
+      onToggleLibraryExists: typeof onToggleLibrary === 'function'
+    });
+    
+    if (isTogglingLibrary) {
+      console.log('⏳ Library toggle already in progress, ignoring press');
+      return;
+    }
+    
     if (!currentUser) {
+      console.log('❌ No current user, showing alert');
       Alert.alert('الرجاء تسجيل الدخول لحفظ المحتوى.');
       return;
     }
+    
+    console.log('✅ Calling onToggleLibrary');
     onToggleLibrary();
   };
 
@@ -71,12 +90,12 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
             onPress={onHeartPress}
             activeOpacity={0.7}
             className="p-2"
+            disabled={isTogglingLibrary}
           >
             <Ionicons
               name={isInLibrary ? 'heart' : 'heart-outline'}
               size={28}
               color={isInLibrary ? '#FF453A' : '#8E8E93'}
-              disabled={isTogglingLibrary}
             />
           </TouchableOpacity>
 
@@ -85,6 +104,7 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
             onPress={onPlayPausePress}
             activeOpacity={0.7}
             className="p-2"
+            disabled={!podcast.audio_url}
           >
             <Ionicons
               name={isPlaying ? 'pause-circle' : 'play-circle'}
@@ -108,7 +128,6 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
           className="w-16 h-16 rounded-lg"
         />
 
-        <StatusBar style="auto" />
       </TouchableOpacity>
   );
 }

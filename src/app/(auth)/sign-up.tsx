@@ -78,14 +78,14 @@ export default function SignUpScreen() {
             </StyledText>
             <View className='gap-4'>
               <View>
-                <StyledText className='text-sm font-medium  mb-1 text-right'>
+                <StyledText className='text-sm font-medium  mb-1 text-right dark:text-indigo-600 text-indigo-600'>
                   البريد الإلكتروني
                 </StyledText>
                 <TextInput
                   className='w-full p-4  bg-gray-100 text-black rounded-full text-right '
                   autoCapitalize='none'
                   value={emailAddress}
-                  placeholder='البريد الإلكتروني'
+                  placeholder='example@gmail.com'
                   placeholderTextColor='#9CA3AF'
                   onChangeText={setEmailAddress}
                   keyboardType="email-address"
@@ -95,7 +95,7 @@ export default function SignUpScreen() {
               </View>
 
               <View>
-                <StyledText className='text-sm font-medium  mb-1 text-right'>
+                <StyledText className='text-sm font-medium  mb-1 text-right dark:text-indigo-600 text-indigo-600'>
                     كلمة المرور
                 </StyledText>
                 <TextInput

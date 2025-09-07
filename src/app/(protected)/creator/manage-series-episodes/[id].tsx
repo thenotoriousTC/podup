@@ -12,7 +12,8 @@ import DiscoveryPodcastListItem from '@/components/discoveryBookListItem';
 type Podcast = Database['public']['Tables']['podcasts']['Row'];
 
 export default function AddEpisodesScreen() {
-  const { id: seriesId } = useLocalSearchParams<{ id: string }>();
+  const { id: rawSeriesId } = useLocalSearchParams();
+  const seriesId = Array.isArray(rawSeriesId) ? rawSeriesId[0] : (rawSeriesId as string | undefined);
   const { user } = useAuth();
   const { getStandalonePodcastsByCreator, refreshPodcasts } = usePodcasts('');
   const router = useRouter();
@@ -46,18 +47,27 @@ export default function AddEpisodesScreen() {
       Alert.alert('لم تختر اي محتوى', 'يرجى اختيار محتوى لإضافته');
       return;
     }
+    if (!seriesId) {
+      Alert.alert('خطأ', 'لا يمكن تحديد السلسلة.');
+      return;
+    }
+    if (!user?.id) {
+      Alert.alert('خطأ', 'يجب تسجيل الدخول للمتابعة.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from('podcasts')
         .update({ series_id: seriesId })
-        .in('id', selectedPodcasts);
+        .in('id', selectedPodcasts)
+        .eq('user_id', user!.id);
 
       if (error) throw error;
 
       Alert.alert('تم', 'تم إضافة المحتوى بنجاح');
-      refreshPodcasts(); // Invalidate cache to reflect changes
+      await refreshPodcasts(); // Invalidate cache to reflect changes
       router.dismissAll();
     } catch (error: any) {
       console.error('Error adding episodes:', error);

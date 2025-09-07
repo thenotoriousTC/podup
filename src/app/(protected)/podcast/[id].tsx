@@ -2,6 +2,7 @@ import { View, Image, TouchableOpacity, ScrollView, ActivityIndicator, StyleShee
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePlayer } from '@/providers/playerprovider';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
@@ -130,14 +131,29 @@ const PodcastDetail = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+      {/* Back Button */}
+      <TouchableOpacity 
+        onPress={() => router.back()}
+        className="absolute top-12 left-4 z-10 bg-white/80 backdrop-blur-sm rounded-full p-2"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+          elevation: 3
+        }}
+      >
+        <Ionicons name="chevron-back" size={24} color="#374151" />
+      </TouchableOpacity>
+
       <ScrollView
         className="bg-gray-50"
         contentContainerStyle={{ paddingBottom: 120 }}
@@ -232,7 +248,7 @@ const PodcastDetail = () => {
           
         </View>
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 };
 

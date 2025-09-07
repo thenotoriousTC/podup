@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
@@ -15,10 +14,18 @@ export default function DiscoverScreen() {
   // Auto-refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log('DiscoverScreen focused - refreshing podcasts');
+      console.log(' DiscoverScreen focused - refreshing podcasts');
       refreshPodcasts();
     }, [refreshPodcasts])
   );
+
+  console.log(' DiscoverScreen render:', {
+    searchQuery,
+    discoverContentLength: discoverContent?.length,
+    isLoading,
+    error: error?.message,
+    totalResults
+  });
 
   const handleClearSearch = () => {
     setSearchQuery('');
@@ -34,7 +41,6 @@ export default function DiscoverScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <StatusBar style="auto" />
       
       <SearchBar
         searchQuery={searchQuery}

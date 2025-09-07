@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { Image, TouchableOpacity, View, Text, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
@@ -122,10 +121,14 @@ export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp 
                     {
                         text: 'Delete',
                         onPress: async () => {
-                            const fileUri = FileSystem.documentDirectory + `${podcast.id}.mp3`;
+                            const sanitizedId = podcast.id.replace(/[^a-zA-Z0-9-_]/g, '_');
+                            const fileUri = FileSystem.documentDirectory + `${sanitizedId}.mp3`;
                             try {
                                 // 1. Delete the local file
-                                await FileSystem.deleteAsync(fileUri);
+                                const fileInfo = await FileSystem.getInfoAsync(fileUri);
+                                if (fileInfo.exists) {
+                                    await FileSystem.deleteAsync(fileUri);
+                                }
 
                                 // 2. Remove from AsyncStorage
                                 const downloadedPodcastsRaw = await AsyncStorage.getItem(DOWNLOADED_PODCASTS_KEY);
@@ -153,9 +156,12 @@ export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp 
         if (isDownloading) return;
 
         setIsDownloading(true);
-        const fileUri = FileSystem.documentDirectory + `${podcast.id}.mp3`;
-
+        const sanitizedId = podcast.id.replace(/[^a-zA-Z0-9-_]/g, '_');
+        const fileUri = FileSystem.documentDirectory + `${sanitizedId}.mp3`;
         try {
+            if (!podcast.audio_url || !podcast.audio_url.startsWith('http')) {
+                throw new Error('Invalid audio URL');
+            }
             const { uri } = await FileSystem.downloadAsync(podcast.audio_url, fileUri);
             console.log('Finished downloading to ', uri);
 
@@ -270,7 +276,6 @@ export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp 
                     className="w-16 h-16 rounded-lg"
                 />
 
-                <StatusBar style="auto" />
             </View>
         </TouchableOpacity>
     );

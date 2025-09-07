@@ -21,13 +21,21 @@ export const PlaybackService = async function() {
   });
 
   // Handle remote next track event
-  TrackPlayer.addEventListener(Event.RemoteNext, () => {
-    TrackPlayer.skipToNext();
+  TrackPlayer.addEventListener(Event.RemoteNext, async () => {
+    try {
+      await TrackPlayer.skipToNext();
+    } catch (e) {
+      console.warn('skipToNext failed (likely end of queue):', e);
+    }
   });
 
   // Handle remote previous track event
-  TrackPlayer.addEventListener(Event.RemotePrevious, () => {
-    TrackPlayer.skipToPrevious();
+  TrackPlayer.addEventListener(Event.RemotePrevious, async () => {
+    try {
+      await TrackPlayer.skipToPrevious();
+    } catch (e) {
+      console.warn('skipToPrevious failed (likely start of queue):', e);
+    }
   });
 
   // Handle remote seek event

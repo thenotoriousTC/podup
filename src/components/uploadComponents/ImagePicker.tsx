@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Pressable, Image, Alert } from 'react-native';
+import { View, Image, Pressable, Alert, Linking } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
-import { StyledText } from '@/components/StyledText';
+import { StyledText } from '../StyledText';
 
 interface ImagePickerProps {
   image: string | null;
@@ -14,9 +14,23 @@ const ImagePickerComponent: React.FC<ImagePickerProps> = ({ image, onSetImage, d
 
   const pickImage = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const initial = await ImagePicker.getMediaLibraryPermissionsAsync();
+      let status = initial.status;
+      
       if (status !== 'granted') {
-        Alert.alert('Permission needed', 'يرجى الموافقة على إذن الوصول إلى مكتبة الصور.');
+        const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        status = req.status;
+      }
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          'بحاجة إلى الإذن',
+          'يرجى منح إذن الوصول إلى مكتبة الصور لاختيار صورة.',
+          [
+            { text: 'فتح الإعدادات', onPress: () => Linking.openSettings() },
+            { text: 'إلغاء', style: 'cancel' },
+          ]
+        );
         return;
       }
 

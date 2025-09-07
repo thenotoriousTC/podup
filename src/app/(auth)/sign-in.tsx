@@ -108,14 +108,14 @@ export default function Page() {
 
             <View className='gap-4'>
               <View>
-                <StyledText className='text-sm font-semibold mb-1 text-right'>
+                <StyledText className='text-sm font-semibold mb-1 text-right  text-indigo-600'>
                   البريد الإلكتروني
                 </StyledText>
                 <TextInput
                   className='w-full p-4 bg-gray-100 rounded-full text-black text-right'
                   autoCapitalize='none'
                   value={emailAddress}
-                  placeholder='البريد الإلكتروني'
+                  placeholder='example@gmail.com'
                   placeholderTextColor='#9CA3AF'
                   onChangeText={setEmailAddress}
                   keyboardType="email-address"
@@ -125,13 +125,13 @@ export default function Page() {
               </View>
 
               <View>
-                <StyledText className='text-sm font-semibold mb-1 text-right'>
+                <StyledText className='text-sm font-semibold mb-1 text-right dark:text-indigo-600 text-indigo-600'>
                   كلمة المرور
                 </StyledText>
                 <TextInput
                   className='w-full p-4 rounded-full text-black bg-gray-100 text-right'
                   value={password}
-                  placeholder='كلمة المرور'
+                  placeholder='********'
                   placeholderTextColor='#9CA3AF'
                   secureTextEntry={true}
                   onChangeText={setPassword}

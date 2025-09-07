@@ -76,7 +76,7 @@ const OnboardingScreen = () => {
       return;
     }
     if (selectedInterests.length === 0) {
-      Alert.alert('الاهتمامات مطلوبة', 'يرجى اختيار اقل من اهتمام.');
+      Alert.alert('الاهتمامات مطلوبة', 'يرجى اختيار اهتمام واحد على الأقل.');
       return;
     }
     if (!currentUser) {
@@ -155,7 +155,7 @@ const OnboardingScreen = () => {
             {avatarImage ? (
               <Image 
                 source={{ uri: avatarImage }} 
-                className="w-30 h-30 rounded-full bg-white" 
+                className="w-40 h-40 rounded-full bg-white" 
               />
             ) : (
               <View className="w-40 h-40 rounded-full bg-indigo-600 justify-center items-center">
@@ -171,7 +171,7 @@ const OnboardingScreen = () => {
           <TextInput
             value={fullName}
             onChangeText={setFullName}
-            placeholder="Enter your full name"
+            placeholder="أدخل اسمك الكامل"
             className="bg-white p-4 rounded-lg text-base border border-gray-300"
             editable={!isSaving}
           />

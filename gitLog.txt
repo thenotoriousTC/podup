@@ -1,0 +1,79 @@
+git log --oneline --decorate --graph --all
+* 265f29c (HEAD -> main, origin/main, origin/HEAD) src back 2
+* 6710d4c delted src 2
+* c4c82ab src back 2
+* f232c4d delted src 2
+* 65d90e9 swipe down gesture on player screen
+* 603dd5c applied code rabbit issues suggestions
+* eea6298 src back
+* 253f375 deleted src
+* 7c047ec fixed text
+* 0b10706 solved text issues , sign in , sign ou , forogot password
+* 2c8ca02  rn track player finally fucking working but hasn't tested it 100 percent
+* 361cbdf added edit image and profile name
+* 350ce19 applied rabbit ai suggestions closing some holes
+* fb089d8 added forgot password properly , it's working fine
+* cf55d80 fixed route navigation suggested by coderabbit
+* 6ed5746 added deep linking
+* 7988fc0 added deep linking
+* 09845c6 fixed login issues
+* 8c89a37 removed index.ts
+* f06d4ff  fixed line error on playerprovider.tsx of line 97 , added  scheme:podupYT on app.json     
+* db85ddd playback speed and timer rabbit ai reviewed 1
+* e8bf874 playback speed and timer
+* 8ab3218 follow series , sugesstion function , fixed an auth token problem
+* 3064c5c refactor
+* dae5d88 added foloow , and fixed redundant requests and fixed series showing issue , and podcasts mix issue
+* c67f90c  added follow button
+* 63a9fa0 translated some parts of the app , and fixed upload edge function
+* 0ac53ee  fixed a bug that still shows a podcast even after adding it to a serie
+* 8f73bd5 delete series func
+* 38d81d6  some arabic texts
+* a6311e4 fixed deletion by adding edge function for deletion
+* d9a6886 refactored recording and added animation
+* 3bc9218 refactored upload.tsx and added animation upload
+* 7054f16 upload with edge functions
+* 7dec35e  fixed detail screen from series screen
+* 299557c  fixed auto playback issue when clicking on play on discoverybooklistitem
+* c57bc04  fixed text on creator id.tsx page
+* d3a54b4  A LOT CHANGED , i added series and cairo font to all texts , and changed color to indigo  
+* accb493 added image for profile.tsx, fixed recording.tsx by adding user_id and categories ,fixed a 
+conflict on startup
+* cfe5037 added deleting from everywhere and it works , styled creator page a lttle bit
+* bf08ccb added onboarding page after sign-in
+* 7bc3084 added creator page successfully but it shows email instead of fullname , and it shows all podcasts successfully , also fixed upload to include userid so all podcasts are linked to their creator
+* c456f97 fixed build issues (check chatgpt for full log,styled login and sign up,applied cairo font 
+and RTL )
+* e0b49f0 brought back view count properly with supabase , everything is working fine , styled recording and profile , added auto scrool down on recording,styled downloads
+* a0e7448 went back to stable ,right now donwloads work but view count is only implemented locally,and images on favourites player is not parsed as it should be ,on sign out player stops
+* 7d60733 added downloads and remove from downloads
+* a8db195 added remove from lirary and add back
+* 69268f7 added description page ,fixed upload issue ,added see more on discover , refactored discover ,fixed data flow from disover to id.tsx
+* 4569c12  refactored discover.tsx , added close button on floating player
+* c913fb9 fixed discovery book list item shadows issue
+* 5e40d57 added categories on discover page, made discover page the default page ,added progress bar 
+when uploading
+* 495440f fixed style of floating player and tabbar hiding elements, removed header from signin and sign up and fixed keyboard hiding text inputs
+* 437b069 fixed Podup title font ,styles floating player
+* ed5d990 fixed late auth problem ,added authprovider to fix late auth problem , build successful    
+* 520affd discover items where hidden behind tabar so i fiex it adding margin at the bottom of 120   
+* 41fc074 add gemini cli , styled bottom tabBar for rounded corners and removed press effect
+* c4816fb hamza madaci is gay , styled recording.tsx
+* e1018d4 fixed playback issues , fixed styling in disocver.tsx, playback and background audio is working fine but log in is taking long .i also fixed dark mode issues and changed playbar color and style to blue
+* a0a24c5 added background audio on playerprovide.tsx
+* 0e834b8 modified bottom navbar
+* 3605916 successfull build
+* ea38fe7 added arabic , changed icon
+* 99b1d89 arabic and removed dark mode
+* d44ef06 removed dark theme elements,dark:bg-balck
+* fad35e7 fixed some bugs, improved ui ,add upload
+* d3720b9  working style
+* b60fa9a first successful build, next time run expo doctor before building
+* f103064  replaced clerk with supabase
+* b230f9f search bar , podcast brecording and upload , everything is working fine on expo go , this right before starting a developement build
+* cf79f7f Initial commit
+* a1704ff first commit
+* 8526560 hhh
+* a06c915 until now player is working on either floating player or player screen no other problems design is good
+* 67168e6 Initial commit
+PS C:\projects\startup\fromgit02062025\podup> 

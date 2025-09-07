@@ -15,9 +15,10 @@ interface RecordingsListProps {
 }
 
 const formatTime = (seconds: number) => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const total = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
 const formatDate = (date: Date) => {
@@ -72,7 +73,7 @@ const RecordingsList: React.FC<RecordingsListProps> = ({
               onPress={() => onSelectForPublish(recording)}
               disabled={isUploading}
             >
-              <Ionicons name="cloud-upload" size={24} color="#4F46E5" />
+              <Ionicons name="cloud-upload-outline" size={24} color="#4F46E5" />
             </TouchableOpacity>
             
             <TouchableOpacity

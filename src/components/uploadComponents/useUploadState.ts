@@ -31,7 +31,7 @@ export const useUploadState = () => {
   const resetState = () => {
       setTitle('');
       if (currentUser) {
-        setAuthor(currentUser.user_metadata?.full_name || '');
+        setAuthor(currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || '');
       }
       setDescription('');
       setImage(null);

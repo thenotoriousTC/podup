@@ -65,10 +65,10 @@ export default function ForgotPasswordPage() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <StyledText fontWeight="SemiBold" className='text-3xl font-semibold dark:text-black text-center mb-8'>
+            <StyledText fontWeight="SemiBold" className='text-3xl font-semibold dark:text-black text-black text-center mb-8'>
               إعادة تعيين كلمة المرور
             </StyledText>
-            <StyledText className='text-center mb-8 dark:text-black'>
+            <StyledText className='text-center mb-8 dark:text-black text-black'>
               أدخل بريدك الإلكتروني لتلقي رابط إعادة تعيين كلمة المرور.
             </StyledText>
 
