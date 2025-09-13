@@ -164,7 +164,7 @@ const PodcastDetail = () => {
 
           {/* Content */}
           <View className="-mt-48 items-center">
-            <View className="rounded-2xl shadow-xl bg-white p-2">
+            <View className="rounded-2xl shadow-xl bg-white p-4">
               <Image
                 source={{ uri: podcastData.image_url || 'https://via.placeholder.com/150' }}
                 className="w-48 h-48"

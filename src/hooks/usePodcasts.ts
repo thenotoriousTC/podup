@@ -62,8 +62,10 @@ export const usePodcasts = (searchQuery: string) => {
       
       // Apply server-side filtering if search query exists
       if (trimmedQuery) {
-        seriesQuery = seriesQuery.or(`title.ilike.%${trimmedQuery}%,description.ilike.%${trimmedQuery}%`);
-        podcastQuery = podcastQuery.or(`title.ilike.%${trimmedQuery}%,description.ilike.%${trimmedQuery}%,author.ilike.%${trimmedQuery}%`);
+        // Escape special PostgreSQL ILIKE pattern characters (%, _, \) to treat them as literals
+        const escapedQuery = trimmedQuery.replace(/[%_\\]/g, '\\$&');
+        seriesQuery = seriesQuery.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%`);
+        podcastQuery = podcastQuery.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%`);
       }
       
       // Execute queries in parallel

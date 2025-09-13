@@ -170,7 +170,7 @@ const CreatorPage = () => {
       </View>
       <View className="items-center mb-5">
         <Image source={{ uri: creator.avatar_url || 'https://example.com/default-avatar.png' }} className="w-40 h-40 rounded-full mb-8" />
-        <StyledText className="text-2xl font-semibold">{creator.full_name || creator.username}</StyledText>
+        <StyledText className="text-2xl font-semibold text-center text-indigo-500">{creator.full_name || creator.username}</StyledText>
         {!isOwnProfile && (
           <View className="mt-4">
             <FollowButton 
@@ -185,7 +185,7 @@ const CreatorPage = () => {
 
       {series.length > 0 && (
         <View className="mb-5">
-          <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">{isOwnProfile ? 'السلاسل الخاصة بي' : 'السلاسل'}</StyledText>
+          <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-center text-black dark:text-black">{isOwnProfile ? 'السلاسل الخاصة بي' : 'السلاسل'}</StyledText>
           <FlatList
             data={series}
             renderItem={({ item }) => (
@@ -203,7 +203,7 @@ const CreatorPage = () => {
         </View>
       )}
 
-      <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-right">{isOwnProfile ? 'البودكاستات الخاصة بي' : 'البودكاستات'}</StyledText>
+      <StyledText className="pl-1 text-2xl font-semibold mb-8 pb-8 text-center text-black dark:text-black">{isOwnProfile ? 'البودكاستات الخاصة بي' : 'البودكاستات'}</StyledText>
       
       {podcasts.filter(p => !p.series_id).map((item) => (
         <View key={item.id} className="flex-row items-center">
