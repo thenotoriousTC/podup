@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { usePodcasts } from '@/hooks/usePodcasts';
 import { SearchBar } from '@/components/SearchBar';
@@ -9,7 +9,17 @@ import { ErrorState } from '@/components/ErrorState';
 
 export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const { discoverContent, isLoading, error, totalResults, refreshPodcasts } = usePodcasts(searchQuery);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const { discoverContent, isLoading, error, totalResults, refreshPodcasts } = usePodcasts(debouncedSearchQuery);
+
+  // Debounce search query to prevent state reset on each keystroke
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // Increased to 500ms for more stability
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Auto-refresh when screen comes into focus
   useFocusEffect(
@@ -21,6 +31,7 @@ export default function DiscoverScreen() {
 
   console.log(' DiscoverScreen render:', {
     searchQuery,
+    debouncedSearchQuery,
     discoverContentLength: discoverContent?.length,
     isLoading,
     error: error?.message,
@@ -45,7 +56,7 @@ export default function DiscoverScreen() {
       <SearchBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        resultsCount={searchQuery.length > 0 ? totalResults : undefined}
+        resultsCount={debouncedSearchQuery.length > 0 ? totalResults : undefined}
         onClear={handleClearSearch}
       />
       

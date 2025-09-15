@@ -51,6 +51,15 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
             inverted
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalList}
+            initialNumToRender={3}
+            maxToRenderPerBatch={2}
+            windowSize={5}
+            removeClippedSubviews={true}
+            getItemLayout={(data, index) => ({
+              length: 200, // Approximate width of SeriesCard
+              offset: 200 * index,
+              index,
+            })}
           />
         </View>
       );
@@ -113,6 +122,15 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalList}
             inverted // Flips the list to scroll from right to left
+            initialNumToRender={4}
+            maxToRenderPerBatch={3}
+            windowSize={7}
+            removeClippedSubviews={true}
+            getItemLayout={(data, index) => ({
+              length: 180, // Approximate width of DiscoveryPodcastListItem
+              offset: 180 * index,
+              index,
+            })}
           />
         </View>
       );

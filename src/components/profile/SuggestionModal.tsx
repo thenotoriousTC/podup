@@ -55,6 +55,7 @@ const SuggestionModal = ({ visible, onClose }: SuggestionModalProps) => {
           <StyledText style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15 }}>اقترح ميزة جديدة</StyledText>
           <TextInput
             style={{ 
+              color: 'black',
                 width: '100%', 
                 height: 100, 
                 borderColor: 'gray', 

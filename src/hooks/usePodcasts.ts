@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
+import { useOfflineCache } from './useOfflineCache';
 
 type Podcast = Database['public']['Tables']['podcasts']['Row'];
 export type Series = Database['public']['Tables']['series']['Row'];
@@ -38,9 +39,25 @@ const categoryTranslations: { [key: string]: string } = {
 
 export const usePodcasts = (searchQuery: string) => {
   const queryClient = useQueryClient();
+  
+  // Local-first caching - only for empty search (main discover content)
+  const shouldUseCache = searchQuery.trim() === '';
+  const cacheKey = `discover_content_main`;
+  const { cachedData, isStale, saveToCache } = useOfflineCache<{
+    series: SeriesWithCount[];
+    podcasts: Podcast[];
+  }>({
+    key: cacheKey,
+    ttl: 300000, // 5 minutes
+    fallbackData: { series: [], podcasts: [] }
+  });
+
+  // Use stable query key to prevent cache invalidation on every character
+  const trimmedQuery = searchQuery.trim();
+  const queryKey = trimmedQuery ? ['discover_content', 'search', trimmedQuery] : ['discover_content', 'main'];
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['discover_content', searchQuery.trim()], // Include search query in cache key
+    queryKey,
     queryFn: async () => {
       const trimmedQuery = searchQuery.trim();
       
@@ -62,10 +79,21 @@ export const usePodcasts = (searchQuery: string) => {
       
       // Apply server-side filtering if search query exists
       if (trimmedQuery) {
+        console.log('🔍 Applying search filter:', { 
+          originalQuery: searchQuery, 
+          trimmedQuery,
+          shouldUseCache 
+        });
         // Escape special PostgreSQL ILIKE pattern characters (%, _, \) to treat them as literals
         const escapedQuery = trimmedQuery.replace(/[%_\\]/g, '\\$&');
         seriesQuery = seriesQuery.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%`);
         podcastQuery = podcastQuery.or(`title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%`);
+        console.log('🔍 Search filters applied:', {
+          seriesFilter: `title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%`,
+          podcastFilter: `title.ilike.%${escapedQuery}%,description.ilike.%${escapedQuery}%,author.ilike.%${escapedQuery}%`
+        });
+      } else {
+        console.log('📋 Loading main discover content (no search)');
       }
       
       // Execute queries in parallel
@@ -97,12 +125,33 @@ export const usePodcasts = (searchQuery: string) => {
           episode_count: episodeCounts[s.id] || 0
       }));
 
-      return { 
+      const result = { 
         series: seriesWithCount as SeriesWithCount[], 
         podcasts: standalonePodcasts as Podcast[] 
       };
+      
+      console.log('📊 Query results:', {
+        searchQuery: trimmedQuery || 'none',
+        seriesCount: seriesWithCount.length,
+        podcastsCount: standalonePodcasts.length,
+        totalResults: seriesWithCount.length + standalonePodcasts.length
+      });
+      
+      // Save to local cache for offline access (only for main discover content, not search results)
+      if (shouldUseCache) {
+        await saveToCache(result);
+      }
+      
+      return result;
     },
     staleTime: 300000, // 5 minutes
+    // Only use cached data for main discover content (not search results)
+    initialData: (shouldUseCache && cachedData && !isStale && (cachedData.series?.length > 0 || cachedData.podcasts?.length > 0)) ? cachedData : undefined,
+    // Keep previous data while fetching new results to prevent state reset
+    placeholderData: (previousData, previousQuery) => previousData,
+    // Reduce network requests frequency
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   const discoverContent = useMemo((): DiscoverContent[] => {
@@ -175,9 +224,9 @@ export const usePodcasts = (searchQuery: string) => {
     };
   }, []);
 
-  const refreshDiscoverContent = () => {
+  const refreshPodcasts = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['discover_content'] });
-  };
+  }, [queryClient]);
 
   const getSeriesByCreatorId = useCallback(async (creatorId: string): Promise<(Series & { episode_count: number })[]> => {
     if (!creatorId || creatorId === 'create-series') return [];
@@ -239,7 +288,7 @@ export const usePodcasts = (searchQuery: string) => {
     isLoading,
     error,
     totalResults: discoverContent.reduce((acc, section) => acc + section.data.length, 0),
-    refreshPodcasts: refreshDiscoverContent, // Keep the same name for compatibility
+    refreshPodcasts, // Keep the same name for compatibility
     getSeriesById,
     getSeriesByCreatorId,
     getStandalonePodcastsByCreator,
