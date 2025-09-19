@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { useOfflineCache } from './useOfflineCache';
 
 type Podcast = Database['public']['Tables']['podcasts']['Row'];
 export type Series = Database['public']['Tables']['series']['Row'];
@@ -39,18 +38,6 @@ const categoryTranslations: { [key: string]: string } = {
 
 export const usePodcasts = (searchQuery: string) => {
   const queryClient = useQueryClient();
-  
-  // Local-first caching - only for empty search (main discover content)
-  const shouldUseCache = searchQuery.trim() === '';
-  const cacheKey = `discover_content_main`;
-  const { cachedData, isStale, saveToCache } = useOfflineCache<{
-    series: SeriesWithCount[];
-    podcasts: Podcast[];
-  }>({
-    key: cacheKey,
-    ttl: 300000, // 5 minutes
-    fallbackData: { series: [], podcasts: [] }
-  });
 
   // Use stable query key to prevent cache invalidation on every character
   const trimmedQuery = searchQuery.trim();
@@ -89,8 +76,7 @@ export const usePodcasts = (searchQuery: string) => {
       if (trimmedQuery) {
         console.log('🔍 Applying search filter:', { 
           originalQuery: searchQuery, 
-          trimmedQuery,
-          shouldUseCache 
+          trimmedQuery
         });
         // Escape special PostgreSQL ILIKE pattern characters (%, _, \) to treat them as literals
         const escapedQuery = trimmedQuery.replace(/[%_\\]/g, '\\$&');
@@ -152,50 +138,18 @@ export const usePodcasts = (searchQuery: string) => {
         totalResults: seriesWithCount.length + standalonePodcasts.length + allEpisodes.length
       });
       
-      // Save to local cache for offline access (only for main discover content, not search results)
-      if (shouldUseCache) {
-        await saveToCache({ series: seriesWithCount, podcasts: standalonePodcasts });
-      }
-      
       return result;
     },
-    staleTime: 300000, // 5 minutes
-    // Use cached data for offline-first behavior
-    initialData: (shouldUseCache && cachedData && (cachedData.series?.length > 0 || cachedData.podcasts?.length > 0)) ? 
-      (() => {
-        console.log('📦 Using cached discover data:', {
-          series: cachedData.series?.length || 0,
-          podcasts: cachedData.podcasts?.length || 0
-        });
-        return { ...cachedData, episodes: [] };
-      })() : undefined,
-    // Keep previous data while fetching new results to prevent state reset
-    placeholderData: (previousData, previousQuery) => previousData,
-    // Configure for better offline behavior
-    networkMode: 'always', // Always try to run, even offline
-    refetchOnReconnect: true,
-    refetchOnWindowFocus: false,
-    retry: (failureCount, error) => {
-      // Don't retry network errors when offline, just use cache
-      if (error?.message?.includes('fetch')) return false;
-      return failureCount < 3;
-    },
+    // placeholderData is managed by the persister now, so we can use a simpler form
+    placeholderData: (previousData) => previousData,
   });
 
   const discoverContent = useMemo((): DiscoverContent[] => {
-    // Use data from query, or fall back to cached data if query failed
-    const activeData = data || (error && cachedData ? cachedData : null);
-    
-    console.log('🔄 DiscoverContent calculation:', {
-      hasData: !!data,
-      hasError: !!error,
-      hasCachedData: !!cachedData,
-      activeDataSource: data ? 'query' : (cachedData ? 'cache' : 'none'),
-      seriesCount: activeData?.series?.length || 0,
-      podcastsCount: activeData?.podcasts?.length || 0
-    });
-    
-    if (!activeData) return [];
+    const activeData = data;
+
+    if (!activeData) {
+      return [];
+    }
 
     const { series, podcasts } = activeData;
     const episodes = 'episodes' in activeData ? activeData.episodes : [];
@@ -235,7 +189,7 @@ export const usePodcasts = (searchQuery: string) => {
     }
 
     return content;
-  }, [data, error, cachedData, searchQuery]);
+  }, [data, searchQuery]);
 
   // Function to get a single series by ID with its episodes
   const getSeriesById = useCallback(async (id: string): Promise<SeriesWithEpisodes | null> => {

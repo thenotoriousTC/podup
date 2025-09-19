@@ -1,6 +1,8 @@
 import "../../global.css";
 import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { Slot, useRouter, useSegments } from "expo-router";
 import PlayerProvider from "@/providers/playerprovider";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
@@ -95,10 +97,19 @@ function RootLayoutNav() {
 
         if (accessToken && refreshToken) {
           __DEV__ && console.log('✅ Setting session with tokens');
-          supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
+          try {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            if (error) {
+              __DEV__ && console.error('Failed to set session:', error);
+              return;
+            }
+          } catch (error) {
+            __DEV__ && console.error('Failed to set session:', error);
+            return;
+          }
 
           // If this is a password recovery, redirect to update-password page
           if (type === 'recovery') {
@@ -188,6 +199,10 @@ function RootLayoutNav() {
   );
 }
 
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: AsyncStorage,
+});
+
 export default function RootLayout() {
   // Initialize Track Player service
   useEffect(() => {
@@ -209,11 +224,14 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={theme}>
-        <QueryClientProvider client={queryClient}>
+        <PersistQueryClientProvider
+          client={queryClient}
+          persistOptions={{ persister: asyncStoragePersister }}
+        >
           <AuthProvider>
             <RootLayoutNav />
           </AuthProvider>
-        </QueryClientProvider>
+        </PersistQueryClientProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
