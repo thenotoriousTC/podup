@@ -74,14 +74,14 @@ function RootLayoutNav() {
   useEffect(() => {
     const handleDeepLink = async (event: { url: string }) => {
       const { url } = event;
-      console.log('🔗 Deep link received:', url);
+      __DEV__ && console.log('🔗 Deep link received:', url);
       
       const params = Linking.parse(url).queryParams;
-      console.log('📋 Query params:', params);
+      __DEV__ && console.log('📋 Query params:', params);
 
       // Extract tokens from the URL fragment
       const urlFragment = url.split('#')[1];
-      console.log('🔍 URL fragment:', urlFragment);
+      __DEV__ && console.log('🔍 URL fragment:', urlFragment);
       
       if (urlFragment) {
         const fragmentParams = new URLSearchParams(urlFragment);
@@ -89,12 +89,12 @@ function RootLayoutNav() {
         const refreshToken = fragmentParams.get('refresh_token');
         const type = fragmentParams.get('type');
         
-        console.log('🔑 Access token exists:', !!accessToken);
-        console.log('🔄 Refresh token exists:', !!refreshToken);
-        console.log('📝 Type:', type);
+        __DEV__ && console.log('🔑 Access token exists:', !!accessToken);
+        __DEV__ && console.log('🔄 Refresh token exists:', !!refreshToken);
+        __DEV__ && console.log('📝 Type:', type);
 
         if (accessToken && refreshToken) {
-          console.log('✅ Setting session with tokens');
+          __DEV__ && console.log('✅ Setting session with tokens');
           supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
@@ -102,24 +102,24 @@ function RootLayoutNav() {
 
           // If this is a password recovery, redirect to update-password page
           if (type === 'recovery') {
-            console.log('🔐 Password recovery detected, redirecting to update-password');
+            __DEV__ && console.log('🔐 Password recovery detected, redirecting to update-password');
             // Set a flag to indicate password recovery mode
             try {
               await AsyncStorage.setItem('isPasswordRecovery', 'true');
               // Ensure the auth state is updated before navigating
               router.replace('/(auth)/update-password');
             } catch (error) {
-              console.error('Failed to set password recovery flag:', error);
+              __DEV__ && console.error('Failed to set password recovery flag:', error);
               router.replace('/(auth)/update-password');
             }
           } else {
-            console.log('ℹ️ Not a recovery type, type is:', type);
+            __DEV__ && console.log('ℹ️ Not a recovery type, type is:', type);
           }
         } else {
-          console.log('❌ Missing tokens in URL fragment');
+          __DEV__ && console.log('❌ Missing tokens in URL fragment');
         }
       } else {
-        console.log('❌ No URL fragment found');
+        __DEV__ && console.log('❌ No URL fragment found');
       }
     };
 
@@ -137,16 +137,16 @@ function RootLayoutNav() {
       if (session?.user) {
         // Check if we're currently on the update-password page or in password recovery mode
         const currentPath = segments.join('/');
-        console.log('🛣️ Current path segments:', segments);
-        console.log('🛣️ Current path string:', currentPath);
-        console.log('🔐 Is password recovery:', isPasswordRecovery);
+        __DEV__ && console.log('🛣️ Current path segments:', segments);
+        __DEV__ && console.log('🛣️ Current path string:', currentPath);
+        __DEV__ && console.log('🔐 Is password recovery:', isPasswordRecovery);
         
         if (currentPath.includes('update-password') || isPasswordRecovery) {
-          console.log('🚫 In password recovery mode, skipping redirect');
+          __DEV__ && console.log('🚫 In password recovery mode, skipping redirect');
           return; // Don't redirect if user is updating password or in recovery mode
         }
 
-        console.log('👤 Session exists, checking profile for redirect');
+        __DEV__ && console.log('👤 Session exists, checking profile for redirect');
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('full_name')
@@ -154,21 +154,21 @@ function RootLayoutNav() {
           .single();
 
         if (error && error.code !== 'PGRST116') {
-          console.error('❌ Error fetching profile for redirect:', error);
+          __DEV__ && console.error('❌ Error fetching profile for redirect:', error);
           return;
         }
 
         if (!profile || !profile.full_name) {
-          console.log('📝 No profile found, redirecting to onboarding');
+          __DEV__ && console.log('📝 No profile found, redirecting to onboarding');
           router.replace('/(protected)/onboarding');
         } else {
-          console.log('✅ Profile exists, no redirect needed');
+          __DEV__ && console.log('✅ Profile exists, no redirect needed');
         }
       }
     };
 
     if (!loading && session) {
-      console.log('🔄 Session loaded, checking for redirect. Loading:', loading, 'Session exists:', !!session, 'Recovery mode:', isPasswordRecovery);
+      __DEV__ && console.log('🔄 Session loaded, checking for redirect. Loading:', loading, 'Session exists:', !!session, 'Recovery mode:', isPasswordRecovery);
       checkProfileAndRedirect();
     }
   }, [session, loading, router, segments, isPasswordRecovery]);
@@ -197,9 +197,9 @@ export default function RootLayout() {
         TrackPlayer.registerPlaybackService(() => PlaybackService);
         
         await setupTrackPlayer();
-        console.log('Track Player initialized successfully');
+        __DEV__ && console.log('Track Player initialized successfully');
       } catch (error) {
-        console.error('Failed to initialize Track Player:', error);
+        __DEV__ && console.error('Failed to initialize Track Player:', error);
       }
     };
 

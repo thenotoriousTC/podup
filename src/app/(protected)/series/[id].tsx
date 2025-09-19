@@ -37,6 +37,7 @@ export default function SeriesDetailScreen() {
   const { getSeriesById } = usePodcasts('');
   const [series, setSeries] = useState<SeriesWithEpisodes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const episodeIds = useMemo(() => {
     return series?.episodes.map((episode) => episode.id) || [];
@@ -52,26 +53,47 @@ export default function SeriesDetailScreen() {
 
   
 
-  useEffect(() => {
-    const fetchSeries = async () => {
-      if (!id) return;
-      setIsLoading(true);
-      try {
-        const seriesData = await getSeriesById(id);
-        setSeries(seriesData);
-      } catch (error) {
-        console.error('Failed to fetch series:', error);
-        // Consider showing an error state to the user
-      } finally {
-        setIsLoading(false);
+  const fetchSeries = async () => {
+    if (!id) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const seriesData = await getSeriesById(id);
+      if (!seriesData) {
+        throw new Error('لم يتم العثور على السلسلة.');
       }
-    };
+      setSeries(seriesData);
+    } catch (err) {
+      console.error('Failed to fetch series:', err);
+      setError(err instanceof Error ? err.message : 'فشل تحميل السلسلة. الرجاء المحاولة مرة أخرى.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchSeries();
-  }, [id,getSeriesById]);
+  }, [id, getSeriesById]);
 
   const isFollowing = followStatus ? followStatus[id] : false;
 
-        if (isLoading || isFollowStatusLoading || isLibraryStatusLoading || !series) {
+  if (error) {
+    return (
+      <SafeAreaView className="flex-1 justify-center items-center p-5 bg-white">
+        <StyledText className="text-red-500 text-center text-lg mb-4">{error}</StyledText>
+        <TouchableOpacity 
+          onPress={fetchSeries}
+          className="py-2.5 px-5 rounded-lg bg-indigo-600"
+        >
+          <StyledText className="text-white text-base font-semibold">
+            حاول مرة أخرى
+          </StyledText>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
+
+  if (isLoading || isFollowStatusLoading || isLibraryStatusLoading || !series) {
     return (
       <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
