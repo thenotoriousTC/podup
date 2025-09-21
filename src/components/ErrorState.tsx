@@ -12,7 +12,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({ onRetry }) => {
     <View style={styles.container}>
       <Ionicons name="warning-outline" size={60} color="#FF3B30" />
       <StyledText style={styles.errorText}>حدث خطأ ما</StyledText>
-      <StyledText style={styles.subText}>لم نتمكن من تحميل المحتوى. الرجاء المحاولة مرة أخرى.</StyledText>
+      <StyledText style={styles.subText}>لم نتمكن من تحميل المحتوى. الرجاء الإتصال بالانترنت والمحاولة مرة أخرى.</StyledText>
       {onRetry && (
         <TouchableOpacity style={styles.retryButton} onPress={onRetry}>
           <StyledText style={styles.retryButtonText}>حاول مرة أخرى</StyledText>

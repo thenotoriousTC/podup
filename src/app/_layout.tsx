@@ -27,10 +27,10 @@ if (I18nManager.isRTL) {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      networkMode: 'always', // Always try to run queries, even offline
+      networkMode: 'offlineFirst', // Always try to run queries, even offline
       refetchOnReconnect: true,
       refetchOnWindowFocus: false,
-      staleTime: 300000, // 5 minutes
+      staleTime: 1000*60*5, // 5 minutes
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
       retry: (failureCount, error) => {
         // Don't retry network errors when offline

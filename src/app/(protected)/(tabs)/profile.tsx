@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Pressable, View, Alert, Image, TouchableOpacity } from 'react-native';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
@@ -11,33 +11,27 @@ import SuggestionModal from '@/components/profile/SuggestionModal';
 
 export default function Profile() {
     const { user: currentUser, loading: authLoading } = useAuth();
-    const [profile, setProfile] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const { setPodcast } = usePlayer();
     const router = useRouter();
     const queryClient = useQueryClient();
 
-    useEffect(() => {
-        if (currentUser) {
-            const fetchProfile = async () => {
-                setLoading(true);
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', currentUser.id)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') {
-                    console.error('Error fetching profile:', error);
-                } else {
-                    setProfile(data);
-                }
-                setLoading(false);
-            };
-            fetchProfile();
-        }
-    }, [currentUser]);
+    const { data: profile, isLoading: profileLoading } = useQuery({
+        queryKey: ['profile', currentUser?.id],
+        queryFn: async () => {
+            if (!currentUser) return null;
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+            if (error && error.code !== 'PGRST116') {
+                throw new Error(error.message);
+            }
+            return data;
+        },
+        enabled: !!currentUser,
+    });
 
     const handleSignOut = async () => {
         let signOutSucceeded = false;
@@ -69,7 +63,7 @@ export default function Profile() {
         }
     };
 
-    if (authLoading || loading) {
+    if (authLoading || profileLoading) {
         return (
             <View className="flex-1 justify-center items-center bg-gray-100">
                 <StyledText className="text-lg text-blue-500 text-center">جاري التحميل...</StyledText>
