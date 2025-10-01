@@ -21,13 +21,6 @@ export default function DiscoverScreen() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Auto-refresh when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      console.log(' DiscoverScreen focused - refreshing podcasts');
-      refreshPodcasts();
-    }, [refreshPodcasts])
-  );
 
   console.log(' DiscoverScreen render:', {
     searchQuery,

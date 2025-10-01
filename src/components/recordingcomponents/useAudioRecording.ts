@@ -7,15 +7,23 @@ import { Recording } from './types';
 const RECORDINGS_DIR = FileSystem.documentDirectory + 'recordings/';
 
 export const useAudioRecording = (currentUser: { id: string } | null) => {
+  console.log('🟨 [DEBUG] useAudioRecording: Hook invoked');
   const [isRecording, setIsRecording] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [recordingDuration, setRecordingDuration] = useState(0);
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
 
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const audioPlayer = useAudioPlayer();
   const playerStatus = useAudioPlayerStatus(audioPlayer);
+
+  console.log('🟦 [DEBUG] useAudioRecording state:', {
+    isRecording,
+    hasPermission,
+    recordingsCount: recordings.length,
+    currentPlayingId,
+    isPlayerPlaying: playerStatus?.playing,
+  });
 
   useEffect(() => {
     console.log('🎤 [PERF] Requesting recording permissions...');
@@ -31,29 +39,6 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
     return status.granted;
   };
 
-  useEffect(() => {
-    console.log('⏱️ [PERF] Recording duration effect triggered, isRecording:', isRecording);
-    let interval: ReturnType<typeof setInterval> | null = null;
-    if (isRecording) {
-      console.log('⏱️ [PERF] Starting duration timer...');
-      interval = setInterval(() => {
-        setRecordingDuration(prev => {
-          const newDuration = prev + 1;
-          if (newDuration % 10 === 0) console.log('⏱️ [PERF] Recording duration:', newDuration, 's');
-          return newDuration;
-        });
-      }, 1000);
-    } else {
-      console.log('⏱️ [PERF] Resetting duration timer...');
-      setRecordingDuration(0);
-    }
-    return () => {
-      if (interval) {
-        console.log('⏱️ [PERF] Clearing duration timer...');
-        clearInterval(interval);
-      }
-    };
-  }, [isRecording]);
 
   useEffect(() => {
     console.log('🎵 [PERF] Player status effect triggered, playing:', playerStatus.playing);
@@ -163,7 +148,7 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
           id: fileName.replace('.m4a', ''),
           uri: permanentUri,
           title: `تسجيل ${recordings.length + 1}`,
-          duration: recordingDuration,
+          duration: 0, // Duration is now managed in the UI component
           createdAt: new Date(timestamp)
         };
         console.log('🔄 [PERF] Adding recording to state...');
@@ -201,26 +186,44 @@ export const useAudioRecording = (currentUser: { id: string } | null) => {
   };
 
   const deleteRecording = async (recordingId: string) => {
+    console.log('🗑️ [DEBUG] deleteRecording: START, recordingId:', recordingId);
+    console.log('🗑️ [DEBUG] deleteRecording: recordings before:', recordings.length);
+    
     const recording = recordings.find(r => r.id === recordingId);
-    if (!recording) return;
+    if (!recording) {
+      console.log('❌ [DEBUG] deleteRecording: Recording not found');
+      return;
+    }
+
+    console.log('🗑️ [DEBUG] deleteRecording: Found recording:', recording.uri);
 
     try {
+      console.log('🗑️ [DEBUG] deleteRecording: Deleting file...');
       await FileSystem.deleteAsync(recording.uri);
-      setRecordings(prev => prev.filter(r => r.id !== recordingId));
+      console.log('🗑️ [DEBUG] deleteRecording: File deleted, updating state...');
+      
+      setRecordings(prev => {
+        const newRecordings = prev.filter(r => r.id !== recordingId);
+        console.log('🗑️ [DEBUG] deleteRecording: recordings after filter:', newRecordings.length);
+        return newRecordings;
+      });
+      
       if (currentPlayingId === recordingId) {
+        console.log('🗑️ [DEBUG] deleteRecording: Stopping playback...');
         audioPlayer.pause();
         setCurrentPlayingId(null);
       }
+      
+      console.log('✅ [DEBUG] deleteRecording: COMPLETE');
     } catch (error) {
-      console.error("Error deleting recording:", error);
+      console.error('❌ [DEBUG] deleteRecording: Error:', error);
       Alert.alert("خطأ", "فشل في حذف التسجيل.");
-        }
+    }
   };
 
   return {
     isRecording,
     hasPermission,
-    recordingDuration,
     recordings,
     setRecordings,
     currentPlayingId,

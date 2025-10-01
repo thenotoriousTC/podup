@@ -10,6 +10,8 @@
     "generate-types": "npx supabase gen types typescript --project-id msdhktwmadlijxeawkwx --schema public > src/types/database.types.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.899.0",
+    "@aws-sdk/lib-storage": "^3.900.0",
     "@expo-google-fonts/lobster": "^0.4.0",
     "@expo-google-fonts/pacifico": "^0.2.3",
     "@expo/config-plugins": "~10.1.1",
@@ -41,6 +43,7 @@
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-get-random-values": "~1.11.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
@@ -50,10 +53,12 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "^0.20.0",
     "tailwindcss": "^3.4.17",
-    "tus-js-client": "^4.3.1"
+    "tus-js-client": "^4.3.1",
+    "web-streams-polyfill": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-class-static-block": "^7.28.3",
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
   },

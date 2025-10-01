@@ -5,17 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 import { AudioFile, UploadProgress } from './types';
 import { useRouter } from 'expo-router';
-
-// React Native compatible base64 decoder
-const base64ToArrayBuffer = (base64: string) => {
-  // Convert base64 to Uint8Array without using Buffer
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-};
+import { r2Storage } from '@/services/r2Storage';
 
 interface UsePodcastUploadProps {
   currentUser: User | null;
@@ -68,12 +58,18 @@ export const usePodcastUpload = () => {
   const handleUpload = async (props: UsePodcastUploadProps) => {
     if (!validateForm(props)) return;
 
+    if (!r2Storage.isConfigured()) {
+      Alert.alert('خطأ في الإعدادات', 'خدمة التخزين غير متوفرة. يرجى التواصل مع الدعم.');
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(null);
-    let tempImagePath: string | null = null;
-    let tempAudioPath: string | null = null;
+    let imagePublicUrl: string | null = null;
+    let audioPublicUrl: string | null = null;
 
     try {
+      // Upload image to R2
       if (props.image) {
         setUploadProgress({ phase: 'image', percentage: 0, message: 'جاري تحميل صورة الغلاف...' });
         const imageInfo = await FileSystem.getInfoAsync(props.image);
@@ -81,19 +77,28 @@ export const usePodcastUpload = () => {
         if (imageInfo.exists && 'size' in imageInfo && imageInfo.size > MAX_IMAGE_SIZE) {
           throw new Error('حجم الصورة كبير جداً. الحد الأقصى 10 ميجابايت');
         }
-        const imageData = await FileSystem.readAsStringAsync(props.image, { encoding: FileSystem.EncodingType.Base64 });
-        const imageFileName = `temp/${props.currentUser!.id}_${Date.now()}.jpg`;
-        
-        const { data: imageUploadData, error: imageUploadError } = await supabase.storage
-          .from('podcasts')
-          .upload(imageFileName, base64ToArrayBuffer(imageData), { contentType: 'image/jpeg' });
 
-        if (imageUploadError) throw new Error(`Image upload failed: ${imageUploadError.message}`);
-        
-        tempImagePath = imageUploadData.path;
+        const imageFileName = `${props.currentUser!.id}_${Date.now()}.jpg`;
+        const imageResult = await r2Storage.uploadFile({
+          fileUri: props.image,
+          fileName: imageFileName,
+          contentType: 'image/jpeg',
+          folder: 'images',
+          onProgress: (uploaded, total) => {
+            const percentage = Math.round((uploaded / total) * 100);
+            setUploadProgress({ phase: 'image', percentage, message: 'جاري تحميل صورة الغلاف...' });
+          },
+        });
+
+        if (!imageResult.success || !imageResult.publicUrl) {
+          throw new Error(imageResult.error || 'Image upload failed');
+        }
+
+        imagePublicUrl = imageResult.publicUrl;
         setUploadProgress({ phase: 'image', percentage: 100, message: 'تم تحميل صورة الغلاف!' });
       }
 
+      // Upload audio to R2
       if (props.audio) {
         setUploadProgress({ phase: 'audio', percentage: 0, message: 'جاري تحميل ملف الصوت...' });
         const audioInfo = await FileSystem.getInfoAsync(props.audio.uri);
@@ -101,37 +106,48 @@ export const usePodcastUpload = () => {
         if (audioInfo.exists && 'size' in audioInfo && audioInfo.size > MAX_AUDIO_SIZE) {
           throw new Error('حجم ملف الصوت كبير جداً. الحد الأقصى 100 ميجابايت');
         }
-        const audioData = await FileSystem.readAsStringAsync(props.audio.uri, { encoding: FileSystem.EncodingType.Base64 });
+
         const audioFileExtension = props.audio.name.split('.').pop() || 'mp3';
-        const audioFileName = `temp/${props.currentUser!.id}_${Date.now()}.${audioFileExtension}`;
+        const audioFileName = `${props.currentUser!.id}_${Date.now()}.${audioFileExtension}`;
+        const audioResult = await r2Storage.uploadFile({
+          fileUri: props.audio.uri,
+          fileName: audioFileName,
+          contentType: props.audio.mimeType || 'audio/mpeg',
+          folder: 'audio',
+          onProgress: (uploaded, total) => {
+            const percentage = Math.round((uploaded / total) * 100);
+            setUploadProgress({ phase: 'audio', percentage, message: 'جاري تحميل ملف الصوت...' });
+          },
+        });
 
-        const { data: audioUploadData, error: audioUploadError } = await supabase.storage
-          .from('podcasts')
-          .upload(audioFileName, base64ToArrayBuffer(audioData), { contentType: props.audio.mimeType || 'audio/mpeg' });
+        if (!audioResult.success || !audioResult.publicUrl) {
+          throw new Error(audioResult.error || 'Audio upload failed');
+        }
 
-        if (audioUploadError) throw new Error(`Audio upload failed: ${audioUploadError.message}`);
-
-        tempAudioPath = audioUploadData.path;
+        audioPublicUrl = audioResult.publicUrl;
         setUploadProgress({ phase: 'audio', percentage: 100, message: 'تم تحميل ملف الصوت!' });
       }
 
       setUploadProgress({ phase: 'database', percentage: 50, message: 'جاري نشر البودكاست...' });
 
-      const { data, error: functionError } = await supabase.functions.invoke('create-podcast', {
-        body: {
+      // Save podcast metadata to Supabase database
+      const { data, error: dbError } = await supabase
+        .from('podcasts')
+        .insert({
           title: props.title,
           description: props.description,
           author: props.author,
           category: props.category,
-          userId: props.currentUser!.id,
-          tempImagePath,
-          tempAudioPath,
-          audioMimeType: props.audio?.mimeType,
-        },
-      });
+          user_id: props.currentUser!.id,
+          audio_url: audioPublicUrl!,
+          image_url: imagePublicUrl,
+          duration: null, // Will be calculated on playback
+        })
+        .select()
+        .single();
 
-      if (functionError) {
-        throw new Error(`Failed to create podcast: ${functionError.message}`);
+      if (dbError) {
+        throw new Error(`Failed to create podcast: ${dbError.message}`);
       }
 
       setUploadProgress({ phase: 'complete', percentage: 100, message: 'يرجى عدم غلق التطبيق' });
@@ -154,12 +170,18 @@ export const usePodcastUpload = () => {
 
     } catch (error: any) {
       Alert.alert('فشل في التحميل', error.message);
-      const filesToRemove = [tempImagePath, tempAudioPath].filter(Boolean) as string[];
-      if (filesToRemove.length > 0) {
+      // Cleanup uploaded files on error
+      const urlsToCleanup = [imagePublicUrl, audioPublicUrl].filter(Boolean) as string[];
+      if (urlsToCleanup.length > 0) {
         try {
-          await supabase.storage.from('podcasts').remove(filesToRemove);
+          for (const url of urlsToCleanup) {
+            const key = r2Storage.extractKeyFromUrl(url);
+            if (key) {
+              await r2Storage.deleteFile(key);
+            }
+          }
         } catch (cleanupError) {
-          console.error('Failed to cleanup temporary files:', cleanupError);
+          console.error('Failed to cleanup uploaded files:', cleanupError);
         }
       }
     } finally {

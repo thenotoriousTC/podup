@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';
@@ -6,7 +6,6 @@ import { StyledText } from '@/components/StyledText';
 interface RecordingControlsProps {
   isRecording: boolean;
   isUploading: boolean;
-  recordingDuration: number;
   onStart: () => void;
   onStop: () => void;
 }
@@ -20,10 +19,26 @@ const formatTime = (seconds: number) => {
 const RecordingControls: React.FC<RecordingControlsProps> = ({ 
   isRecording, 
   isUploading, 
-  recordingDuration, 
   onStart, 
   onStop 
 }) => {
+  const [recordingDuration, setRecordingDuration] = useState(0);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+    } else {
+      setRecordingDuration(0);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isRecording]);
   return (
     <View className="bg-white rounded-2xl p-6 shadow-lg items-center mb-8">
       <View className={`w-32 h-32 rounded-full justify-center items-center mb-6 ${

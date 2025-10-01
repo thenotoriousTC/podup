@@ -2,7 +2,8 @@ import { useState, useRef } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Recording } from './types';
 
-export const useRecordingState = () => {
+export const useRecordingState = (setRecordings: React.Dispatch<React.SetStateAction<Recording[]>>) => {
+  console.log('🟨 [DEBUG] useRecordingState: Hook invoked');
   const [podcastTitle, setPodcastTitle] = useState('');
   const [podcastDescription, setPodcastDescription] = useState('');
   const [podcastImage, setPodcastImage] = useState<string | null>(null);
@@ -11,19 +12,37 @@ export const useRecordingState = () => {
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [selectedRecording, setSelectedRecording] = useState<Recording | null>(null);
 
+  console.log('🟦 [DEBUG] useRecordingState state:', {
+    showMetadataForm,
+    selectedRecordingId: selectedRecording?.id,
+    isCategoryModalVisible,
+    podcastTitle,
+    category,
+  });
+
   const scrollViewRef = useRef<ScrollView | null>(null);
   const metadataFormRef = useRef<View | null>(null);
 
   const resetForm = () => {
-    console.log('🔄 [PERF] resetForm: START');
+    console.log('🔄 [DEBUG] resetForm: START');
     const startTime = Date.now();
+    
+    console.log('🔄 [DEBUG] resetForm: Clearing form fields...');
     setPodcastTitle('');
     setPodcastDescription('');
     setPodcastImage(null);
     setCategory('');
+    
+    console.log('🔄 [DEBUG] resetForm: Clearing selected recording...');
     setSelectedRecording(null);
+    
+    console.log('🔄 [DEBUG] resetForm: Hiding metadata form...');
     setShowMetadataForm(false);
-    console.log(' [PERF] resetForm: COMPLETE in', Date.now() - startTime, 'ms');
+    
+    console.log('🔄 [DEBUG] resetForm: Clearing recordings list...');
+    setRecordings([]);
+    
+    console.log('✅ [DEBUG] resetForm: COMPLETE in', Date.now() - startTime, 'ms');
   };
 
   const selectRecordingForPublish = (recording: Recording) => {

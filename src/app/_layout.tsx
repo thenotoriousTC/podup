@@ -1,3 +1,7 @@
+// AWS SDK v3 Polyfills for React Native - MUST be imported first
+import 'react-native-get-random-values';
+import 'react-native-url-polyfill/auto';
+
 import "../../global.css";
 import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
 import { QueryClient } from '@tanstack/react-query';

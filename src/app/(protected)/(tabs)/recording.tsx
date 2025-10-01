@@ -18,7 +18,25 @@ import CategoryModal from '@/components/recordingcomponents/CategoryModal';
 import UploadInProgressModal from '@/components/uploadComponents/UploadInProgressModal'; // Reusing from upload components
 
 export default function RecordingScreen() {
+  console.log('🟨 [DEBUG] RecordingScreen: Component rendering/re-rendering');
   const { user: currentUser } = useAuth();
+  console.log('🟨 [DEBUG] RecordingScreen: currentUser:', !!currentUser?.id);
+
+  // Audio recording and management hook
+  const {
+    isRecording,
+    hasPermission,
+    recordings,
+    setRecordings, // Expose setter for reset logic
+    currentPlayingId,
+    playerStatus,
+    loadSavedRecordings,
+    startRecording,
+    stopRecording,
+    playRecording,
+    deleteRecording,
+    requestPermission,
+  } = useAudioRecording(currentUser);
 
   // State and form management hook
   const {
@@ -33,23 +51,7 @@ export default function RecordingScreen() {
     metadataFormRef,
     resetForm,
     selectRecordingForPublish,
-  } = useRecordingState();
-
-  // Audio recording and management hook
-  const {
-    isRecording,
-    hasPermission,
-    recordingDuration,
-    recordings,
-    currentPlayingId,
-    playerStatus,
-    loadSavedRecordings,
-    startRecording,
-    stopRecording,
-    playRecording,
-    deleteRecording,
-    requestPermission,
-  } = useAudioRecording(currentUser);
+  } = useRecordingState(setRecordings);
 
   // Upload management hook
   const {
@@ -57,6 +59,18 @@ export default function RecordingScreen() {
     uploadProgress,
     publishRecording,
   } = useRecordingUpload();
+
+  // Debug state logging
+  console.log('🟦 [DEBUG] RecordingScreen state:', {
+    isRecording,
+    hasPermission,
+    recordingsCount: recordings.length,
+    showMetadataForm,
+    selectedRecordingId: selectedRecording?.id,
+    isUploading,
+    uploadProgress: uploadProgress?.percentage,
+    currentPlayingId,
+  });
 
   // Initial data loading
   useEffect(() => {
@@ -70,14 +84,19 @@ export default function RecordingScreen() {
   // Refresh recordings when tab becomes focused
   useFocusEffect(
     React.useCallback(() => {
-      console.log('🎯 [PERF] useFocusEffect triggered for recording tab');
+      console.log('🎯 [DEBUG] useFocusEffect triggered for recording tab');
+      console.log('🎯 [DEBUG] useFocusEffect: currentUser:', !!currentUser?.id);
+      console.log('🎯 [DEBUG] useFocusEffect: recordings count before load:', recordings.length);
+      console.log('🎯 [DEBUG] useFocusEffect: showMetadataForm:', showMetadataForm);
+      console.log('🎯 [DEBUG] useFocusEffect: selectedRecording:', selectedRecording?.id);
+      
       if (currentUser?.id) {
-        console.log('🎯 [PERF] Loading recordings on focus...');
+        console.log('🎯 [DEBUG] useFocusEffect: Loading recordings on focus...');
         loadSavedRecordings();
       } else {
-        console.log('🎯 [PERF] No user, skipping recordings load');
+        console.log('🎯 [DEBUG] useFocusEffect: No user, skipping recordings load');
       }
-    }, [currentUser?.id])
+    }, [currentUser?.id, recordings.length, showMetadataForm, selectedRecording?.id])
   );
 
   const handleStopRecording = async () => {
@@ -127,10 +146,17 @@ export default function RecordingScreen() {
   };
 
   const handlePublish = () => {
+    console.log('📤 [DEBUG] handlePublish: START');
+    console.log('📤 [DEBUG] handlePublish: selectedRecording:', selectedRecording?.id);
+    console.log('📤 [DEBUG] handlePublish: recordings before:', recordings.length);
+    
     if (!selectedRecording) {
+      console.log('❌ [DEBUG] handlePublish: No selected recording');
       Alert.alert("لا يوجد تسجيل", "يرجى اختيار تسجيل للنشر.", [{ text: "حسنًا" }]);
       return;
     }
+    
+    console.log('📤 [DEBUG] handlePublish: Starting upload...');
     publishRecording({
       podcastTitle,
       podcastDescription,
@@ -138,13 +164,22 @@ export default function RecordingScreen() {
       category,
       selectedRecording,
     }, async () => {
+      console.log('✅ [DEBUG] handlePublish: Upload successful, starting cleanup...');
+      console.log('🗑️ [DEBUG] handlePublish: recordings before delete:', recordings.length);
+      
       // On successful upload, delete the local file and reset the form
       try {
+        console.log('🗑️ [DEBUG] handlePublish: Deleting recording:', selectedRecording.id);
         await deleteRecording(selectedRecording.id);
-      } catch {
+        console.log('✅ [DEBUG] handlePublish: Recording deleted successfully');
+      } catch (error) {
+        console.error('❌ [DEBUG] handlePublish: Delete error:', error);
         Alert.alert("تعذّر الحذف محليًا", "تم النشر بنجاح لكن تعذّر حذف الملف من جهازك.");
       } finally {
+        console.log('🔄 [DEBUG] handlePublish: Calling resetForm...');
         resetForm();
+        console.log('🔄 [DEBUG] handlePublish: resetForm completed');
+        console.log('📤 [DEBUG] handlePublish: COMPLETE');
       }
     });
   };
@@ -216,7 +251,6 @@ export default function RecordingScreen() {
           <RecordingControls
             isRecording={isRecording}
             isUploading={isUploading}
-            recordingDuration={recordingDuration}
             onStart={startRecording}
             onStop={handleStopRecording}
           />
