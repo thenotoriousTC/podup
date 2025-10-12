@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase';
 import { UploadProgress, Recording } from './types';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'expo-router';
-import { r2Storage } from '@/services/r2Storage';
 
 export const useRecordingUpload = () => {
   console.log('🟨 [DEBUG] useRecordingUpload: Hook invoked');
@@ -19,6 +18,74 @@ export const useRecordingUpload = () => {
     uploadProgress: uploadProgress?.phase,
     uploadPercentage: uploadProgress?.percentage,
   });
+
+  /**
+   * Uploads a file to R2 via secure Edge Function
+   */
+  const uploadFileViaEdgeFunction = async (
+    fileUri: string,
+    fileName: string,
+    fileType: 'audio' | 'image',
+    mimeType: string
+  ): Promise<string> => {
+    // Get auth token first
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      throw new Error('Authentication required');
+    }
+
+    // Create FormData with file
+    // In React Native, FormData can accept an object with uri, type, and name
+    const formData = new FormData();
+    formData.append('file', {
+      uri: fileUri,
+      type: mimeType,
+      name: fileName,
+    } as any);
+    formData.append('fileType', fileType);
+    formData.append('filename', fileName);
+
+    // Call Edge Function using fetch (supabase.functions.invoke doesn't handle FormData well in RN)
+    const functionUrl = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/upload-to-r2`;
+    
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+      body: formData,
+    });
+
+    // Get response text first to handle empty responses
+    const responseText = await response.text();
+    console.log('📥 Response status:', response.status);
+    console.log('📥 Response text:', responseText.substring(0, 200));
+
+    if (!responseText) {
+      throw new Error('Empty response from server');
+    }
+
+    // Try to parse JSON
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      console.error('❌ JSON parse error:', error);
+      console.error('Response text:', responseText);
+      throw new Error(`Server returned invalid response: ${responseText.substring(0, 100)}`);
+    }
+
+    if (!response.ok) {
+      throw new Error(data?.error || `Upload failed with status ${response.status}`);
+    }
+
+    if (!data?.success || !data?.url) {
+      throw new Error(data?.error || 'Upload failed');
+    }
+
+    console.log('✅ Upload successful:', data.url);
+    return data.url;
+  };
 
   const publishRecording = async (
     {
@@ -48,12 +115,6 @@ export const useRecordingUpload = () => {
 
     console.log('📤 [DEBUG] publishRecording: Starting upload process...');
 
-    if (!r2Storage.isConfigured()) {
-      console.log('❌ [DEBUG] publishRecording: R2 not configured');
-      Alert.alert('خطأ في الإعدادات', 'خدمة التخزين غير متوفرة. يرجى التواصل مع الدعم.');
-      return;
-    }
-
     setIsUploading(true);
     setUploadProgress({ phase: 'image', percentage: 0, message: 'تحميل صورة الغلاف...' });
 
@@ -61,56 +122,32 @@ export const useRecordingUpload = () => {
     let audioPublicUrl: string | null = null;
 
     try {
-      // Upload image to R2
-      console.log('📤 [DEBUG] publishRecording: Uploading image to R2...');
+      // Upload image via Edge Function
+      console.log('📤 [DEBUG] publishRecording: Uploading image via Edge Function...');
+      setUploadProgress({ phase: 'image', percentage: 50, message: 'تحميل صورة الغلاف...' });
       const imageFileName = `${currentUser.id}_${Date.now()}_recording.jpg`;
-      const imageResult = await r2Storage.uploadFile({
-        fileUri: podcastImage,
-        fileName: imageFileName,
-        contentType: 'image/jpeg',
-        folder: 'images',
-        onProgress: (bytesUploaded, bytesTotal) => {
-          const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
-          setUploadProgress({ 
-            phase: 'image', 
-            percentage, 
-            message: 'تحميل صورة الغلاف...'
-          });
-        },
-      });
-
-      if (!imageResult.success || !imageResult.publicUrl) {
-        throw new Error(imageResult.error || 'Image upload failed');
-      }
-
-      imagePublicUrl = imageResult.publicUrl;
+      imagePublicUrl = await uploadFileViaEdgeFunction(
+        podcastImage,
+        imageFileName,
+        'image',
+        'image/jpeg'
+      );
       console.log('✅ [DEBUG] publishRecording: Image uploaded:', imagePublicUrl);
+      setUploadProgress({ phase: 'image', percentage: 100, message: 'تم تحميل الصورة!' });
 
-      // Upload audio to R2
+      // Upload audio via Edge Function
       setUploadProgress({ phase: 'audio', percentage: 0, message: 'تحميل ملف الصوت...' });
-      console.log('📤 [DEBUG] publishRecording: Uploading audio to R2...');
+      console.log('📤 [DEBUG] publishRecording: Uploading audio via Edge Function...');
       const audioFileName = `${currentUser.id}_${Date.now()}_recording.m4a`;
-      const audioResult = await r2Storage.uploadFile({
-        fileUri: selectedRecording.uri,
-        fileName: audioFileName,
-        contentType: 'audio/m4a',
-        folder: 'audio',
-        onProgress: (bytesUploaded, bytesTotal) => {
-          const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
-          setUploadProgress({ 
-            phase: 'audio', 
-            percentage, 
-            message: 'تحميل ملف الصوت...'
-          });
-        },
-      });
-
-      if (!audioResult.success || !audioResult.publicUrl) {
-        throw new Error(audioResult.error || 'Audio upload failed');
-      }
-
-      audioPublicUrl = audioResult.publicUrl;
+      setUploadProgress({ phase: 'audio', percentage: 50, message: 'تحميل ملف الصوت...' });
+      audioPublicUrl = await uploadFileViaEdgeFunction(
+        selectedRecording.uri,
+        audioFileName,
+        'audio',
+        'audio/m4a'
+      );
       console.log('✅ [DEBUG] publishRecording: Audio uploaded:', audioPublicUrl);
+      setUploadProgress({ phase: 'audio', percentage: 100, message: 'تم تحميل الصوت!' });
 
       setUploadProgress({ phase: 'database', percentage: 0, message: 'جاري نشر البودكاست...' });
 
@@ -158,23 +195,9 @@ export const useRecordingUpload = () => {
 
     } catch (error) {
       console.error('❌ [DEBUG] publishRecording: Upload error:', error);
-      Alert.alert('فشل في النشر', `حدث خطأ: ${error instanceof Error ? error.message : 'يرجى المحاولة مرة أخرى'}`);
-      // Cleanup uploaded files on error
-      const urlsToCleanup = [imagePublicUrl, audioPublicUrl].filter(Boolean) as string[];
-      if (urlsToCleanup.length > 0) {
-        try {
-          console.log('🧹 [DEBUG] publishRecording: Cleaning up uploaded files...');
-          for (const url of urlsToCleanup) {
-            const key = r2Storage.extractKeyFromUrl(url);
-            if (key) {
-              await r2Storage.deleteFile(key);
-            }
-          }
-          console.log('🧹 [DEBUG] publishRecording: Files cleaned up');
-        } catch (cleanupError) {
-          console.error('❌ [DEBUG] publishRecording: Failed to cleanup files:', cleanupError);
-        }
-      }
+      const errorMessage = error instanceof Error ? error.message : 'يرجى المحاولة مرة أخرى';
+      Alert.alert('فشل في النشر', `حدث خطأ: ${errorMessage}`);
+      // Note: Edge Function handles cleanup automatically on failure
     } finally {
       console.log('🔚 [DEBUG] publishRecording: Finally block executed');
       console.log('🔚 [DEBUG] publishRecording: Current upload progress phase:', uploadProgress?.phase);
