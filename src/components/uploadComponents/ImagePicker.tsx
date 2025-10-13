@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Image, Pressable, Alert, Linking } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, Image, Alert, Linking } from 'react-native';;
 import * as ImagePicker from 'expo-image-picker';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { StyledText } from '../StyledText';

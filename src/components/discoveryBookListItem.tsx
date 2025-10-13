@@ -1,4 +1,5 @@
-import { Image, TouchableOpacity, Alert, View } from 'react-native';
+import { Image, Alert, View } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 
@@ -101,6 +102,7 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
 
           {/* Play/Pause */}
           <TouchableOpacity
+          touchSoundDisabled={true}
             onPress={onPlayPausePress}
             activeOpacity={0.7}
             className="p-2"

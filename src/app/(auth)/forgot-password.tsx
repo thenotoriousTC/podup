@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { Alert, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { StyledText } from '@/components/StyledText';
 import { makeRedirectUri } from 'expo-auth-session';
 
@@ -95,6 +96,7 @@ export default function ForgotPasswordPage() {
               </View>
 
               <TouchableOpacity
+              touchSoundDisabled
                 className={`w-full p-4 rounded-full mt-6 ${loading || !isValidEmail ? 'bg-gray-400 opacity-60' : 'bg-indigo-600'}`}
                 onPress={onSendResetLink}
                 disabled={loading || !isValidEmail}

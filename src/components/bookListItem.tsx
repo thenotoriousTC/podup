@@ -1,4 +1,5 @@
-import { Image, TouchableOpacity, View, Text, Alert, ActivityIndicator } from 'react-native';
+import { Image, View, Text, Alert, ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';
 import { useRouter } from 'expo-router';

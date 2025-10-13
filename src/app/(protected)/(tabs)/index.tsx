@@ -1,4 +1,5 @@
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import PodcastListItem from '../../../components/bookListItem';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/providers/AuthProvider';

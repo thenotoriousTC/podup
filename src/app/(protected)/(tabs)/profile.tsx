@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, View, Alert, Image, TouchableOpacity } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, Alert, Image } from 'react-native';;
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -108,7 +110,9 @@ export default function Profile() {
                 
                 <View className="bg-white rounded-xl shadow-lg">
                     {/* Upload Button */}
-                    <Pressable className="flex-row items-center justify-between p-4" onPress={() => router.push('/(protected)/UPLOAD')}>
+                    <Pressable 
+                    android_disableSound={true}
+                    className="flex-row items-center justify-between p-4" onPress={() => router.push('/(protected)/UPLOAD')}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
                             <Ionicons name="cloud-upload-outline" size={32} color="#4F46E5" className="ml-2" />

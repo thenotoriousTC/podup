@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TextInput, Pressable } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, TextInput } from 'react-native';;
 import { StyledText } from '@/components/StyledText';
 
 interface PodcastFormProps {

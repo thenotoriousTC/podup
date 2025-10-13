@@ -1,4 +1,5 @@
-import { View, Pressable, Image, Animated as RNAnimated, Alert, AlertButton, SafeAreaView, Dimensions } from "react-native";
+import { Pressable } from '@/components/Pressable';
+import { View, Image, Animated as RNAnimated, Alert, AlertButton, SafeAreaView, Dimensions } from 'react-native';;
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from "expo-router";

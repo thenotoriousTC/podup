@@ -1,4 +1,5 @@
-import { Image, Pressable, View, Animated, StyleSheet } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { Image, View, Animated, StyleSheet } from 'react-native';;
 import { AntDesign } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { usePlayer } from '@/providers/playerprovider';

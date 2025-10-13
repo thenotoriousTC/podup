@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { Link, useRouter } from 'expo-router';
-import { Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { Alert, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import React from 'react';
 import { StyledText } from '@/components/StyledText';
 
@@ -100,7 +101,8 @@ export default function Page() {
             {emailVerificationMessage ? (
               <View className="mb-4 p-3 bg-yellow-100 rounded-lg">
                 <StyledText className="text-yellow-800">{emailVerificationMessage}</StyledText>
-                <TouchableOpacity onPress={onResendVerification}>
+                <TouchableOpacity onPress={onResendVerification}
+                touchSoundDisabled>
                   <StyledText className="text-blue-600 mt-2 font-semibold">إعادة إرسال رسالة التحقق</StyledText>
                 </TouchableOpacity>
               </View>
@@ -140,7 +142,7 @@ export default function Page() {
                   onSubmitEditing={onSignInPress}
                 />
                 <Link href='/forgot-password' asChild>
-                  <TouchableOpacity>
+                  <TouchableOpacity touchSoundDisabled>
                     <StyledText className='text-indigo-600 font-semibold text-center mt-2'>
                       هل نسيت كلمة المرور؟
                     </StyledText>
@@ -148,7 +150,7 @@ export default function Page() {
                 </Link>
               </View>
 
-              <TouchableOpacity
+              <TouchableOpacity touchSoundDisabled
                 className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
                 onPress={onSignInPress}
                 disabled={loading}

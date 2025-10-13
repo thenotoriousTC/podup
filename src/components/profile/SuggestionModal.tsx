@@ -1,4 +1,5 @@
-import { View, Modal, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Modal, TextInput, ActivityIndicator, Alert } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import React, { useState } from 'react';
 import { StyledText } from '../StyledText';
 import { useAuth } from '@/providers/AuthProvider';

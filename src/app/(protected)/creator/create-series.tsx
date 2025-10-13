@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, Image, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Stack, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';

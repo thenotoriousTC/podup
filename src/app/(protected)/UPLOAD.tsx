@@ -1,4 +1,5 @@
-import { View, Pressable, ScrollView, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, ScrollView, Dimensions, KeyboardAvoidingView } from 'react-native';;
 import React from 'react';
 import { MaterialIcons, Feather } from '@expo/vector-icons';
 import { Stack } from 'expo-router';

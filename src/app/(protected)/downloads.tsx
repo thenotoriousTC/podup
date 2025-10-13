@@ -1,4 +1,5 @@
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PodcastListItem from '@/components/bookListItem';

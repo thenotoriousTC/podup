@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Modal, FlatList, TouchableOpacity, Pressable } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, Modal, FlatList } from 'react-native';;
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { StyledText } from '@/components/StyledText';
 import { categories } from './constants';
 

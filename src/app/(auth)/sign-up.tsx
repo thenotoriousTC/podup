@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { Alert, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { supabase } from '@/lib/supabase';
 import { Link, useRouter } from 'expo-router';
 import { StyledText } from '@/components/StyledText';

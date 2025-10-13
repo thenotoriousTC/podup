@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
+import { View, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StyledText } from './StyledText';
+import { TouchableOpacity } from './TouchableOpacity';
 
 interface SearchBarProps {
   searchQuery: string;

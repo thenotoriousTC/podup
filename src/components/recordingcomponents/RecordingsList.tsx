@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';
 import { Recording } from './types';

@@ -1,4 +1,5 @@
-import { View, Pressable, GestureResponderEvent } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, GestureResponderEvent } from 'react-native';;
 import React, { useState } from 'react';
 import { StyledText } from './StyledText';
 

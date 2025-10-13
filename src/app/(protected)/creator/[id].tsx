@@ -1,4 +1,5 @@
-import { View, Text, FlatList, Image, ActivityIndicator, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, FlatList, Image, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import React from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/providers/AuthProvider';

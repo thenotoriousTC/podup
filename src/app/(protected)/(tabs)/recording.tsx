@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Alert, ActivityIndicator, TouchableOpacity, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, Alert, ActivityIndicator, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/providers/AuthProvider';
 import { StyledText } from '@/components/StyledText';

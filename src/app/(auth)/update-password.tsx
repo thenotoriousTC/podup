@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { Alert, TextInput, TouchableOpacity, View, KeyboardAvoidingView, ScrollView, Dimensions } from 'react-native';
+import { Alert, TextInput, View, KeyboardAvoidingView, ScrollView, Dimensions } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { StyledText } from '@/components/StyledText';
 import { Session } from '@supabase/supabase-js';
 import { useAuth } from '@/providers/AuthProvider';

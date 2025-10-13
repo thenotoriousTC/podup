@@ -1,4 +1,5 @@
-import { View, Image, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Image, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';

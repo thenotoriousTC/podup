@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Pressable, Alert } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, Alert } from 'react-native';;
 import * as DocumentPicker from 'expo-document-picker';
 import { Feather } from '@expo/vector-icons';
 import { StyledText } from '@/components/StyledText';

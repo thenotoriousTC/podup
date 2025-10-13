@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { usePodcasts } from '@/hooks/usePodcasts';
 import { useAuth } from '@/providers/AuthProvider';

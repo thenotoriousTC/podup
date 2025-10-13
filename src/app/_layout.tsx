@@ -2,6 +2,9 @@
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';
 
+// Performance monitoring - development only (auto-disabled in production)
+import '../../wdyr';
+
 import "../../global.css";
 import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
 import { QueryClient } from '@tanstack/react-query';

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { usePodcasts, SeriesWithEpisodes } from '@/hooks/usePodcasts';
 import { useAuth } from '@/providers/AuthProvider';

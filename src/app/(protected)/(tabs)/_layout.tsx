@@ -1,6 +1,7 @@
 import { Redirect, Slot, Tabs } from "expo-router";
 import "../../../../global.css";
-import { ActivityIndicator, Pressable, StyleSheet, View as RNView } from "react-native";
+import { Pressable } from '@/components/Pressable';
+import { ActivityIndicator, StyleSheet, View as RNView } from 'react-native';;
 import React from "react";
 import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";

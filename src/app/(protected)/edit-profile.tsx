@@ -1,4 +1,6 @@
-import { View, Text, Pressable, ScrollView, TextInput, Image, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, Text, ScrollView, TextInput, Image, Alert, ActivityIndicator } from 'react-native';;
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import React, { useState, useEffect } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';

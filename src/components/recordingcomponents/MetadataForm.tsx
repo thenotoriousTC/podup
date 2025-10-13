@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, Image, Pressable, ActivityIndicator, Alert } from 'react-native';
+import { Pressable } from '@/components/Pressable';
+import { View, TextInput, Image, ActivityIndicator, Alert } from 'react-native';;
+import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { StyledText } from '@/components/StyledText';
