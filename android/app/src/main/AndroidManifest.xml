@@ -22,8 +22,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="app.podhub"/>
-        <data android:scheme="exp+podupyt"/>
+        <data android:scheme="app.insaty"/>
+        <data android:scheme="exp+insaty"/>
       </intent-filter>
     </activity>
     <activity android:name=".BrowserLauncherActivity" android:theme="@style/Theme.App.SplashScreen" android:exported="true">

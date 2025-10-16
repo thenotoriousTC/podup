@@ -15,7 +15,7 @@ import { TouchableOpacity as RNTouchableOpacity, TouchableOpacityProps } from 'r
  * https://reactnative.dev/docs/touchablewithoutfeedback#touchsounddisabled
  */
 export const TouchableOpacity: React.FC<TouchableOpacityProps> = ({
-  touchSoundDisabled, // Disable sound by default on Android
+  touchSoundDisabled = true, // Disable sound by default on Android
   ...props
 }) => {
   return <RNTouchableOpacity touchSoundDisabled={touchSoundDisabled} {...props} />;

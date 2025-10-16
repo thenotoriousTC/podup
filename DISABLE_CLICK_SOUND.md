@@ -4,9 +4,29 @@
 
 Android plays a clicking sound when pressing TouchableOpacity components (buttons, icons, etc). This can be annoying for users.
 
-## Solution
+## ⚠️ Bug Fixed (2025-10-15)
 
-Created a custom `TouchableOpacity` wrapper component that automatically disables the Android click sound by setting `touchSoundDisabled={true}` by default.
+**Issue:** The custom TouchableOpacity component was NOT setting `touchSoundDisabled` to `true` by default. It was just passing the prop through without a default value, so sounds were still playing.
+
+**Fix:** Changed from:
+```typescript
+// ❌ Before - no default value
+touchSoundDisabled,
+```
+
+To:
+```typescript
+// ✅ After - defaults to true
+touchSoundDisabled = true,
+```
+
+Now the component truly disables sound by default! 🔇
+
+---
+
+## ✅ Solution
+
+Implemented a custom `TouchableOpacity` wrapper component that automatically disables the Android click sound by setting `touchSoundDisabled={true}` by default.
 
 ## Files Created
 

@@ -102,7 +102,6 @@ export default function DiscoveryPodcastListItem({ podcast, isInLibrary, onToggl
 
           {/* Play/Pause */}
           <TouchableOpacity
-          touchSoundDisabled={true}
             onPress={onPlayPausePress}
             activeOpacity={0.7}
             className="p-2"
