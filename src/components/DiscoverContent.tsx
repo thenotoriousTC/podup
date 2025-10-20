@@ -7,6 +7,7 @@ import DiscoveryPodcastListItem from './discoveryBookListItem';
 import { StyledText } from './StyledText';
 import { useAuth } from '@/providers/AuthProvider';
 import { useLibraryStatus, useLibraryMutation } from '@/hooks/useLibraryStatus';
+import SponsorCarousel from './SponsorCarousel';
 
 interface DiscoverContentProps {
   content: DiscoverContentType[];
@@ -109,12 +110,15 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
               };
 
               return (
+                
                 <DiscoveryPodcastListItem
                   podcast={podcast}
                   isInLibrary={isInLibrary}
                   onToggleLibrary={onToggleLibrary}
                   isTogglingLibrary={libraryMutation.isPending}
                 />
+              
+               
               );
             }}
             keyExtractor={(podcast) => podcast.id.toString()}
@@ -139,13 +143,17 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
     return null;
   };
 
-  return (
-    <FlatList
+  return (  
+   <View style={{flex:1}}>
+     <FlatList
       data={content}
       renderItem={renderItem}
       keyExtractor={(item, index) => `${item.type}-${index}`}
+      ListHeaderComponent={<SponsorCarousel />}
       contentContainerStyle={styles.container}
     />
+   
+</View>
   );
 };
 

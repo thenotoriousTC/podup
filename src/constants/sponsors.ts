@@ -21,5 +21,19 @@ export const sponsors: Sponsor[] = [
     link: 'https://www.sisoft.live',
     linkType: 'website',
   },
+  {
+    id: '3',
+    name: 'test',
+    imagePath: require('@/sponsor/propod.jpg'),
+    link: 'https://www.sisoft.live',
+    linkType: 'website',
+  },
+  {
+    id: '4',
+    name: 'test',
+    imagePath: require('@/sponsor/propod2.jpg'),
+    link: 'https://www.sisoft.live',
+    linkType: 'website',
+  },
   // Add more sponsors here in the future
 ];

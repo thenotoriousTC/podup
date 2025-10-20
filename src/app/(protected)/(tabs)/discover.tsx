@@ -6,7 +6,6 @@ import { SearchBar } from '@/components/SearchBar';
 import DiscoverContent from '@/components/DiscoverContent';
 import { LoadingState } from '@/components/LoadingState';
 import { ErrorState } from '@/components/ErrorState';
-import SponsorCarousel from '@/components/SponsorCarousel';
 
 export default function DiscoverScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,8 +52,6 @@ export default function DiscoverScreen() {
         resultsCount={debouncedSearchQuery.length > 0 ? totalResults : undefined}
         onClear={handleClearSearch}
       />
-      
-      <SponsorCarousel />
       
       <DiscoverContent content={discoverContent} />
     </View>
