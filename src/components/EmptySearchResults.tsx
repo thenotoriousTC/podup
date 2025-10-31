@@ -10,7 +10,7 @@ interface EmptySearchResultsProps {
 export const EmptySearchResults = ({ onClearSearch }: EmptySearchResultsProps) => {
   return (
     <View className="flex-1 items-center justify-center mt-20">
-      <Ionicons name="search" size={64} color="#4F46E5" />
+      <Ionicons name="search" size={64} color="#FD842B" />
       <StyledText fontWeight="Medium" className="text-gray-500 text-lg font-medium mt-4">
         لم يتم العثور على محتوى
       </StyledText>
@@ -19,7 +19,7 @@ export const EmptySearchResults = ({ onClearSearch }: EmptySearchResultsProps) =
       </StyledText>
       <TouchableOpacity 
         onPress={onClearSearch}
-        className="mt-4 bg-indigo-500 px-6 py-3 rounded-lg"
+        className="mt-4 bg-[#FD842B] px-6 py-3 rounded-lg"
         activeOpacity={0.8}
       >
         <StyledText fontWeight="Medium" className="text-white font-medium">مسح البحث</StyledText>

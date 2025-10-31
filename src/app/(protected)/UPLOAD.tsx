@@ -66,7 +66,7 @@ const UploadScreen = () => {
         >
           <View className="p-6 space-y-6">
             <View className="items-center mb-4">
-              <StyledText className="text-2xl font-semibold text-indigo-600">تحميل</StyledText>
+              <StyledText className="text-2xl font-semibold text-[#FD842B]">تحميل</StyledText>
               <StyledText className="text-gray-600 mt-1">شارك قصتك مع العالم</StyledText>
             </View>
 
@@ -86,7 +86,7 @@ const UploadScreen = () => {
 
             <Pressable 
               className={`p-4 rounded-2xl items-center mt-6 shadow-sm ${
-                isUploading ? 'bg-gray-400' : 'bg-indigo-500'
+                isUploading ? 'bg-gray-400' : 'bg-[#FD842B]'
               }`}
               onPress={onUpload}
               disabled={isUploading}

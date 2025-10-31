@@ -74,7 +74,7 @@ const RecordingsList: React.FC<RecordingsListProps> = ({
               onPress={() => onSelectForPublish(recording)}
               disabled={isUploading}
             >
-              <Ionicons name="cloud-upload-outline" size={24} color="#4F46E5" />
+              <Ionicons name="cloud-upload-outline" size={24} color="#FD842B" />
             </TouchableOpacity>
             
             <TouchableOpacity

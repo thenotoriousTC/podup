@@ -31,7 +31,7 @@ export const SearchBar = ({ searchQuery, onSearchChange, resultsCount, onClear }
           <Ionicons 
             name="search" 
             size={20} 
-            color="#4F46E5" 
+            color="#FD842B" 
             className="ml-3"
           />
           {searchQuery.length > 0 && onClear && (
@@ -43,7 +43,7 @@ export const SearchBar = ({ searchQuery, onSearchChange, resultsCount, onClear }
               <Ionicons 
                 name="close-circle" 
                 size={20} 
-                color="#4F46E5" 
+                color="#FD842B" 
               />
             </TouchableOpacity>
           )}

@@ -35,7 +35,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
         <View className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
           <View 
             className={`h-full rounded-full transition-all duration-300 ${
-              clampedPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'
+              clampedPercentage === 100 ? 'bg-green-500' : 'bg-[#FD842B]'
             }`}
             style={{ width: progressWidth }}
           />

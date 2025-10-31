@@ -43,12 +43,12 @@ export default function PlaybackBar({ currentTime, duration, onSeek }: PlaybackB
                 className='w-full bg-slate-900 h-2 rounded-full justify-center'
             >
                 <View
-                    className='bg-blue-400 h-full rounded-full'
+                    className='bg-[#FD842B] h-full rounded-full'
                     style={{ width: `${progress * 100}%` }}
                 />
                 <View
                     pointerEvents='none'
-                    className='absolute w-4 h-4 -translate-x-1/2 top-1/2 -translate-y-1/2 rounded-full bg-indigo-400'
+                    className='absolute w-4 h-4 -translate-x-1/2 top-1/2 -translate-y-1/2 rounded-full bg-[#FD842B]'
                     style={{ left: `${progress * 100}%` }}
                 />
             </Pressable>

@@ -79,7 +79,7 @@ export default function AddEpisodesScreen() {
   };
 
   if (isLoading) {
-    return <ActivityIndicator style={styles.centered} size="large" color="#007AFF" />;
+    return <ActivityIndicator style={styles.centered} size="large" color="#FD842B" />;
   }
 
   const renderItem = ({ item }: { item: Podcast }) => {

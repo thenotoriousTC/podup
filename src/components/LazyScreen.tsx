@@ -9,7 +9,7 @@ interface LazyScreenProps {
 
 const DefaultFallback = () => (
   <View className="flex-1 justify-center items-center bg-white">
-    <ActivityIndicator size="large" color="#4F46E5" />
+    <ActivityIndicator size="large" color="#FD842B" />
     <StyledText className="mt-4 text-gray-600">جاري التحميل...</StyledText>
   </View>
 );

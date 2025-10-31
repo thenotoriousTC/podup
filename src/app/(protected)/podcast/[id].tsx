@@ -133,7 +133,7 @@ const PodcastDetail = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#FD842B" />
       </SafeAreaView>
     );
   }
@@ -161,7 +161,7 @@ const PodcastDetail = () => {
       >
         <View className="relative">
           {/* Header background */}
-          <View className="bg-violet-200 h-64 w-full" />
+          <View className="bg-[#FD842B] h-64 w-full" />
 
           {/* Content */}
           <View className="-mt-48 items-center">
@@ -177,7 +177,7 @@ const PodcastDetail = () => {
               {podcastData.title}
             </StyledText>
             <TouchableOpacity onPress={() => {if (typeof creatorId === 'string' && creatorId) {router.push(`/creator/${creatorId}`);}}} disabled={!creatorId}>
-              <StyledText fontWeight="SemiBold" className="text-xl text-purple-500 mt-2 font-medium">
+              <StyledText fontWeight="SemiBold" className="text-xl text-[#FD842B] mt-2 font-medium">
                 {podcastData.author}
               </StyledText>
             </TouchableOpacity>
@@ -188,8 +188,8 @@ const PodcastDetail = () => {
                 <StyledText className="text-yellow-500 text-sm mt-1">مميز</StyledText>
               </View>
               <View className="items-center pl-6">
-                <Ionicons name="eye" size={20} color="#8B5CF6" />
-                <StyledText className="text-purple-500 text-sm mt-1">
+                <Ionicons name="eye" size={20} color="#FD842B" />
+                <StyledText className="text-[#FD842B] text-sm mt-1">
                   {formatViewCount(viewCount)} مشاهدة
                 </StyledText>
               </View>
@@ -200,7 +200,7 @@ const PodcastDetail = () => {
         <View className="px-6 mt-4 ">
           <TouchableOpacity
             onPress={onPlayPausePress}
-            className="bg-violet-600 py-4 px-8 rounded-2xl shadow-lg mb-6"
+            className="bg-[#FD842B] py-4 px-8 rounded-2xl shadow-lg mb-6"
             style={{ 
               shadowColor: '#8B5CF6',
               shadowOffset: { width: 0, height: 4 },
@@ -228,7 +228,7 @@ const PodcastDetail = () => {
             <TouchableOpacity onPress={() => {if (typeof creatorId === 'string' && creatorId) {router.push(`/creator/${creatorId}`);}}} disabled={!creatorId}>
               <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text">
                 <View className="flex-row items-center mb-2 text-right">
-                  <Ionicons name="person-outline" size={20} color="#8B5CF6" />
+                  <Ionicons name="person-outline" size={20} color="#FD842B" />
                   <StyledText fontWeight="SemiBold" className="text-gray-900 font-semibold ml-2 text-right">المستضيف</StyledText>
                 </View>
                 <StyledText className="text-gray-600 text-base text-right">{podcastData.author}</StyledText>
@@ -240,7 +240,7 @@ const PodcastDetail = () => {
           <View className="bg-white rounded-2xl p-6 shadow-sm mb-6 text-right">
             <StyledText fontWeight="Bold" className="text-lg font-semibold text-gray-900 mb-3 text-right">إحصائيات</StyledText>
             <View className="flex-row items-center text-right">
-              <Ionicons name="play-circle" size={20} color="#8B5CF6" />
+              <Ionicons name="play-circle" size={20} color="#FD842B" />
               <StyledText className="text-gray-700 ml-2 text-right">
                 {formatViewCount(viewCount)} إجمالي المشاهدات
               </StyledText>

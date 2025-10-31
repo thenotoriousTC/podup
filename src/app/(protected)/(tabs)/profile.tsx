@@ -68,7 +68,7 @@ export default function Profile() {
     if (authLoading || profileLoading) {
         return (
             <View className="flex-1 justify-center items-center bg-gray-100">
-                <StyledText className="text-lg text-blue-500 text-center">جاري التحميل...</StyledText>
+                <StyledText className="text-lg text-[#FD842B] text-center">جاري التحميل...</StyledText>
             </View>
         );
     }
@@ -76,7 +76,7 @@ export default function Profile() {
     return (
         <View className="flex-1 bg-white p-4 pt-10">
             <View className="pb-8 mt-2">
-                <StyledText className="text-4xl text-indigo-500 text-right pb-8">الملف الشخصي</StyledText>
+                <StyledText className="text-4xl text-[#FD842B] text-right pb-8">الملف الشخصي</StyledText>
             </View>
 
             <View className="bg-white rounded-xl p-4 mb-6 shadow-lg">
@@ -106,7 +106,7 @@ export default function Profile() {
             </View>
             
             <View className="mb-6">
-                <StyledText className="text-xl font-semibold text-indigo-500 mb-3 text-right">الحساب</StyledText>
+                <StyledText className="text-xl font-semibold text-[#FD842B] mb-3 text-right">الحساب</StyledText>
                 
                 <View className="bg-white rounded-xl shadow-lg">
                     {/* Upload Button */}
@@ -115,7 +115,7 @@ export default function Profile() {
                     className="flex-row items-center justify-between p-4" onPress={() => router.push('/(protected)/UPLOAD')}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="cloud-upload-outline" size={32} color="#4F46E5" className="ml-2" />
+                            <Ionicons name="cloud-upload-outline" size={32} color="#FD842B" className="ml-2" />
                         </View>
                         <StyledText className="text-lg text-black text-right">تحميل</StyledText>
                     </Pressable>
@@ -126,7 +126,7 @@ export default function Profile() {
                     <Pressable className="flex-row items-center justify-between p-4" onPress={() => router.push('/(protected)/downloads')}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="cloud-download-outline" size={32} color="#4F46E5" className="ml-2" />
+                            <Ionicons name="cloud-download-outline" size={32} color="#FD842B" className="ml-2" />
                         </View>
                         <StyledText className="text-lg text-black text-right">التنزيلات</StyledText>
                     </Pressable>
@@ -137,7 +137,7 @@ export default function Profile() {
                     <Pressable className="flex-row items-center justify-between p-4" onPress={() => { if (currentUser) { router.push(`/(protected)/creator/${currentUser.id}`); } }} disabled={!currentUser}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="albums-outline" size={32} color="#4F46E5" className="ml-2" />
+                            <Ionicons name="albums-outline" size={32} color="#FD842B" className="ml-2" />
                         </View>
                         <StyledText className="text-lg text-black text-right">المحتوى الخاص بي</StyledText>
                     </Pressable>
@@ -148,7 +148,7 @@ export default function Profile() {
                     <Pressable className="flex-row items-center justify-between p-4" onPress={() => router.push('/(protected)/creator/create-series')}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="duplicate-outline" size={32} color="#4F46E5" className="ml-2" />
+                            <Ionicons name="duplicate-outline" size={32} color="#FD842B" className="ml-2" />
                         </View>
                         <StyledText className="text-lg text-black text-right">إنشاء سلسلة جديدة</StyledText>
                     </Pressable>
@@ -159,7 +159,7 @@ export default function Profile() {
                     <Pressable className="flex-row items-center justify-between p-4" onPress={() => setModalVisible(true)}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <Ionicons name="bulb-outline" size={32} color="#4F46E5" className="ml-2" />
+                            <Ionicons name="bulb-outline" size={32} color="#FD842B" className="ml-2" />
                         </View>
                         <StyledText className="text-lg text-black text-right">اقتراحات</StyledText>
                     </Pressable>
@@ -170,7 +170,7 @@ export default function Profile() {
                     <Pressable className="flex-row items-center justify-between p-4" onPress={handleSignOut}>
                         <View className="flex-row items-center">
                             <AntDesign name="left" size={24} color="#C7C7CC" />
-                            <AntDesign name="logout" size={30} color="#4F46E5" className="ml-2" />
+                            <AntDesign name="logout" size={30} color="#FD842B" className="ml-2" />
                         </View>
                         <StyledText className="text-lg text-black text-right">تسجيل الخروج</StyledText>
                     </Pressable>

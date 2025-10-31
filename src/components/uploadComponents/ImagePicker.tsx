@@ -61,7 +61,7 @@ const ImagePickerComponent: React.FC<ImagePickerProps> = ({ image, onSetImage, d
       <Pressable 
         onPress={pickImage}
         disabled={disabled}
-        className={`w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-separate border-indigo-400 shadow-sm ${
+        className={`w-40 h-40 bg-white rounded-2xl items-center justify-center overflow-hidden border-2 border-separate border-[#FD842B] shadow-sm ${
           disabled ? 'opacity-50' : ''
         }`}
       >

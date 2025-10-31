@@ -50,7 +50,7 @@ const MetadataForm: React.FC<MetadataFormProps> = ({
 
   return (
     <View className="bg-white rounded-2xl p-5 mb-6 shadow-lg">
-      <StyledText className="text-3xl font-semibold text-indigo-500 text-center mb-12 ">
+      <StyledText className="text-3xl font-semibold text-[#FD842B] text-center mb-12 ">
         نشر محتوى
       </StyledText>
       <StyledText className="text-base text-gray-600 text-center mb-6">
@@ -62,7 +62,7 @@ const MetadataForm: React.FC<MetadataFormProps> = ({
           صورة الغلاف *
         </StyledText>
         <TouchableOpacity
-          className="border-2 border-separate border-indigo-400 rounded-xl p-6 items-center justify-center bg-white"
+          className="border-2 border-separate border-[#FD842B] rounded-xl p-6 items-center justify-center bg-white"
           onPress={pickImage}
           disabled={isUploading}
         >
@@ -73,9 +73,9 @@ const MetadataForm: React.FC<MetadataFormProps> = ({
               resizeMode="cover"
             />
           ) : (
-            <Ionicons name="image" size={48} color="#4F46E5" />
+            <Ionicons name="image" size={48} color="#FD842B" />
           )}
-          <StyledText className="text-base font-medium text-indigo-500 mt-2">
+          <StyledText className="text-base font-medium text-[#FD842B] mt-2">
             {podcastImage ? "تغيير صورة الغلاف" : "اختيار صورة الغلاف"}
           </StyledText>
         </TouchableOpacity>
@@ -133,7 +133,7 @@ const MetadataForm: React.FC<MetadataFormProps> = ({
           disabled={isUploading}
         >
           <Ionicons name="arrow-back" size={20} color="#007AFF" />
-          <StyledText className="ml-2 text-base font-semibold text-blue-500">
+          <StyledText className="ml-2 text-base font-semibold text-[#FD842B]">
             إلغاء
           </StyledText>
         </TouchableOpacity>
@@ -144,9 +144,9 @@ const MetadataForm: React.FC<MetadataFormProps> = ({
           disabled={!isFormValid || isUploading}
         >
           {isUploading ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color="#FD842B" />
           ) : (
-            <Ionicons name="cloud-upload" size={24} color="#FFFFFF" />
+            <Ionicons name="cloud-upload" size={24} color="#FD842B" />
           )}
           <StyledText className="text-white text-base font-semibold ml-2">
             {isUploading ? "نشر ..." : "نشر المحتوى"}

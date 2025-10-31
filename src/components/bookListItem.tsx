@@ -232,7 +232,7 @@ export default function PodcastListItem({ podcast, isInLibrary: isInLibraryProp 
                         className="p-2"
                     >
                         {isDownloading ? (
-                            <ActivityIndicator size="small" color="#007AFF" />
+                            <ActivityIndicator size="small" color="#FD842B" />
                         ) : isDownloaded ? (
                             <Ionicons name="checkmark-circle" size={24} color="#34C759" />
                         ) : (

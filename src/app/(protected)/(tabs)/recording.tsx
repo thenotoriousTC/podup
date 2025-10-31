@@ -207,7 +207,7 @@ export default function RecordingScreen() {
           يرجى السماح بالوصول إلى الميكروفون لتتمكن من تسجيل الصوت
         </StyledText>
         <TouchableOpacity 
-          className="bg-indigo-600 px-6 py-3 rounded-lg"
+          className="bg-[#FD842B] px-6 py-3 rounded-lg"
           onPress={async () => {
             const granted = await requestPermission();
             if (!granted) {
@@ -230,8 +230,8 @@ export default function RecordingScreen() {
   if (hasPermission === null) {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#007AFF" />
-        <StyledText className="mt-4 text-base text-blue-500">
+        <ActivityIndicator size="large" color="#FD842B" />
+        <StyledText className="mt-4 text-base text-[#FD842B]">
           طلب الإذن...
         </StyledText>
       </View>

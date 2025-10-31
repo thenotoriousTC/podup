@@ -67,7 +67,7 @@ export default function App() {
         ListEmptyComponent={
           <View className='flex-1 items-center justify-center p-8 mt-36'>
             <Text className='text-gray-500 text-center text-2xl'>مكتبتك فارغة</Text>
-            <Text className='text-indigo-600 text-center mt-2 text-lg'>ابدأ بإضافة بعض البودكاست المفضلة لديك</Text>
+            <Text className='text-[#FD842B] text-center mt-2 text-lg'>ابدأ بإضافة بعض البودكاست المفضلة لديك</Text>
           </View>
         }
       />

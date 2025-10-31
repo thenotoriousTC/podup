@@ -142,7 +142,7 @@ const OnboardingScreen = () => {
       >
         {/* Header */}
         <View className="items-center mb-8">
-          <StyledText className="text-3xl font-semibold text-indigo-600 mb-1">مرحبا!</StyledText>
+          <StyledText className="text-3xl font-semibold text-[#FD842B] mb-1">مرحبا!</StyledText>
           <StyledText className="text-base text-gray-600">دعنا نقوم بوضع ملفك الشخصي.</StyledText>
         </View>
 
@@ -160,7 +160,7 @@ const OnboardingScreen = () => {
                 className="w-40 h-40 rounded-full bg-white" 
               />
             ) : (
-              <View className="w-40 h-40 rounded-full bg-indigo-600 justify-center items-center">
+              <View className="w-40 h-40 rounded-full bg-[#FD842B] justify-center items-center">
                 <MaterialIcons name="add-a-photo" size={40} color="white" />
               </View>
             )}
@@ -189,7 +189,7 @@ const OnboardingScreen = () => {
                 key={interest}
                 className={`py-2 px-4 rounded-full border ${
                   selectedInterests.includes(interest) 
-                    ? 'bg-indigo-600 border-indigo-600' 
+                    ? 'bg-[#FD842B] border-[#FD842B]' 
                     : 'bg-white border-gray-300'
                 }`}
                 onPress={() => toggleInterest(interest)}
@@ -211,12 +211,12 @@ const OnboardingScreen = () => {
         <Pressable 
           onPress={handleSave} 
           className={`p-4 rounded-lg items-center mt-5 ${
-            isSaving ? 'bg-indigo-300' : 'bg-indigo-600'
+            isSaving ? 'bg-[#FD842B]' : 'bg-[#FD842B]'
           }`} 
           disabled={isSaving}
         >
           {isSaving ? (
-            <ActivityIndicator color="#fff" />  
+            <ActivityIndicator color="#FD842B" />  
           ) : (
             <StyledText className="text-white text-base font-semibold">حفظ و استمرار</StyledText>
           )}

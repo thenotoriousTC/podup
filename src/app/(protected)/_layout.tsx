@@ -9,7 +9,7 @@ export default function ProtectedLayout() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="#FD842B" />
         <StyledText>جاري التحميل...</StyledText>
         <Text className="text-red-600 text-xl mt-20">يرجى التحقق من اتصالك بالإنترنت</Text>
       </View>

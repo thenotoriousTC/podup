@@ -72,13 +72,13 @@ export default function DownloadsScreen() {
             <View style={styles.container}>
                 <View style={styles.topBar}>
                     <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#4F46E5" />
+                        <Ionicons name="arrow-back" size={24} color="#FD842B" />
                     </TouchableOpacity>
                     <StyledText style={styles.title}>التحميلات</StyledText>
                     <View style={styles.placeholder} />
                 </View>
                 <View style={styles.centered}>
-                    <ActivityIndicator size="large" color="#4F46E5" />
+                    <ActivityIndicator size="large" color="#FD842B" />
                 </View>
             </View>
         );
@@ -89,7 +89,7 @@ export default function DownloadsScreen() {
             <View style={styles.container}>
                 <View style={styles.topBar}>
                     <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#4F46E5" />
+                        <Ionicons name="arrow-back" size={24} color="#FD842B" />
                     </TouchableOpacity>
                     <StyledText style={styles.title}>التحميلات</StyledText>
                     <View style={styles.placeholder} />
@@ -108,7 +108,7 @@ export default function DownloadsScreen() {
         <View style={styles.container}>
             <View style={styles.topBar}>
                 <TouchableOpacity onPress={handleGoBack} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#4F46E5" />
+                    <Ionicons name="arrow-back" size={24} color="#FD842B" />
                 </TouchableOpacity>
                 <StyledText style={styles.title}>التحميلات</StyledText>
                 <View style={styles.placeholder} />
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#4F46E5',
+        color: '#FD842B',
     },
     placeholder: {
         width: 40, // Same width as back button to center the title

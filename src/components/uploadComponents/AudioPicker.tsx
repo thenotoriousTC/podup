@@ -55,7 +55,7 @@ const AudioPickerComponent: React.FC<AudioPickerProps> = ({ audio, onSetAudio, d
       <Pressable 
         onPress={pickAudio}
         disabled={disabled}
-        className={`bg-white p-6 rounded-2xl border-2 border-indigo-400 items-center shadow-sm ${
+        className={`bg-white p-6 rounded-2xl border-2 border-[#FD842B] items-center shadow-sm ${
           disabled ? 'opacity-50' : ''
         }`}
       >

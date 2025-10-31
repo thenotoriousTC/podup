@@ -143,7 +143,7 @@ const EditProfileScreen = () => {
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#4F46E5" />
+        <ActivityIndicator size="large" color="#FD842B" />
         <StyledText className="text-lg text-gray-600 mt-4">جاري التحميل...</StyledText>
       </SafeAreaView>
     );
@@ -163,7 +163,7 @@ const EditProfileScreen = () => {
       >
         {/* Header */}
         <View className="items-center mb-8">
-          <StyledText className="text-3xl font-semibold text-indigo-600 mb-1">تعديل الملف الشخصي</StyledText>
+          <StyledText className="text-3xl font-semibold text-[#FD842B] mb-1">تعديل الملف الشخصي</StyledText>
           <StyledText className="text-base text-gray-600">قم بتحديث صورتك واسمك.</StyledText>
         </View>
 
@@ -178,14 +178,14 @@ const EditProfileScreen = () => {
             {avatarImage ? (
               <Image 
                 source={{ uri: avatarImage }} 
-                className="w-32 h-32 rounded-full bg-white border-4 border-indigo-200" 
+                className="w-32 h-32 rounded-full bg-white border-4 border-[#FD842B]" 
               />
             ) : (
-              <View className="w-32 h-32 rounded-full bg-indigo-600 justify-center items-center border-4 border-indigo-200">
+              <View className="w-32 h-32 rounded-full bg-[#FD842B] justify-center items-center border-4 border-[#FD842B]">
                 <MaterialIcons name="add-a-photo" size={40} color="white" />
               </View>
             )}
-            <View className="absolute bottom-0 right-0 bg-indigo-600 rounded-full p-2">
+            <View className="absolute bottom-0 right-0 bg-[#FD842B] rounded-full p-2">
               <MaterialIcons name="edit" size={20} color="white" />
             </View>
           </TouchableOpacity>
@@ -208,12 +208,12 @@ const EditProfileScreen = () => {
         <Pressable 
           onPress={handleSave} 
           className={`p-4 rounded-lg items-center mt-5 ${
-            isSaving ? 'bg-indigo-300' : 'bg-indigo-600'
+            isSaving ? 'bg-[#FD842B]' : 'bg-[#FD842B]'
           }`} 
           disabled={isSaving}
         >
           {isSaving ? (
-            <ActivityIndicator color="#fff" />  
+            <ActivityIndicator color="#FD842B" />  
           ) : (
             <StyledText className="text-white text-base font-semibold">حفظ التغييرات</StyledText>
           )}

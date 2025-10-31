@@ -150,7 +150,7 @@ const CreateSeriesScreen = () => {
       />
 
       <TouchableOpacity 
-        className={`p-4 rounded-lg items-center mt-4 ${isSubmitting ? 'bg-gray-400' : 'bg-blue-500'}`} 
+        className={`p-4 rounded-lg items-center mt-4 ${isSubmitting ? 'bg-gray-400' : 'bg-[#FD842B]'}`} 
         onPress={handleCreateSeries} 
         disabled={isSubmitting}
       >

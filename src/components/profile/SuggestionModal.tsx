@@ -78,7 +78,7 @@ const SuggestionModal = ({ visible, onClose }: SuggestionModalProps) => {
             disabled={loading}
           >
             {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color="#FD842B" />
             ) : (
                 <StyledText style={{ color: 'white' }}>إرسال</StyledText>
             )}

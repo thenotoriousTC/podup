@@ -148,7 +148,7 @@ const CreatorPage = () => {
     const isFollowing = creator && followStatus ? followStatus[creator.id] : false;
 
   if (loading || isFollowStatusLoading || isLibraryStatusLoading) {
-    return <ActivityIndicator size="large" color="#0000ff" className="flex-1 justify-center" />;
+    return <ActivityIndicator size="large" color="#FD842B" className="flex-1 justify-center" />;
   }
 
   if (!creator) {
@@ -171,7 +171,7 @@ const CreatorPage = () => {
       </View>
       <View className="items-center mb-5">
         <Image source={{ uri: creator.avatar_url || 'https://example.com/default-avatar.png' }} className="w-40 h-40 rounded-full mb-8" />
-        <StyledText className="text-2xl font-semibold text-center text-indigo-500">{creator.full_name || creator.username}</StyledText>
+        <StyledText className="text-2xl font-semibold text-center text-[#FD842B]">{creator.full_name || creator.username}</StyledText>
         {!isOwnProfile && (
           <View className="mt-4">
             <FollowButton 

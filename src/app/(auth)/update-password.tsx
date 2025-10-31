@@ -109,7 +109,7 @@ export default function UpdatePasswordPage() {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <StyledText className='text-center mb-4'>لم يتم العثور على جلسة استرداد كلمة المرور</StyledText>
             <TouchableOpacity onPress={() => router.replace('/forgot-password')}>
-              <StyledText className='text-indigo-600 font-semibold'>طلب رابط جديد</StyledText>
+              <StyledText className='text-[#FD842B] font-semibold'>طلب رابط جديد</StyledText>
             </TouchableOpacity>
         </View>
     );
@@ -171,7 +171,7 @@ export default function UpdatePasswordPage() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-[#FD842B]'}`}
                 onPress={onUpdatePassword}
                 disabled={loading}
               >

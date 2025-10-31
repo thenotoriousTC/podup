@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
 
               <TouchableOpacity
               touchSoundDisabled
-                className={`w-full p-4 rounded-full mt-6 ${loading || !isValidEmail ? 'bg-gray-400 opacity-60' : 'bg-indigo-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading || !isValidEmail ? 'bg-gray-400 opacity-60' : 'bg-[#FD842B]'}`}
                 onPress={onSendResetLink}
                 disabled={loading || !isValidEmail}
                 accessibilityRole='button'
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
 
             <View className='flex-row justify-center items-center mt-6 gap-2'>
               <Link href='/sign-in'>
-                <StyledText className='text-indigo-600 font-semibold ml-1'>العودة لتسجيل الدخول</StyledText>
+                <StyledText className='text-[#FD842B] font-semibold ml-1'>العودة لتسجيل الدخول</StyledText>
               </Link>
             </View>
           </View>

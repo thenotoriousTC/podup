@@ -69,7 +69,10 @@ function RootLayoutNav() {
   const router = useRouter();
   const segments = useSegments();
   const [fontsLoaded] = useFonts({
+    // Pacifico font
     'Pacifico-Regular': Pacifico_400Regular,
+    
+    // Cairo fonts
     'Cairo-Black': require('../../assets/fonts/Cairo-Black.ttf'),
     'Cairo-Bold': require('../../assets/fonts/Cairo-Bold.ttf'),
     'Cairo-ExtraBold': require('../../assets/fonts/Cairo-ExtraBold.ttf'),
@@ -78,6 +81,26 @@ function RootLayoutNav() {
     'Cairo-Medium': require('../../assets/fonts/Cairo-Medium.ttf'),
     'Cairo-Regular': require('../../assets/fonts/Cairo-Regular.ttf'),
     'Cairo-SemiBold': require('../../assets/fonts/Cairo-SemiBold.ttf'),
+    
+    // BricolageGrotesque fonts
+    'BricolageGrotesque-Black': require('../../assets/fonts/bricolage/static/BricolageGrotesque-ExtraBold.ttf'), // Bricolage doesn't have Black, using ExtraBold
+    'BricolageGrotesque-Bold': require('../../assets/fonts/bricolage/static/BricolageGrotesque-Bold.ttf'),
+    'BricolageGrotesque-ExtraBold': require('../../assets/fonts/bricolage/static/BricolageGrotesque-ExtraBold.ttf'),
+    'BricolageGrotesque-ExtraLight': require('../../assets/fonts/bricolage/static/BricolageGrotesque-ExtraLight.ttf'),
+    'BricolageGrotesque-Light': require('../../assets/fonts/bricolage/static/BricolageGrotesque-Light.ttf'),
+    'BricolageGrotesque-Medium': require('../../assets/fonts/bricolage/static/BricolageGrotesque-Medium.ttf'),
+    'BricolageGrotesque-Regular': require('../../assets/fonts/bricolage/static/BricolageGrotesque-Regular.ttf'),
+    'BricolageGrotesque-SemiBold': require('../../assets/fonts/bricolage/static/BricolageGrotesque-SemiBold.ttf'),
+    
+    // Vazirmatn fonts
+    'Vazirmatn-Black': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-Black.ttf'),
+    'Vazirmatn-Bold': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-Bold.ttf'),
+    'Vazirmatn-ExtraBold': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-ExtraBold.ttf'),
+    'Vazirmatn-ExtraLight': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-ExtraLight.ttf'),
+    'Vazirmatn-Light': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-Light.ttf'),
+    'Vazirmatn-Medium': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-Medium.ttf'),
+    'Vazirmatn-Regular': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-Regular.ttf'),
+    'Vazirmatn-SemiBold': require('../../assets/fonts/Vazirmatn/static/Vazirmatn-SemiBold.ttf'),
   });
 
   useEffect(() => {

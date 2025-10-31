@@ -4,6 +4,7 @@ import { Alert, TextInput, View, KeyboardAvoidingView, Platform, ScrollView, Dim
 import { TouchableOpacity } from '@/components/TouchableOpacity';
 import React from 'react';
 import { StyledText } from '@/components/StyledText';
+import { InsatyLogo } from '@/components/InsatyLogo';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -90,27 +91,27 @@ export default function Page() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <StyledText fontWeight="SemiBold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
-            <StyledText fontWeight="SemiBold" className='text-3xl font-semibold text-center mb-8 dark:text-black'>
+            <InsatyLogo width={200} height={100} style={{paddingBottom: 25, paddingTop: 5, alignSelf: 'center'}} />
+            <StyledText fontWeight="SemiBold" className='text-3xl text-center mb-8 dark:text-black'>
               مرحبًا بك
             </StyledText>
-            <StyledText className='text-center mb-8 dark:text-black semiBold'>
+            <StyledText  className='text-center mb-8 dark:text-black semiBold'>
               قم بتسجيل الدخول أو إنشاء حساب جديد
             </StyledText>
 
             {emailVerificationMessage ? (
-              <View className="mb-4 p-3 bg-yellow-100 rounded-lg">
-                <StyledText className="text-yellow-800">{emailVerificationMessage}</StyledText>
+              <View className="mb-4 p-3 bg-[#FD842B] rounded-lg">
+                <StyledText className="text-white">{emailVerificationMessage}</StyledText>
                 <TouchableOpacity onPress={onResendVerification}
                 touchSoundDisabled>
-                  <StyledText className="text-blue-600 mt-2 font-semibold">إعادة إرسال رسالة التحقق</StyledText>
+                  <StyledText className="text-[#FD842B] mt-2 font-semibold">إعادة إرسال رسالة التحقق</StyledText>
                 </TouchableOpacity>
               </View>
             ) : null}
 
             <View className='gap-4'>
               <View>
-                <StyledText className='text-sm font-semibold mb-1 text-right  text-indigo-600'>
+                <StyledText className='text-sm font-semibold mb-1 text-right  text-[#FD842B]'>
                   البريد الإلكتروني
                 </StyledText>
                 <TextInput
@@ -127,7 +128,7 @@ export default function Page() {
               </View>
 
               <View>
-                <StyledText className='text-sm font-semibold mb-1 text-right dark:text-indigo-600 text-indigo-600'>
+                <StyledText className='text-sm font-semibold mb-1 text-right dark:text-[#FD842B] text-[#FD842B]'>
                   كلمة المرور
                 </StyledText>
                 <TextInput
@@ -143,7 +144,7 @@ export default function Page() {
                 />
                 <Link href='/forgot-password' asChild>
                   <TouchableOpacity touchSoundDisabled>
-                    <StyledText className='text-indigo-600 font-semibold text-center mt-2'>
+                    <StyledText className='text-[#FD842B] font-semibold text-center mt-2'>
                       هل نسيت كلمة المرور؟
                     </StyledText>
                   </TouchableOpacity>
@@ -151,7 +152,7 @@ export default function Page() {
               </View>
 
               <TouchableOpacity touchSoundDisabled
-                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-[#FD842B]'}`}
                 onPress={onSignInPress}
                 disabled={loading}
               >
@@ -163,9 +164,9 @@ export default function Page() {
 <View className='flex-row justify-center items-center mt-6 gap-2'>
              
             <Link href='/sign-up'>
-                <StyledText className='text-indigo-600 font-semibold ml-1'>إنشاء حساب</StyledText>
+                <StyledText className='text-[#FD842B] font-semibold ml-1'>إنشاء حساب</StyledText>
               </Link> 
-                <StyledText className='text-gray-400'>ليس لديك حساب؟</StyledText>
+                <StyledText className='text-black'>ليس لديك حساب؟</StyledText>
             </View>
             
           </View>

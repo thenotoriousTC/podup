@@ -4,6 +4,7 @@ import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { supabase } from '@/lib/supabase';
 import { Link, useRouter } from 'expo-router';
 import { StyledText } from '@/components/StyledText';
+import { InsatyLogo } from '@/components/InsatyLogo';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -70,7 +71,7 @@ export default function SignUpScreen() {
           bounces={false}
         >
           <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 40 }}>
-            <StyledText fontWeight="SemiBold" style={{fontSize: 75, color: '#4F46E5', paddingBottom:45,fontFamily:'Pacifico-Regular',paddingTop:5}}>  PodHub</StyledText>
+            <InsatyLogo width={300} height={100} style={{paddingBottom: 25, paddingTop: 5, alignSelf: 'center'}} />
             <StyledText fontWeight="SemiBold" className='text-3xl font-semibold dark:text-black text-center mb-8 '>
               إنشاء حساب
             </StyledText>
@@ -79,7 +80,7 @@ export default function SignUpScreen() {
             </StyledText>
             <View className='gap-4'>
               <View>
-                <StyledText className='text-sm font-medium  mb-1 text-right dark:text-indigo-600 text-indigo-600'>
+                <StyledText className='text-sm font-medium  mb-1 text-right dark:text-[#FD842B] text-[#FD842B]'>
                   البريد الإلكتروني
                 </StyledText>
                 <TextInput
@@ -96,7 +97,7 @@ export default function SignUpScreen() {
               </View>
 
               <View>
-                <StyledText className='text-sm font-medium  mb-1 text-right dark:text-indigo-600 text-indigo-600'>
+                <StyledText className='text-sm font-medium  mb-1 text-right dark:text-[#FD842B] text-[#FD842B]'>
                     كلمة المرور
                 </StyledText>
                 <TextInput
@@ -113,7 +114,7 @@ export default function SignUpScreen() {
               </View>
 
               <TouchableOpacity
-                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-indigo-600'}`}
+                className={`w-full p-4 rounded-full mt-6 ${loading ? 'bg-gray-400' : 'bg-[#FD842B]'}`}
                 onPress={onSignUpPress}
                 disabled={loading}
               >
@@ -125,7 +126,7 @@ export default function SignUpScreen() {
             <View className='flex-row justify-center items-center mt-6 gap-2 text-right'>
              
               <Link href='/sign-in'>
-                <StyledText className='text-indigo-600 font-semibold ml-1'>تسجيل الدخول</StyledText>
+                <StyledText className='text-[#FD842B] font-semibold ml-1'>تسجيل الدخول</StyledText>
               </Link> 
                <StyledText className='text-gray-400'>  هل لديك حساب؟</StyledText>
             </View>

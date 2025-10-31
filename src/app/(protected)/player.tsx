@@ -201,17 +201,17 @@ export default function Player() {
               onPress={() => router.back()}
               className="absolute top-12 right-4 p-3 bg-white/80  rounded-full shadow-md backdrop-blur-sm "
             >
-              <EvilIcons name="chevron-down" size={34} color="#4F46E5" />
+              <EvilIcons name="chevron-down" size={34} color="#FD842B" />
             </Pressable>
           </View>
 
       <View className="flex-1 justify-between px-6 pb-8">
         {/* Album Art Section */}
         <View className="items-center mt-36 mb-8">
-          <View className="w-72 h-72 rounded-2xl overflow-hidden mb-8   bg-white  items-center justify-center mx-6 shadow-2xl shadow-violet-800/50 ">
+          <View className="w-72 h-72 rounded-2xl overflow-hidden mb-8   bg-white  items-center justify-center mx-6 shadow-2xl shadow-[#FD842B]/50 ">
             <Image
               source={{ uri: getImageUrl(podcast) }}
-              className="w-full h-full shadow-3xl bg-white    items-center justify-center mx-6 shadow-violet-800/50 "
+              className="w-full h-full shadow-3xl bg-white    items-center justify-center mx-6 shadow-[#FD842B]/50 "
               resizeMode="cover"
               defaultSource={{ uri: 'https://via.placeholder.com/150x150/0A84FF/FFFFFF?text=Podcast' }}
             />
@@ -260,7 +260,7 @@ export default function Player() {
         <View className="flex-row-reverse justify-center items-center px-8">
           {/* Rewind 10 seconds */}
           <Pressable
-            className="p-4 mr-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
+            className="p-4 mr-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-[#FD842B]/50"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={skipBackward}
           >
@@ -269,7 +269,7 @@ export default function Player() {
 
           {/* Play/Pause Button */}
           <Pressable
-            className="w-20 h-20 bg-white rounded-full items-center justify-center mx-6 shadow-xl shadow-violet-800/50"
+            className="w-20 h-20 bg-white rounded-full items-center justify-center mx-6 shadow-xl shadow-[#FD842B]/50"
             style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.95 : 1 }] })}
             onPress={onPlayPause}
           >
@@ -293,7 +293,7 @@ export default function Player() {
 
           {/* Fast Forward 10 seconds */}
           <Pressable
-            className="p-4 ml-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-violet-800/50"
+            className="p-4 ml-4 shadow-2xl w-20 h-20 bg-white rounded-full items-center justify-center mx-6  shadow-[#FD842B]/50"
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
             onPress={skipForward}
           >

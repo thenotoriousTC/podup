@@ -23,7 +23,7 @@ const UploadInProgressModal: React.FC<UploadInProgressModalProps> = ({ visible, 
     >
       <View className="flex-1 justify-center items-center bg-black/60">
         <View className="bg-white rounded-2xl p-8 w-4/5 items-center shadow-2xl">
-          <StyledText className="text-2xl font-bold text-indigo-600 mb-4">
+          <StyledText className="text-2xl font-bold text-[#FD842B] mb-4">
             {progress?.phase === 'complete' ? 'اكتمل التحميل!' : 'جاري التحميل...'}
           </StyledText>
 
@@ -36,7 +36,7 @@ const UploadInProgressModal: React.FC<UploadInProgressModalProps> = ({ visible, 
           
           <View className="w-full h-4 bg-gray-200 rounded-full overflow-hidden mb-4">
             <View 
-              className="h-full bg-indigo-500"
+              className="h-full bg-[#FD842B]"
               style={{ width: `${getProgressValue()}%` }}
             />
           </View>
@@ -46,7 +46,7 @@ const UploadInProgressModal: React.FC<UploadInProgressModalProps> = ({ visible, 
           </StyledText>
 
           {progress?.phase !== 'complete' && (
-            <ActivityIndicator size="large" color="#4F46E5" />
+            <ActivityIndicator size="large" color="#FD842B" />
           )}
         </View>
       </View>

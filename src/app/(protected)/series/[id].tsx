@@ -84,7 +84,7 @@ export default function SeriesDetailScreen() {
         <StyledText className="text-red-500 text-center text-lg mb-4">{error}</StyledText>
         <TouchableOpacity 
           onPress={fetchSeries}
-          className="py-2.5 px-5 rounded-lg bg-indigo-600"
+          className="py-2.5 px-5 rounded-lg bg-[#FD842B]"
         >
           <StyledText className="text-white text-base font-semibold">
             حاول مرة أخرى
@@ -97,7 +97,7 @@ export default function SeriesDetailScreen() {
   if (isLoading || isFollowStatusLoading || isLibraryStatusLoading || !series) {
     return (
       <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#FD842B" />
       </View>
     );
   }
@@ -119,7 +119,7 @@ export default function SeriesDetailScreen() {
             source={{ uri: series.cover_art_url || undefined }} 
             className="w-64 h-64 rounded-lg mb-4"
           />
-          <StyledText className="text-3xl font-semibold text-center mb-2 text-indigo-600 dark:text-indigo-600">
+          <StyledText className="text-3xl font-semibold text-center mb-2 text-[#FD842B] dark:text-[#FD842B]">
             {series.title}
           </StyledText>
           <StyledText className="text-base text-gray-500 mb-3 dark:text-gray-500">
@@ -130,7 +130,7 @@ export default function SeriesDetailScreen() {
           </StyledText>
           {user?.id === series.creator_id ? (
             <TouchableOpacity 
-              className="mt-4 py-2.5 px-5 rounded-lg bg-indigo-600"
+              className="mt-4 py-2.5 px-5 rounded-lg bg-[#FD842B]"
               onPress={() => router.push(`/creator/manage-series-episodes/${id}`)} 
             >
               <StyledText className="text-white text-base font-semibold dark:text-white">

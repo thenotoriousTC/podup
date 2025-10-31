@@ -19,7 +19,7 @@ export const FollowButton = ({ isFollowing, followersCount, onPress, isToggling 
       style={[styles.button, isFollowing ? styles.followingButton : styles.followButton]}
     >
       {isToggling ? (
-        <ActivityIndicator color="#4F46E5" />
+        <ActivityIndicator color="#FD842B" />
       ) : (
         <>
           <Text style={styles.text}>{isFollowing ? 'Following' : 'Follow'}</Text>
@@ -42,19 +42,19 @@ const styles = StyleSheet.create({
   },
   followButton: {
     backgroundColor: 'white',
-    borderColor: '#4F46E5',
+    borderColor: '#FD842B',
   },
   followingButton: {
     backgroundColor: 'transparent',
-    borderColor: '#4F46E5',
+    borderColor: '#FD842B',
   },
   text: {
-    color: '#4F46E5',
+    color: '#FD842B',
     fontWeight: 'bold',
     marginRight: 8,
   },
   count: {
-    color: '#4F46E5',
+    color: '#FD842B',
     fontSize: 12,
   },
 });
