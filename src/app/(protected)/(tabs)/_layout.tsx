@@ -50,7 +50,7 @@ export default function RootLayout() {
         name="index"
         options={{
           title: "المفضلة",
-          headerShown: false,
+          headerShown :true ,
           tabBarIcon: ({ color, size, focused }) => (
             <FontAwesome name={focused ? "heart" : "heart-o"} size={size} color={color} />
           ),

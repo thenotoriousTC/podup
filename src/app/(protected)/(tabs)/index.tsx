@@ -6,6 +6,8 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
+import { router } from 'expo-router';
+import { StyledText } from '@/components/StyledText';
 
 interface LibraryItem {
   id: string;
@@ -66,8 +68,10 @@ export default function App() {
         contentContainerStyle={{ gap: 16 }}
         ListEmptyComponent={
           <View className='flex-1 items-center justify-center p-8 mt-36'>
-            <Text className='text-gray-500 text-center text-2xl'>مكتبتك فارغة</Text>
-            <Text className='text-[#FD842B] text-center mt-2 text-lg'>ابدأ بإضافة بعض البودكاست المفضلة لديك</Text>
+            <StyledText className='text-gray-500 text-center text-2xl'>مكتبتك فارغة</StyledText>
+            <TouchableOpacity onPress={() => router.push('/(protected)/(tabs)/discover')}>
+            <StyledText className='text-[#FD842B] text-center mt-2 text-lg'>ابدأ بإضافة بعض البودكاست المفضلة لديك</StyledText>
+            </TouchableOpacity>
           </View>
         }
       />

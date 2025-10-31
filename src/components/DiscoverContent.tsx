@@ -70,9 +70,10 @@ const DiscoverContent: React.FC<DiscoverContentProps> = ({ content }) => {
       return (
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <View style={styles.scrollIndicator}>
-              <StyledText style={styles.scrollIndicatorText}>مرر للمزيد</StyledText>
+            <View style={styles.scrollIndicator}> 
               <Ionicons name="arrow-back" size={16} color="#8E8E93" />
+              <StyledText style={styles.scrollIndicatorText}>مرر للمزيد</StyledText>
+             
             </View>
             <StyledText style={styles.sectionTitle}>{item.title}</StyledText>
           </View>

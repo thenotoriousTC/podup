@@ -133,6 +133,7 @@ export default function Page() {
                 </StyledText>
                 <TextInput
                   className='w-full p-4 rounded-full text-black bg-gray-100 text-right'
+                  autoCapitalize='none'
                   value={password}
                   placeholder='********'
                   placeholderTextColor='#9CA3AF'

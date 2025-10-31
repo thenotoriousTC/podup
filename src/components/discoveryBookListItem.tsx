@@ -1,4 +1,4 @@
-import { Image, Alert, View } from 'react-native';
+import { Image, Alert, View, StyleSheet } from 'react-native';
 import { TouchableOpacity } from '@/components/TouchableOpacity';
 import { Ionicons } from '@expo/vector-icons';
 import { usePlayer } from '@/providers/playerprovider';

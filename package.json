@@ -57,7 +57,8 @@
     "tus-js-client": "^4.3.1",
     "web-streams-polyfill": "^4.2.0",
     "react-native-svg": "15.11.2",
-    "expo-image": "~2.4.1"
+    "expo-image": "~2.4.1",
+    "expo-linear-gradient": "~14.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

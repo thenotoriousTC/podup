@@ -102,6 +102,7 @@ export default function SignUpScreen() {
                 </StyledText>
                 <TextInput
                   className='w-full p-4  bg-gray-100 text-black rounded-full text-right'
+                  autoCapitalize='none'
                   value={password}
                   placeholder='كلمة المرور'
                   placeholderTextColor='#9CA3AF'
