@@ -72,7 +72,13 @@ function RootLayoutNav() {
     // Pacifico font
     'Pacifico-Regular': Pacifico_400Regular,
     
-    // Cairo fonts
+    // Almarai fonts
+    'Almarai-Regular': require('../../assets/fonts/Almarai/Almarai-Regular.ttf'),
+    'Almarai-Light': require('../../assets/fonts/Almarai/Almarai-Light.ttf'),
+    'Almarai-Bold': require('../../assets/fonts/Almarai/Almarai-Bold.ttf'),
+    'Almarai-ExtraBold': require('../../assets/fonts/Almarai/Almarai-ExtraBold.ttf'),
+    
+    // Cairo fonts (kept for backward compatibility)
     'Cairo-Black': require('../../assets/fonts/Cairo-Black.ttf'),
     'Cairo-Bold': require('../../assets/fonts/Cairo-Bold.ttf'),
     'Cairo-ExtraBold': require('../../assets/fonts/Cairo-ExtraBold.ttf'),

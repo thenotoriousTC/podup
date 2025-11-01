@@ -1,7 +1,7 @@
 import { Redirect, Slot, Tabs } from "expo-router";
 import "../../../../global.css";
 import { Pressable } from '@/components/Pressable';
-import { ActivityIndicator, StyleSheet, View as RNView } from 'react-native';;
+import { ActivityIndicator, StyleSheet, View as RNView } from 'react-native';
 import React from "react";
 import { BottomTabBar, BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import FloatingPlayer from "@/components/floatingPlayer";
@@ -9,7 +9,7 @@ import { Entypo, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons, Oc
 import { StyledText } from "@/components/StyledText";
 
 const CustomTabBarButton = ({ children, onPress }: BottomTabBarButtonProps): React.ReactNode => (
-  <Pressable onPress={onPress} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+  <Pressable onPress={onPress} style={styles.tabButton}>
     {children}
   </Pressable>
 );
@@ -23,12 +23,13 @@ export default function RootLayout() {
         headerTitleStyle: styles.headerTitle,
         headerShadowVisible: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: "#000000",
+        tabBarActiveTintColor: "#FD842B",
         tabBarInactiveTintColor: "#8E8E93",
         tabBarLabelStyle: styles.tabBarLabel,
         tabBarLabelPosition: "below-icon",
         tabBarButton: CustomTabBarButton,
         headerTitleAlign: "center",
+        animation: "shift",
       }}
       tabBar={(props) => (
         <RNView style={styles.tabBarContainer}>
@@ -50,7 +51,7 @@ export default function RootLayout() {
         name="index"
         options={{
           title: "المفضلة",
-          headerShown :true ,
+          headerShown: true,
           tabBarIcon: ({ color, size, focused }) => (
             <FontAwesome name={focused ? "heart" : "heart-o"} size={size} color={color} />
           ),
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#FD842B',
     fontSize: 30,
-    fontFamily: 'Cairo-Bold',
+    fontFamily: 'Almarai-Bold',
   },
   tabBarContainer: {
     backgroundColor: 'white',
@@ -123,6 +124,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     marginTop: 2,
-    fontFamily: 'Cairo-Regular',
+    fontFamily: 'Almarai-Regular',
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
